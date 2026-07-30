@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/sidebar :: body}">
+<head><title>Appointments - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1>Appointments</h1>
+            <div class="subtitle">Schedule and manage appointments</div>
+        </div>
+        <a href="/appointments/add" class="btn btn-primary">+ New Appointment</a>
+    </div>
+
+    <div class="section">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${appointments}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar" th:text="${#strings.substring(a.patient.firstName, 0, 1)}">A</div>
+                                <div class="info">
+                                    <div class="name" th:text="${a.patient.fullName}">Name</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${a.doctor.fullName}">Dr. Name</td>
+                        <td th:text="${a.appointmentDate}">2024-01-01</td>
+                        <td th:text="${a.appointmentTime}">09:00</td>
+                        <td th:text="${a.reason}">Checkup</td>
+                        <td>
+                            <span class="badge badge-info" th:if="${a.status.name() == 'SCHEDULED'}">Scheduled</span>
+                            <span class="badge badge-success" th:if="${a.status.name() == 'COMPLETED'}">Completed</span>
+                            <span class="badge badge-warning" th:if="${a.status.name() == 'IN_PROGRESS'}">In Progress</span>
+                            <span class="badge badge-danger" th:if="${a.status.name() == 'CANCELLED'}">Cancelled</span>
+                            <span class="badge badge-secondary" th:if="${a.status.name() == 'NO_SHOW'}">No Show</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/appointments/status/{id}/{status}(id=${a.id}, status='COMPLETED')}" class="btn btn-success btn-sm" th:if="${a.status.name() == 'SCHEDULED' or a.status.name() == 'IN_PROGRESS'}">✓</a>
+                                <a th:href="@{/appointments/status/{id}/{status}(id=${a.id}, status='CANCELLED')}" class="btn btn-danger btn-sm" th:if="${a.status.name() == 'SCHEDULED'}">✕</a>
+                                <a th:href="@{/appointments/delete/{id}(id=${a.id})}" class="action-icon delete confirm-delete">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(appointments)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">📅</div>
+                                <h3>No appointments yet</h3>
+                                <p>Schedule your first appointment</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/sidebar :: body}">
+<head><title>Patients - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1>Patients</h1>
+            <div class="subtitle">Manage all registered patients</div>
+        </div>
+        <a href="/patients/add" class="btn btn-primary">+ Add Patient</a>
+    </div>
+
+    <div class="section">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Contact</th>
+                        <th>Gender</th>
+                        <th>Blood Group</th>
+                        <th>DOB</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${patients}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar" th:text="${#strings.substring(p.firstName, 0, 1)}">A</div>
+                                <div class="info">
+                                    <div class="name" th:text="${p.fullName}">Name</div>
+                                    <div class="email" th:text="${p.email}">email</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${p.phone}">+250...</td>
+                        <td th:text="${p.gender}">Male</td>
+                        <td><span class="badge badge-info" th:text="${p.bloodGroup}">A+</span></td>
+                        <td th:text="${p.dateOfBirth}">1990-01-01</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/patients/edit/{id}(id=${p.id})}" class="action-icon edit">✏️</a>
+                                <a th:href="@{/patients/delete/{id}(id=${p.id})}" class="action-icon delete confirm-delete">🗑️</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(patients)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon">👥</div>
+                                <h3>No patients yet</h3>
+                                <p>Add your first patient to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

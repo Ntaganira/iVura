@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title iVura - Hospital Management System</title>
+    <link rel="stylesheet" href="/css/wecare.css">
+    <script defer src="/js/wecare.js"></script>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="logo-icon">iV</div>
+        <h2><span>i</span>Vura</h2>
+    </div>
+    <nav class="sidebar-menu">
+        <div class="menu-label">Main Menu</div>
+        <a th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/dashboard') or #strings.contains(#httpServletRequest.requestURI, '/')} ? 'active' : ''" href="/dashboard">
+            <span class="icon">📊</span> Dashboard
+        </a>
+        <a th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/patients')} ? 'active' : ''" href="/patients">
+            <span class="icon">👥</span> Patients
+        </a>
+        <a th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/doctors')} ? 'active' : ''" href="/doctors">
+            <span class="icon">👨‍⚕️</span> Doctors
+        </a>
+        <a th:classappend="${#strings.contains(#httpServletRequest.requestURI, '/appointments')} ? 'active' : ''" href="/appointments">
+            <span class="icon">📅</span> Appointments
+        </a>
+        <div class="menu-label" style="margin-top:16px;">Other</div>
+        <a href="#">
+            <span class="icon">🏥</span> Departments
+        </a>
+        <a href="#">
+            <span class="icon">💰</span> Billing
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="/logout">
+            <span class="icon">🚪</span> Logout
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <h1 iVura Hospital</h1>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Search patients, doctors...">
+            </div>
+            <button class="notif-btn">
+                🔔
+                <span class="dot"></span>
+            </button>
+            <div class="profile">
+                <div class="avatar" sec:authorize="isAuthenticated()">
+                    <span sec:authentication="principal.username" style="text-transform:uppercase;font-size:14px">A</span>
+                </div>
+                <div class="info">
+                    <div class="name" sec:authorize="isAuthenticated()" sec:authentication="principal.username">Admin</div>
+                    <div class="role" sec:authorize="isAuthenticated()">
+                        <span sec:authentication="principal.authorities">[ROLE_ADMIN]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content" th:remove="tag">
+        <th:block th:replace="${content}"></th:block>
+    </main>
+</div>
+
+</body>
+</html>

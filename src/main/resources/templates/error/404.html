@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/sidebar :: body}">
+<head><title>Page Not Found - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="error-page">
+        <h1>404</h1>
+        <p>Page not found</p>
+        <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/sidebar :: body}">
+<head><title>Add Patient - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1>Add Patient</h1>
+            <div class="subtitle">Register a new patient</div>
+        </div>
+        <a href="/patients" class="btn btn-outline">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="@{/patients/add}" th:object="${patientDto}" method="post" class="form-container">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                Please fix the errors below.
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" th:field="*{firstName}" placeholder="Enter first name" required>
+                    <span th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" th:field="*{lastName}" placeholder="Enter last name" required>
+                    <span th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" th:field="*{email}" placeholder="patient@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" id="phone" th:field="*{phone}" placeholder="+250 700 000 000">
+                </div>
+                <div class="form-group">
+                    <label for="dateOfBirth">Date of Birth</label>
+                    <input type="date" id="dateOfBirth" th:field="*{dateOfBirth}">
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" th:field="*{gender}">
+                        <option value="">Select gender</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bloodGroup">Blood Group</label>
+                    <select id="bloodGroup" th:field="*{bloodGroup}">
+                        <option value="">Select</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="address">Address</label>
+                    <textarea id="address" th:field="*{address}" placeholder="Full address"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" th:field="*{city}" placeholder="City">
+                </div>
+                <div class="form-group">
+                    <label for="state">State/Province</label>
+                    <input type="text" id="state" th:field="*{state}" placeholder="State">
+                </div>
+                <div class="form-group">
+                    <label for="emergencyContactName">Emergency Contact Name</label>
+                    <input type="text" id="emergencyContactName" th:field="*{emergencyContactName}" placeholder="Contact person">
+                </div>
+                <div class="form-group">
+                    <label for="emergencyContactPhone">Emergency Contact Phone</label>
+                    <input type="text" id="emergencyContactPhone" th:field="*{emergencyContactPhone}" placeholder="Phone">
+                </div>
+                <div class="form-group full-width">
+                    <label for="medicalHistory">Medical History</label>
+                    <textarea id="medicalHistory" th:field="*{medicalHistory}" placeholder="Previous medical conditions, surgeries..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label for="allergies">Allergies</label>
+                    <textarea id="allergies" th:field="*{allergies}" placeholder="Known allergies..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Patient</button>
+                <a href="/patients" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -10,6 +10,8 @@
             var t = localStorage.getItem('ivura-theme');
             if (t !== 'dark') t = 'light';
             document.documentElement.setAttribute('data-theme', t);
+            var s = localStorage.getItem('ivura-sidebar');
+            if (s === 'collapsed') document.documentElement.classList.add('sidebar-collapsed');
         })();
     </script>
     <link rel="stylesheet" href="/css/wecare.css">
@@ -34,7 +36,7 @@
     </div>
     <nav class="sidebar-menu">
         <div class="menu-label" th:text="#{menu.main}">Main Menu</div>
-        <a th:classappend="${#strings.contains(requestURI, '/dashboard') or #strings.contains(requestURI, '/')} ? 'active' : ''" href="/dashboard">
+        <a th:classappend="${requestURI == '/' or requestURI == '/dashboard'} ? 'active' : ''" href="/dashboard">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -102,6 +104,14 @@
             </span> <span th:text="#{nav.logout}">Logout</span>
         </a>
     </div>
+    <button type="button" class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle Sidebar">
+        <svg class="icon-collapse" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <svg class="icon-expand" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+    </button>
 </aside>
 
 <!-- Main Content -->

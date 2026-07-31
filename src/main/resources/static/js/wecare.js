@@ -22,6 +22,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Sidebar toggle
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function () {
+            const collapsed = document.documentElement.classList.toggle('sidebar-collapsed');
+            try { localStorage.setItem('ivura-sidebar', collapsed ? 'collapsed' : 'expanded'); } catch (e) {}
+        });
+    }
+
     // Theme toggle
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {

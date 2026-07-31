@@ -24,6 +24,7 @@
   --gray-800: #000000;
   --gray-900: #0f172a;
   --sidebar-width: 260px;
+  --sidebar-collapsed-width: 80px;
   --header-height: 70px;
   --radius: 12px;
   --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
@@ -224,11 +225,70 @@ body {
 
 .sidebar-footer a:hover { color: white; }
 
+/* === Collapsed sidebar === */
+html.sidebar-collapsed .sidebar { width: var(--sidebar-collapsed-width); }
+html.sidebar-collapsed .main-content { margin-left: var(--sidebar-collapsed-width); }
+
+html.sidebar-collapsed .sidebar-brand { padding: 20px 0; justify-content: center; }
+html.sidebar-collapsed .sidebar-brand h2 { display: none; }
+
+html.sidebar-collapsed .sidebar-menu { padding: 16px 0; }
+html.sidebar-collapsed .sidebar-menu .menu-label { display: none; }
+html.sidebar-collapsed .sidebar-menu a { justify-content: center; padding: 12px 0; }
+html.sidebar-collapsed .sidebar-menu a > span:not(.icon) { display: none; }
+
+html.sidebar-collapsed .sidebar-footer { padding: 16px 0; display: flex; justify-content: center; }
+html.sidebar-collapsed .sidebar-footer a { justify-content: center; }
+html.sidebar-collapsed .sidebar-footer a > span:not(.icon) { display: none; }
+
+/* === Sidebar floating toggle button === */
+.sidebar-toggle {
+  position: absolute;
+  top: 70px;
+  right: -18px;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.sidebar-toggle:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 3px 10px rgba(38,128,113,.35);
+}
+
+.sidebar-toggle svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sidebar-toggle .icon-expand { display: none; }
+html.sidebar-collapsed .sidebar-toggle .icon-expand { display: block; }
+html.sidebar-collapsed .sidebar-toggle .icon-collapse { display: none; }
+
 /* === Main Content === */
 .main-content {
   margin-left: var(--sidebar-width);
   flex: 1;
   min-height: 100vh;
+  transition: margin-left .2s ease;
 }
 
 /* === Header === */
@@ -256,7 +316,7 @@ body {
 .header-left h1 {
   font-size: 20px;
   font-weight: 600;
-  color: var(--dark);
+  color: var(--primary);
 }
 
 .header-right {
@@ -954,6 +1014,7 @@ table tbody td .patient-cell .info .email {
 @media (max-width: 768px) {
   .sidebar { width: 0; overflow: hidden; }
   .main-content { margin-left: 0; }
+  .sidebar-toggle { display: none; }
   .page-content { padding: 16px; }
   .header { padding: 0 16px; }
   .form-grid { grid-template-columns: 1fr; }

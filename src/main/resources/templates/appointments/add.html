@@ -1,63 +1,63 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/sidebar :: body}">
+      th:replace="~{layout/sidebar :: html(#{appointment.addTitle}, ~{::content})}">
 <head><title>New Appointment - iVura</title></head>
 <body>
 <div th:fragment="content">
     <div class="page-header">
         <div>
-            <h1>New Appointment</h1>
-            <div class="subtitle">Schedule a patient appointment</div>
+            <h1 th:text="#{appointment.addTitle}">New Appointment</h1>
+            <div class="subtitle" th:text="#{appointment.addSubtitle}">Schedule a patient appointment</div>
         </div>
-        <a href="/appointments" class="btn btn-outline">← Back</a>
+        <a href="/appointments" class="btn btn-outline" th:text="#{common.back}">← Back</a>
     </div>
 
     <div class="section">
         <form th:action="@{/appointments/add}" th:object="${appointmentDto}" method="post" class="form-container">
-            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" th:text="#{common.errors}">
                 Please fix the errors below.
             </div>
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="patientId">Patient *</label>
+                    <label for="patientId" th:text="#{appointment.patient}">Patient *</label>
                     <select id="patientId" th:field="*{patientId}" required>
-                        <option value="">Select patient</option>
+                        <option value="" th:text="#{appointment.patientSelect}">Select patient</option>
                         <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName}">Patient</option>
                     </select>
                     <span th:if="${#fields.hasErrors('patientId')}" th:errors="*{patientId}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
                 <div class="form-group">
-                    <label for="doctorId">Doctor *</label>
+                    <label for="doctorId" th:text="#{appointment.doctor}">Doctor *</label>
                     <select id="doctorId" th:field="*{doctorId}" required>
-                        <option value="">Select doctor</option>
+                        <option value="" th:text="#{appointment.doctorSelect}">Select doctor</option>
                         <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.fullName + ' - ' + d.specialization}">Doctor</option>
                     </select>
                     <span th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
                 <div class="form-group">
-                    <label for="appointmentDate">Date *</label>
+                    <label for="appointmentDate" th:text="#{appointment.date}">Date *</label>
                     <input type="date" id="appointmentDate" th:field="*{appointmentDate}" required>
                     <span th:if="${#fields.hasErrors('appointmentDate')}" th:errors="*{appointmentDate}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
                 <div class="form-group">
-                    <label for="appointmentTime">Time *</label>
+                    <label for="appointmentTime" th:text="#{appointment.time}">Time *</label>
                     <input type="time" id="appointmentTime" th:field="*{appointmentTime}" required>
                     <span th:if="${#fields.hasErrors('appointmentTime')}" th:errors="*{appointmentTime}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
                 <div class="form-group full-width">
-                    <label for="reason">Reason for Visit</label>
-                    <textarea id="reason" th:field="*{reason}" placeholder="Reason for appointment" rows="3"></textarea>
+                    <label for="reason" th:text="#{appointment.reasonFull}">Reason for Visit</label>
+                    <textarea id="reason" th:field="*{reason}" th:placeholder="#{appointment.reasonPh}" rows="3"></textarea>
                 </div>
                 <div class="form-group full-width">
-                    <label for="notes">Notes</label>
-                    <textarea id="notes" th:field="*{notes}" placeholder="Additional notes" rows="3"></textarea>
+                    <label for="notes" th:text="#{appointment.notes}">Notes</label>
+                    <textarea id="notes" th:field="*{notes}" th:placeholder="#{appointment.notesPh}" rows="3"></textarea>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Schedule Appointment</button>
-                <a href="/appointments" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary" th:text="#{appointment.schedule}">Schedule Appointment</button>
+                <a href="/appointments" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
             </div>
         </form>
     </div>

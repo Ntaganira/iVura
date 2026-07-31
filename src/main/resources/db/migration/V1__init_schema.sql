@@ -120,9 +120,9 @@ CREATE TABLE billings (
 -- Seed data
 INSERT INTO roles (name) VALUES ('ROLE_ADMIN'), ('ROLE_DOCTOR'), ('ROLE_NURSE'), ('ROLE_STAFF');
 
--- Default admin password: admin123 (BCrypt)
+-- Default admin password: password123 (BCrypt, strength 12)
 INSERT INTO users (username, email, password, full_name, phone) VALUES
-('admin', 'admin@ivura.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'System Admin', '+250780000000');
+('admin', 'admin@ivura.com', '$2a$12$YkjpDkoLx5VZxafkfUdG6.J1W6B7VnXyAzyGZ0HNzIv1PFDxG2gZm', 'System Admin', '+250780000000');
 
 INSERT INTO user_roles (user_id, role_id) VALUES (1, 1);
 

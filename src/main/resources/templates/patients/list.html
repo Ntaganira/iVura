@@ -1,35 +1,58 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/sidebar :: body}">
+      th:replace="~{layout/sidebar :: html(#{patient.title}, ~{::content})}">
 <head><title>Patients - iVura</title></head>
 <body>
 <div th:fragment="content">
     <div class="page-header">
         <div>
-            <h1>Patients</h1>
-            <div class="subtitle">Manage all registered patients</div>
+            <h1 th:text="#{patient.title}">Patients</h1>
+            <div class="subtitle" th:text="#{patient.subtitle}">Manage all registered patients</div>
         </div>
-        <a href="/patients/add" class="btn btn-primary">+ Add Patient</a>
+        <a href="/patients/add" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span th:text="#{patient.add}">Add Patient</span>
+        </a>
     </div>
 
     <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{patient.sectionTitle}">Registered Patients</span>
+                <span class="section-count" th:text="${#lists.size(patients)}">0</span>
+            </h2>
+            <div class="table-toolbar">
+                <div class="toolbar-search">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="table-search" th:placeholder="#{common.search}">
+                </div>
+            </div>
+        </div>
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Patient</th>
-                        <th>Contact</th>
-                        <th>Gender</th>
-                        <th>Blood Group</th>
-                        <th>DOB</th>
-                        <th>Actions</th>
+                        <th th:text="#{patient.table.patient}">Patient</th>
+                        <th th:text="#{patient.table.contact}">Contact</th>
+                        <th th:text="#{patient.table.gender}">Gender</th>
+                        <th th:text="#{patient.table.bloodGroup}">Blood Group</th>
+                        <th th:text="#{patient.table.dob}">DOB</th>
+                        <th th:text="#{common.actions}">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="p : ${patients}">
+                    <tr th:each="p, stat : ${patients}">
                         <td>
                             <div class="patient-cell">
-                                <div class="avatar" th:text="${#strings.substring(p.firstName, 0, 1)}">A</div>
+                                <div class="avatar"
+                                     th:classappend="${stat.index % 6 == 0 ? 'blue' : stat.index % 6 == 1 ? 'green' : stat.index % 6 == 2 ? 'yellow' : stat.index % 6 == 3 ? 'purple' : stat.index % 6 == 4 ? 'pink' : 'teal'}"
+                                     th:text="${#strings.substring(p.firstName, 0, 1)}">A</div>
                                 <div class="info">
                                     <div class="name" th:text="${p.fullName}">Name</div>
                                     <div class="email" th:text="${p.email}">email</div>
@@ -42,17 +65,33 @@
                         <td th:text="${p.dateOfBirth}">1990-01-01</td>
                         <td>
                             <div class="btn-group">
-                                <a th:href="@{/patients/edit/{id}(id=${p.id})}" class="action-icon edit">✏️</a>
-                                <a th:href="@{/patients/delete/{id}(id=${p.id})}" class="action-icon delete confirm-delete">🗑️</a>
+                                <a th:href="@{/patients/edit/{id}(id=${p.id})}" class="action-icon edit" th:title="#{common.edit}">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/patients/delete/{id}(id=${p.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </a>
                             </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(patients)}">
                         <td colspan="6">
                             <div class="empty-state">
-                                <div class="icon">👥</div>
-                                <h3>No patients yet</h3>
-                                <p>Add your first patient to get started</p>
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{patient.empty.title}">No patients yet</h3>
+                                <p th:text="#{patient.empty.subtitle}">Add your first patient to get started</p>
                             </div>
                         </td>
                     </tr>

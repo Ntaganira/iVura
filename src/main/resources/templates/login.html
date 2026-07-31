@@ -1,37 +1,38 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iVura - Login</title>
+    <title th:text="#{login.welcome}">iVura - Login</title>
     <link rel="stylesheet" href="/css/wecare.css">
+    <script defer src="/js/wecare.js"></script>
 </head>
 <body class="login-page">
     <div class="login-card">
         <div class="login-header">
             <div class="logo">iV</div>
-            <h1>Welcome to <span style="color:#2563eb;">i</span>Vura</h1>
-            <p>Sign in to your hospital dashboard</p>
+            <h1 th:text="#{login.welcome}">Welcome to iVura</h1>
+            <p th:text="#{login.subtitle}">Sign in to your hospital dashboard</p>
         </div>
         <form th:action="@{/login}" method="post">
-            <div th:if="${param.error}" class="alert alert-danger">
+            <div th:if="${param.error}" class="alert alert-danger" th:text="#{login.error}">
                 Invalid username or password
             </div>
-            <div th:if="${param.logout}" class="alert alert-info">
+            <div th:if="${param.logout}" class="alert alert-info" th:text="#{login.logout}">
                 You have been logged out
             </div>
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus>
+                <label for="username" th:text="#{login.username}">Username</label>
+                <input type="text" id="username" name="username" th:placeholder="#{login.usernamePh}" required autofocus>
             </div>
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <label for="password" th:text="#{login.password}">Password</label>
+                <input type="password" id="password" name="password" th:placeholder="#{login.passwordPh}" required>
             </div>
-            <button type="submit" class="btn btn-primary">Sign In</button>
+            <button type="submit" class="btn btn-primary" th:text="#{login.signIn}">Sign In</button>
         </form>
         <div class="login-footer">
-            <p>Default: admin / admin123</p>
+            <p th:text="#{login.defaultCredentials}">Default: admin / admin123</p>
         </div>
     </div>
 </body>

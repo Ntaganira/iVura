@@ -1,76 +1,83 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/sidebar :: body}">
+      th:replace="~{layout/sidebar :: html(#{doctor.editTitle}, ~{::content})}">
 <head><title>Edit Doctor - iVura</title></head>
 <body>
 <div th:fragment="content">
     <div class="page-header">
         <div>
-            <h1>Edit Doctor</h1>
-            <div class="subtitle">Update doctor information</div>
+            <h1 th:text="#{doctor.editTitle}">Edit Doctor</h1>
+            <div class="subtitle" th:text="#{doctor.editSubtitle}">Update doctor information</div>
         </div>
-        <a href="/doctors" class="btn btn-outline">← Back</a>
+        <a href="/doctors" class="btn btn-outline" th:text="#{common.back}">← Back</a>
     </div>
 
     <div class="section">
         <form th:action="@{/doctors/edit/{id}(id=${doctorDto.id})}" th:object="${doctorDto}" method="post" class="form-container">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" th:text="#{common.errors}">
+                Please fix the errors below.
+            </div>
+
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="firstName">First Name *</label>
+                    <label for="firstName" th:text="#{doctor.firstName}">First Name *</label>
                     <input type="text" id="firstName" th:field="*{firstName}" required>
+                    <span th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
                 <div class="form-group">
-                    <label for="lastName">Last Name *</label>
+                    <label for="lastName" th:text="#{doctor.lastName}">Last Name *</label>
                     <input type="text" id="lastName" th:field="*{lastName}" required>
+                    <span th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
                 <div class="form-group">
-                    <label for="email">Email *</label>
+                    <label for="email" th:text="#{doctor.email}">Email *</label>
                     <input type="email" id="email" th:field="*{email}" required>
+                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
                 <div class="form-group">
-                    <label for="phone">Phone</label>
+                    <label for="phone" th:text="#{doctor.phone}">Phone</label>
                     <input type="text" id="phone" th:field="*{phone}">
                 </div>
                 <div class="form-group">
-                    <label for="specialization">Specialization</label>
+                    <label for="specialization" th:text="#{doctor.specialization}">Specialization</label>
                     <input type="text" id="specialization" th:field="*{specialization}">
                 </div>
                 <div class="form-group">
-                    <label for="licenseNumber">License Number</label>
+                    <label for="licenseNumber" th:text="#{doctor.licenseNumber}">License Number</label>
                     <input type="text" id="licenseNumber" th:field="*{licenseNumber}">
                 </div>
                 <div class="form-group">
-                    <label for="departmentId">Department</label>
+                    <label for="departmentId" th:text="#{doctor.department}">Department</label>
                     <select id="departmentId" th:field="*{departmentId}">
-                        <option value="">Select department</option>
+                        <option value="" th:text="#{doctor.deptSelect}">Select department</option>
                         <option th:each="dept : ${departments}" th:value="${dept.id}" th:text="${dept.name}">Dept</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="experienceYears">Experience (years)</label>
+                    <label for="experienceYears" th:text="#{doctor.experienceYears}">Experience (years)</label>
                     <input type="number" id="experienceYears" th:field="*{experienceYears}" min="0">
                 </div>
                 <div class="form-group">
-                    <label for="consultationFee">Consultation Fee</label>
+                    <label for="consultationFee" th:text="#{doctor.consultationFee}">Consultation Fee</label>
                     <input type="number" id="consultationFee" th:field="*{consultationFee}" step="0.01" min="0">
                 </div>
                 <div class="form-group">
-                    <label for="qualification">Qualification</label>
+                    <label for="qualification" th:text="#{doctor.qualification}">Qualification</label>
                     <input type="text" id="qualification" th:field="*{qualification}">
                 </div>
                 <div class="form-group">
-                    <label for="availableFrom">Available From</label>
+                    <label for="availableFrom" th:text="#{doctor.availableFrom}">Available From</label>
                     <input type="time" id="availableFrom" th:field="*{availableFrom}">
                 </div>
                 <div class="form-group">
-                    <label for="availableTo">Available To</label>
+                    <label for="availableTo" th:text="#{doctor.availableTo}">Available To</label>
                     <input type="time" id="availableTo" th:field="*{availableTo}">
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Update Doctor</button>
-                <a href="/doctors" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary" th:text="#{doctor.update}">Update Doctor</button>
+                <a href="/doctors" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
             </div>
         </form>
     </div>

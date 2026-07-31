@@ -29,6 +29,12 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--gray-50);
@@ -125,7 +131,19 @@ body {
 .sidebar-menu a .icon {
   width: 20px;
   text-align: center;
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-menu a .icon svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .sidebar-menu a .badge {
@@ -151,6 +169,24 @@ body {
   text-decoration: none;
   font-size: 14px;
   transition: var(--transition);
+}
+
+.sidebar-footer a .icon {
+  width: 20px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-footer a .icon svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .sidebar-footer a:hover { color: white; }
@@ -205,6 +241,16 @@ body {
   width: 280px;
 }
 
+.header-right .search-box svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--gray-400);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .header-right .search-box input {
   border: none;
   background: none;
@@ -224,12 +270,43 @@ body {
   border: none;
   background: var(--gray-100);
   cursor: pointer;
-  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: var(--transition);
 }
+
+.header-right .notif-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--gray-600);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* === Language switcher === */
+.lang-form {
+  display: flex;
+  align-items: center;
+}
+
+.lang-select {
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  background: white;
+  color: var(--gray-700);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 7px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+}
+
+.lang-select:hover { border-color: var(--primary); }
 
 .header-right .notif-btn:hover { background: var(--gray-200); }
 
@@ -284,6 +361,38 @@ body {
 .page-content {
   padding: 24px 32px;
 }
+
+/* === Greeting === */
+.greeting {
+  margin-bottom: 24px;
+}
+
+.greeting h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.greeting h1 .wave {
+  display: inline-flex;
+}
+
+.greeting p {
+  font-size: 14px;
+  color: var(--gray-500);
+  margin-top: 4px;
+}
+
+/* === Avatar variants === */
+.avatar.blue { background: #dbeafe; color: var(--primary); }
+.avatar.green { background: #d1fae5; color: #059669; }
+.avatar.yellow { background: #fef3c7; color: #d97706; }
+.avatar.purple { background: #ede9fe; color: #7c3aed; }
+.avatar.pink { background: #fce7f3; color: #db2777; }
+.avatar.teal { background: #ccfbf1; color: #0d9488; }
 
 /* === Stats Cards === */
 .stats-grid {
@@ -344,6 +453,16 @@ body {
   font-size: 22px;
 }
 
+.stat-card .stat-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .stat-card .stat-icon.blue { background: var(--primary-light); color: var(--primary); }
 .stat-card .stat-icon.green { background: #d1fae5; color: var(--success); }
 .stat-card .stat-icon.yellow { background: #fef3c7; color: var(--warning); }
@@ -363,11 +482,75 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .section-header h2 {
   font-size: 18px;
   font-weight: 600;
+}
+
+.section-header .section-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-500);
+  background: var(--gray-100);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* === Table toolbar (search + filter) === */
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: flex-end;
+  max-width: 320px;
+}
+
+.table-toolbar .toolbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gray-100);
+  border-radius: 8px;
+  padding: 8px 14px;
+  flex: 1;
+}
+
+.table-toolbar .toolbar-search svg {
+  width: 15px;
+  height: 15px;
+  stroke: var(--gray-400);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.table-toolbar .toolbar-search input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--gray-700);
+  width: 100%;
+}
+
+.table-toolbar .toolbar-search input::placeholder { color: var(--gray-400); }
+
+.table-toolbar .toolbar-filter {
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--gray-700);
+  background: white;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 /* === Tables === */
@@ -426,6 +609,12 @@ table tbody td .patient-cell .avatar {
   font-size: 14px;
 }
 
+table tbody td .patient-cell .avatar.blue { background: #dbeafe; color: var(--primary); }
+table tbody td .patient-cell .avatar.green { background: #d1fae5; color: #059669; }
+table tbody td .patient-cell .avatar.yellow { background: #fef3c7; color: #d97706; }
+table tbody td .patient-cell .avatar.purple { background: #ede9fe; color: #7c3aed; }
+table tbody td .patient-cell .avatar.pink { background: #fce7f3; color: #db2777; }
+table tbody td .patient-cell .avatar.teal { background: #ccfbf1; color: #0d9488; }
 table tbody td .patient-cell .info .name {
   font-weight: 600;
   color: var(--dark);
@@ -482,6 +671,16 @@ table tbody td .patient-cell .info .email {
   cursor: pointer;
   text-decoration: none;
   transition: var(--transition);
+}
+
+.btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .btn-primary { background: var(--primary); color: white; }
@@ -726,6 +925,16 @@ table tbody td .patient-cell .info .email {
   text-decoration: none;
 }
 
+.action-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .action-icon.edit { background: #dbeafe; color: var(--primary); }
 .action-icon.edit:hover { background: var(--primary); color: white; }
 .action-icon.delete { background: #fee2e2; color: var(--danger); }
@@ -762,6 +971,19 @@ table tbody td .patient-cell .info .email {
   font-size: 48px;
   margin-bottom: 12px;
   opacity: .5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state .icon svg {
+  width: 48px;
+  height: 48px;
+  stroke: var(--gray-300);
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .empty-state h3 {

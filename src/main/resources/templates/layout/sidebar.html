@@ -18,6 +18,9 @@
     <script th:inline="javascript">
         window.ivuraMessages = {
             confirmDelete: /*[[#{common.confirmDelete}]]*/ 'Are you sure you want to delete this item?',
+            confirmTitle: /*[[#{common.confirmTitle}]]*/ 'Are you sure?',
+            confirmOk: /*[[#{common.confirmOk}]]*/ 'Yes, Continue',
+            confirmCancel: /*[[#{common.confirmCancel}]]*/ 'Not now',
             theme: {
                 light: /*[[#{theme.light}]]*/ 'Light Mode',
                 dark: /*[[#{theme.dark}]]*/ 'Dark Mode'
@@ -193,7 +196,9 @@
                 <div class="info">
                     <div class="name" sec:authorize="isAuthenticated()" sec:authentication="principal.username">Admin</div>
                     <div class="role" sec:authorize="isAuthenticated()">
-                        <span sec:authentication="principal.authorities">[ROLE_ADMIN]</span>
+                        <span th:each="auth : ${#authentication.authorities}"
+                              th:if="${#strings.startsWith(auth.authority, 'ROLE_')}"
+                              th:text="${#strings.capitalize(#strings.toLowerCase(#strings.substringAfter(auth.authority, 'ROLE_')))}">Admin</span>
                     </div>
                 </div>
             </div>

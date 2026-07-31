@@ -11,24 +11,111 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 5000);
     });
 
-    // Confirm deletes
-    const confirmDeleteMsg = (window.ivuraMessages && window.ivuraMessages.confirmDelete)
-        || 'Are you sure you want to delete this item?';
+    // Custom confirm dialog (replaces native confirm())
+    const ivuraMsg = (key, fallback) =>
+        (window.ivuraMessages && window.ivuraMessages[key]) || fallback;
+
+    const confirmDialog = (function () {
+        let overlay = null;
+        let onConfirm = null;
+
+        function ensure() {
+            if (overlay) return overlay;
+            overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML =
+                '<div class="modal confirm-modal" role="dialog" aria-modal="true">' +
+                '  <div class="modal-header">' +
+                '    <h3 class="confirm-title"></h3>' +
+                '    <button type="button" class="modal-close confirm-cancel" aria-label="Close">&times;</button>' +
+                '  </div>' +
+                '  <div class="modal-body">' +
+                '    <div class="confirm-icon">' +
+                '      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>' +
+                '        <path d="M12 9v4"></path><path d="M12 17h.01"></path>' +
+                '      </svg>' +
+                '    </div>' +
+                '    <p class="confirm-message"></p>' +
+                '  </div>' +
+                '  <div class="modal-footer">' +
+                '    <button type="button" class="btn btn-outline confirm-cancel"></button>' +
+                '    <button type="button" class="btn confirm-ok"></button>' +
+                '  </div>' +
+                '</div>';
+            document.body.appendChild(overlay);
+
+            const close = function () {
+                overlay.classList.remove('open');
+                onConfirm = null;
+            };
+            overlay.querySelectorAll('.confirm-cancel').forEach(btn => {
+                btn.addEventListener('click', close);
+            });
+            overlay.querySelector('.confirm-ok').addEventListener('click', function () {
+                const cb = onConfirm;
+                close();
+                if (cb) cb();
+            });
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) close();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+            });
+            return overlay;
+        }
+
+        return {
+            open: function (opts) {
+                const el = ensure();
+                el.querySelector('.confirm-title').textContent =
+                    opts.title || ivuraMsg('confirmTitle', 'Are you sure?');
+                el.querySelector('.confirm-message').textContent =
+                    opts.message || ivuraMsg('confirmDelete', 'Are you sure?');
+                const cancelBtns = el.querySelectorAll('.confirm-cancel');
+                cancelBtns[cancelBtns.length - 1].textContent =
+                    opts.cancelText || ivuraMsg('confirmCancel', 'Not now');
+                const ok = el.querySelector('.confirm-ok');
+                ok.textContent = opts.okText || ivuraMsg('confirmOk', 'Yes, Continue');
+                ok.className = 'btn ' + (opts.danger ? 'btn-danger' : 'btn-primary');
+                el.dataset.danger = opts.danger ? 'true' : 'false';
+                onConfirm = opts.onConfirm;
+                el.classList.add('open');
+            },
+            close: function () {
+                if (overlay) overlay.classList.remove('open');
+                onConfirm = null;
+            }
+        };
+    })();
+
+    // Deletes (plain confirm message)
+    const confirmDeleteMsg = ivuraMsg('confirmDelete', 'Are you sure you want to delete this item?');
     document.querySelectorAll('.confirm-delete').forEach(link => {
         link.addEventListener('click', function (e) {
-            if (!confirm(confirmDeleteMsg)) {
-                e.preventDefault();
-            }
+            e.preventDefault();
+            const href = this.getAttribute('href');
+            confirmDialog.open({
+                message: confirmDeleteMsg,
+                danger: true,
+                onConfirm: function () { window.location.href = href; }
+            });
         });
     });
 
-    // Confirm actions with a custom message (data-confirm)
+    // Actions with a custom message (data-confirm)
     document.querySelectorAll('.confirm-action').forEach(link => {
         link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
             const msg = this.getAttribute('data-confirm') || confirmDeleteMsg;
-            if (!confirm(msg)) {
-                e.preventDefault();
-            }
+            const danger = this.classList.contains('delete');
+            confirmDialog.open({
+                message: msg,
+                danger: danger,
+                onConfirm: function () { window.location.href = href; }
+            });
         });
     });
 

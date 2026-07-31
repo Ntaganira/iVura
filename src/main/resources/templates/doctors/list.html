@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layout/sidebar :: html(#{doctor.title}, ~{::content})}">
 <head><title>Doctors - iVura</title></head>
 <body>
@@ -9,7 +9,7 @@
             <h1 th:text="#{doctor.title}">Doctors</h1>
             <div class="subtitle" th:text="#{doctor.subtitle}">Manage medical staff</div>
         </div>
-        <a href="/doctors/add" class="btn btn-primary">
+        <a href="/doctors/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_DOCTOR')">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -67,12 +67,12 @@
                         <td th:text="${d.consultationFee} + ' RWF'">0</td>
                         <td>
                             <div class="btn-group">
-                                <a th:href="@{/doctors/edit/{id}(id=${d.id})}" class="action-icon edit" th:title="#{common.edit}">
+                                <a th:href="@{/doctors/edit/{id}(id=${d.id})}" class="action-icon edit" th:title="#{common.edit}" sec:authorize="hasAuthority('PERM_EDIT_DOCTOR')">
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                                     </svg>
                                 </a>
-                                <a th:href="@{/doctors/delete/{id}(id=${d.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}">
+                                <a th:href="@{/doctors/delete/{id}(id=${d.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}" sec:authorize="hasAuthority('PERM_DELETE_DOCTOR')">
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>

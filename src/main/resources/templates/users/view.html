@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{user.title}, ~{::content})}">
+<head><title>User Details - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${user.fullName}">User Name</h1>
+            <div class="subtitle" th:text="'@' + ${user.username}">@username</div>
+        </div>
+        <div class="btn-group">
+            <a href="/users" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+            <a th:href="@{/users/edit/{id}(id=${user.id})}" class="btn btn-primary" sec:authorize="hasAuthority('PERM_EDIT_USER')" th:text="#{common.edit}">Edit</a>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="${user.fullName}">User Name</span>
+                <span class="section-count" th:if="${user.enabled}" th:text="#{common.active}">Active</span>
+                <span class="section-count" th:unless="${user.enabled}" th:text="#{common.inactive}">Inactive</span>
+            </h2>
+        </div>
+
+        <div class="tabs">
+            <button type="button" class="tab active" data-tab="tab-general" th:text="#{user.general}">Account Information</button>
+            <button type="button" class="tab" data-tab="tab-roles" th:text="#{user.rolePermissions}">Roles &amp; Permissions</button>
+        </div>
+
+        <div class="section-body">
+            <div class="tab-content active" id="tab-general">
+                <div class="detail-list">
+                    <div class="item">
+                        <label th:text="#{user.username}">Username</label>
+                        <div class="value" th:text="${user.username}">admin</div>
+                    </div>
+                    <div class="item">
+                        <label th:text="#{user.email}">Email</label>
+                        <div class="value" th:text="${user.email}">admin@ivura.com</div>
+                    </div>
+                    <div class="item">
+                        <label th:text="#{user.fullName}">Full Name</label>
+                        <div class="value" th:text="${user.fullName}">System Admin</div>
+                    </div>
+                    <div class="item">
+                        <label th:text="#{user.phone}">Phone</label>
+                        <div class="value" th:text="${user.phone}">+250...</div>
+                    </div>
+                    <div class="item">
+                        <label th:text="#{user.table.status}">Status</label>
+                        <div class="value">
+                            <span class="badge badge-success" th:if="${user.enabled}" th:text="#{common.active}">Active</span>
+                            <span class="badge badge-secondary" th:unless="${user.enabled}" th:text="#{common.inactive}">Inactive</span>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <label th:text="#{user.createdAt}">Created</label>
+                        <div class="value" th:text="${#temporals.format(user.createdAt, 'dd-MM-yyyy HH:mm')}">2026-07-30</div>
+                    </div>
+                    <div class="item">
+                        <label th:text="#{user.updatedAt}">Updated</label>
+                        <div class="value" th:if="${user.updatedAt != null}" th:text="${#temporals.format(user.updatedAt, 'dd-MM-yyyy HH:mm')}">-</div>
+                        <div class="value" th:unless="${user.updatedAt != null}">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-roles">
+                <div class="role-card" th:each="r : ${user.roles}">
+                    <div class="role-card-header">
+                        <div>
+                            <div class="role-card-title" th:text="${r.name.replace('ROLE_', '')}">ADMIN</div>
+                            <div class="role-card-desc" th:if="${r.description != null}" th:text="${r.description}">Description</div>
+                        </div>
+                        <span class="badge badge-info" th:text="#{user.permissionCount(${r.permissions.size()})}">8 permissions</span>
+                    </div>
+                    <div class="role-card-body">
+                        <div class="role-card-section">
+                            <label th:text="#{user.permissions}">Permissions</label>
+                            <div class="badge-wrap">
+                                <span class="badge badge-secondary" th:each="p : ${r.permissions}" th:text="${p.name}">View Patients</span>
+                            </div>
+                            <div class="text-muted" th:if="${r.permissions == null or r.permissions.isEmpty()}" th:text="#{user.noPermissions}">No permissions</div>
+                        </div>
+                        <div class="role-card-section">
+                            <label th:text="#{role.pages}">Accessible Pages</label>
+                            <div class="badge-wrap">
+                                <span class="badge badge-info" th:each="p : ${r.pages}" th:text="${p.name}">Patients</span>
+                            </div>
+                            <div class="text-muted" th:if="${r.pages == null or r.pages.isEmpty()}" th:text="#{user.noPages}">No pages assigned</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${user.roles == null or user.roles.isEmpty()}">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3 th:text="#{user.noRoles}">No roles assigned</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

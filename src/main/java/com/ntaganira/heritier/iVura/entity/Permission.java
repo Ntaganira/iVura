@@ -5,27 +5,25 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * <pre>
  * - Project   : iVura - Hospital Management System
  * - Package   : com.ntaganira.heritier.iVura.entity
- * - File      : Role.java
- * - Date      : 2026. 07. 30.
+ * - File      : Permission.java
+ * - Date      : 2026. 07. 31.
  * - User      : Hntaganira
- * - Desc      : Role Entity
+ * - Desc      : Permission Entity (action-level, grouped by module)
  * </pre>
  */
 @Entity
-@Table(name = "roles")
+@Table(name = "permissions")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role implements Serializable {
+public class Permission implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,11 +31,17 @@ public class Role implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = 100)
+    private String code;
+
+    @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String code;
+    @Column(nullable = false, length = 100)
+    private String module;
+
+    @Column(nullable = false, length = 50)
+    private String action;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -50,18 +54,6 @@ public class Role implements Serializable {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "role_permissions",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    private Set<Permission> permissions = new HashSet<>();
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "role_pages",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "page_id"))
-    private Set<AppPage> pages = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {

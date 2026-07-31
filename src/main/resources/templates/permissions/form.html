@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(${permissionDto.id == null} ? #{perm.addTitle} : #{perm.editTitle}, ~{::content})}">
+<head><title>Permission - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${permissionDto.id == null} ? #{perm.addTitle} : #{perm.editTitle}">Permission</h1>
+            <div class="subtitle" th:text="${permissionDto.id == null} ? #{perm.addSubtitle} : #{perm.editSubtitle}">Permission details</div>
+        </div>
+        <a href="/permissions" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="${permissionDto.id == null} ? @{/permissions/save} : @{/permissions/edit/{id}(id=${permissionDto.id})}"
+              th:object="${permissionDto}" method="post" class="form-container">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" th:text="#{common.errors}">
+                Please fix the errors below.
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name" th:text="#{perm.name}">Name *</label>
+                    <input type="text" id="name" th:field="*{name}" th:placeholder="#{perm.namePh}" required>
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="code" th:text="#{perm.code}">Code *</label>
+                    <input type="text" id="code" th:field="*{code}" th:placeholder="#{perm.codePh}" style="text-transform:uppercase;" required>
+                    <span th:if="${#fields.hasErrors('code')}" th:errors="*{code}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="module" th:text="#{perm.module}">Module *</label>
+                    <input type="text" id="module" th:field="*{module}" th:placeholder="#{perm.modulePh}" required>
+                    <span th:if="${#fields.hasErrors('module')}" th:errors="*{module}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="action" th:text="#{perm.action}">Action *</label>
+                    <select id="action" th:field="*{action}" required>
+                        <option value="" th:text="#{common.select}">Select</option>
+                        <option value="VIEW">VIEW</option>
+                        <option value="CREATE">CREATE</option>
+                        <option value="EDIT">EDIT</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="APPROVE">APPROVE</option>
+                        <option value="EXPORT">EXPORT</option>
+                        <option value="PRINT">PRINT</option>
+                        <option value="CANCEL">CANCEL</option>
+                        <option value="RESET">RESET</option>
+                        <option value="ASSIGN">ASSIGN</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('action')}" th:errors="*{action}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group full-width">
+                    <label for="description" th:text="#{perm.description}">Description</label>
+                    <textarea id="description" th:field="*{description}" th:placeholder="#{perm.descriptionPh}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label th:text="#{perm.status}">Status</label>
+                    <label class="switch">
+                        <input type="checkbox" th:field="*{enabled}">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${permissionDto.id == null} ? #{perm.save} : #{perm.update}">Save Permission</button>
+                <a href="/permissions" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

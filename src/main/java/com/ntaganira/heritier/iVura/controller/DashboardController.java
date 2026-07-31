@@ -4,6 +4,7 @@ import com.ntaganira.heritier.iVura.entity.Appointment;
 import com.ntaganira.heritier.iVura.enums.AppointmentStatus;
 import com.ntaganira.heritier.iVura.repository.AppointmentRepository;
 import com.ntaganira.heritier.iVura.service.DashboardService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ public class DashboardController {
     }
 
     @GetMapping({"/", "/dashboard"})
+    @PreAuthorize("hasAuthority('PERM_VIEW_DASHBOARD')")
     public String dashboard(Model model) {
         model.addAttribute("totalPatients", dashboardService.getTotalPatients());
         model.addAttribute("totalDoctors", dashboardService.getTotalDoctors());

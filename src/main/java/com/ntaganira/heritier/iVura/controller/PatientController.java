@@ -3,6 +3,7 @@ package com.ntaganira.heritier.iVura.controller;
 import com.ntaganira.heritier.iVura.dto.PatientDto;
 import com.ntaganira.heritier.iVura.service.PatientService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,18 +20,21 @@ public class PatientController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('PERM_VIEW_PATIENT')")
     public String list(Model model) {
         model.addAttribute("patients", patientService.findAll());
         return "patients/list";
     }
 
     @GetMapping("/add")
+    @PreAuthorize("hasAuthority('PERM_CREATE_PATIENT')")
     public String addForm(Model model) {
         model.addAttribute("patientDto", new PatientDto());
         return "patients/add";
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('PERM_CREATE_PATIENT')")
     public String add(@Valid @ModelAttribute("patientDto") PatientDto dto,
                       BindingResult result) {
         if (result.hasErrors()) {
@@ -41,6 +45,7 @@ public class PatientController {
     }
 
     @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('PERM_EDIT_PATIENT')")
     public String editForm(@PathVariable Long id, Model model) {
         var patient = patientService.findById(id);
         PatientDto dto = new PatientDto();
@@ -65,6 +70,7 @@ public class PatientController {
     }
 
     @PostMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('PERM_EDIT_PATIENT')")
     public String edit(@PathVariable Long id,
                        @Valid @ModelAttribute("patientDto") PatientDto dto,
                        BindingResult result) {
@@ -76,6 +82,7 @@ public class PatientController {
     }
 
     @GetMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('PERM_DELETE_PATIENT')")
     public String delete(@PathVariable Long id) {
         patientService.delete(id);
         return "redirect:/patients";

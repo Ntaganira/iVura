@@ -22,6 +22,89 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Confirm actions with a custom message (data-confirm)
+    document.querySelectorAll('.confirm-action').forEach(link => {
+        link.addEventListener('click', function (e) {
+            const msg = this.getAttribute('data-confirm') || confirmDeleteMsg;
+            if (!confirm(msg)) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Modals
+    const modalOpen = function (id) {
+        const overlay = document.getElementById(id);
+        if (overlay) overlay.classList.add('open');
+    };
+    const modalClose = function (id) {
+        const overlay = document.getElementById(id);
+        if (overlay) overlay.classList.remove('open');
+    };
+    document.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            modalClose(this.getAttribute('data-modal-close'));
+        });
+    });
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) overlay.classList.remove('open');
+        });
+    });
+
+    // Reset password modal
+    document.querySelectorAll('.open-reset-modal').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const nameEl = document.getElementById('reset-user-name');
+            const form = document.getElementById('reset-form');
+            const pw = document.getElementById('reset-password');
+            if (nameEl) nameEl.textContent = name;
+            if (form) form.action = '/users/reset-password/' + id;
+            if (pw) pw.value = '';
+            modalOpen('reset-modal');
+        });
+    });
+
+    // Select-all checkboxes in permission/page trees
+    document.querySelectorAll('.perm-select-all').forEach(selectAll => {
+        const updateSelectAll = function () {
+            const group = selectAll.closest('.perm-group');
+            const checks = group ? group.querySelectorAll('.perm-check') : [];
+            let checked = 0;
+            checks.forEach(c => { if (c.checked) checked++; });
+            selectAll.checked = checks.length > 0 && checked === checks.length;
+            selectAll.indeterminate = checked > 0 && checked < checks.length;
+        };
+        selectAll.addEventListener('change', function () {
+            const group = selectAll.closest('.perm-group');
+            const checks = group ? group.querySelectorAll('.perm-check') : [];
+            checks.forEach(c => { c.checked = selectAll.checked; });
+        });
+        const group = selectAll.closest('.perm-group');
+        if (group) {
+            group.querySelectorAll('.perm-check').forEach(c => {
+                c.addEventListener('change', updateSelectAll);
+            });
+        }
+        updateSelectAll();
+    });
+
+    // Tabs
+    document.querySelectorAll('.tabs').forEach(tabs => {
+        tabs.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function () {
+                tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const target = document.getElementById(tab.getAttribute('data-tab'));
+                const body = tab.closest('.section');
+                if (body) body.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                if (target) target.classList.add('active');
+            });
+        });
+    });
+
     // Sidebar toggle
     const sidebarToggle = document.getElementById('sidebar-toggle');
     if (sidebarToggle) {

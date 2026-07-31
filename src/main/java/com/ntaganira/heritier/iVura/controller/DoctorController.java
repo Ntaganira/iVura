@@ -4,6 +4,7 @@ import com.ntaganira.heritier.iVura.dto.DoctorDto;
 import com.ntaganira.heritier.iVura.repository.DepartmentRepository;
 import com.ntaganira.heritier.iVura.service.DoctorService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,12 +23,14 @@ public class DoctorController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('PERM_VIEW_DOCTOR')")
     public String list(Model model) {
         model.addAttribute("doctors", doctorService.findAll());
         return "doctors/list";
     }
 
     @GetMapping("/add")
+    @PreAuthorize("hasAuthority('PERM_CREATE_DOCTOR')")
     public String addForm(Model model) {
         model.addAttribute("doctorDto", new DoctorDto());
         model.addAttribute("departments", departmentRepo.findAll());
@@ -35,6 +38,7 @@ public class DoctorController {
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('PERM_CREATE_DOCTOR')")
     public String add(@Valid @ModelAttribute("doctorDto") DoctorDto dto,
                       BindingResult result, Model model) {
         if (result.hasErrors()) {
@@ -46,6 +50,7 @@ public class DoctorController {
     }
 
     @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('PERM_EDIT_DOCTOR')")
     public String editForm(@PathVariable Long id, Model model) {
         var doctor = doctorService.findById(id);
         DoctorDto dto = new DoctorDto();
@@ -68,6 +73,7 @@ public class DoctorController {
     }
 
     @PostMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('PERM_EDIT_DOCTOR')")
     public String edit(@PathVariable Long id,
                        @Valid @ModelAttribute("doctorDto") DoctorDto dto,
                        BindingResult result, Model model) {
@@ -80,6 +86,7 @@ public class DoctorController {
     }
 
     @GetMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('PERM_DELETE_DOCTOR')")
     public String delete(@PathVariable Long id) {
         doctorService.delete(id);
         return "redirect:/doctors";

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layout/sidebar :: html(#{appointment.title}, ~{::content})}">
 <head><title>Appointments - iVura</title></head>
 <body>
@@ -9,7 +9,7 @@
             <h1 th:text="#{appointment.title}">Appointments</h1>
             <div class="subtitle" th:text="#{appointment.subtitle}">Schedule and manage appointments</div>
         </div>
-        <a href="/appointments/add" class="btn btn-primary">
+        <a href="/appointments/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_APPOINTMENT')">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -80,18 +80,18 @@
                         </td>
                         <td>
                             <div class="btn-group">
-                                <a th:href="@{/appointments/status/{id}/{status}(id=${a.id}, status='COMPLETED')}" class="btn btn-success btn-sm" th:if="${a.status.name() == 'SCHEDULED' or a.status.name() == 'IN_PROGRESS'}" th:title="#{status.completed}">
+                                <a th:href="@{/appointments/status/{id}/{status}(id=${a.id}, status='COMPLETED')}" class="btn btn-success btn-sm" th:if="${a.status.name() == 'SCHEDULED' or a.status.name() == 'IN_PROGRESS'}" th:title="#{status.completed}" sec:authorize="hasAuthority('PERM_EDIT_APPOINTMENT')">
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
                                 </a>
-                                <a th:href="@{/appointments/status/{id}/{status}(id=${a.id}, status='CANCELLED')}" class="btn btn-danger btn-sm" th:if="${a.status.name() == 'SCHEDULED'}" th:title="#{status.cancelled}">
+                                <a th:href="@{/appointments/status/{id}/{status}(id=${a.id}, status='CANCELLED')}" class="btn btn-danger btn-sm" th:if="${a.status.name() == 'SCHEDULED'}" th:title="#{status.cancelled}" sec:authorize="hasAuthority('PERM_CANCEL_APPOINTMENT')">
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
                                 </a>
-                                <a th:href="@{/appointments/delete/{id}(id=${a.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}">
+                                <a th:href="@{/appointments/delete/{id}(id=${a.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}" sec:authorize="hasAuthority('PERM_CANCEL_APPOINTMENT')">
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>

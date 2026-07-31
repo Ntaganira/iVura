@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(${roleDto.id == null} ? #{role.addTitle} : #{role.editTitle}, ~{::content})}">
+<head><title>Role - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${roleDto.id == null} ? #{role.addTitle} : #{role.editTitle}">Role</h1>
+            <div class="subtitle" th:text="${roleDto.id == null} ? #{role.addSubtitle} : #{role.editSubtitle}">Configure role access</div>
+        </div>
+        <a href="/roles" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="${roleDto.id == null} ? @{/roles/save} : @{/roles/edit/{id}(id=${roleDto.id})}"
+              th:object="${roleDto}" method="post" class="form-container form-wide">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" th:text="#{common.errors}">
+                Please fix the errors below.
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name" th:text="#{role.name}">Role Name *</label>
+                    <input type="text" id="name" th:field="*{name}" th:placeholder="#{role.namePh}" required>
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="code" th:text="#{role.code}">Role Code *</label>
+                    <input type="text" id="code" th:field="*{code}" th:placeholder="#{role.codePh}" style="text-transform:uppercase;" required>
+                    <span th:if="${#fields.hasErrors('code')}" th:errors="*{code}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group full-width">
+                    <label for="description" th:text="#{role.description}">Description</label>
+                    <textarea id="description" th:field="*{description}" th:placeholder="#{role.descriptionPh}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label th:text="#{role.enabled}">Status</label>
+                    <label class="switch">
+                        <input type="checkbox" th:field="*{enabled}">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-divider">
+                <h3 th:text="#{role.permissions}">Permissions</h3>
+                <p class="hint" th:text="#{role.permissionsHint}">Action-level permissions granted to this role</p>
+            </div>
+
+            <div class="perm-tree">
+                <div class="perm-group" th:each="entry : ${permissionsByModule}">
+                    <div class="perm-group-header">
+                        <input type="checkbox" class="checkbox perm-select-all" th:id="|sel-perm-${#strings.replace(entry.key, ' ', '-')}|">
+                        <label th:for="|sel-perm-${#strings.replace(entry.key, ' ', '-')}|" th:text="${entry.key}">Patient Management</label>
+                        <span class="badge badge-secondary" th:text="${entry.value.size()}">4</span>
+                    </div>
+                    <div class="perm-items">
+                        <label class="perm-item" th:each="p : ${entry.value}">
+                            <input type="checkbox" class="checkbox perm-check" th:field="*{permissionIds}" th:value="${p.id}">
+                            <span th:text="${p.name}">View Patients</span>
+                            <span class="mono" th:text="${p.code}">VIEW_PATIENT</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-divider">
+                <h3 th:text="#{role.pages}">Accessible Pages / Modules</h3>
+                <p class="hint" th:text="#{role.pagesHint}">Which pages and modules this role can open</p>
+            </div>
+
+            <div class="perm-tree">
+                <div class="perm-group" th:each="entry : ${pagesByModule}">
+                    <div class="perm-group-header">
+                        <input type="checkbox" class="checkbox perm-select-all" th:id="|sel-page-${#strings.replace(entry.key, ' ', '-')}|">
+                        <label th:for="|sel-page-${#strings.replace(entry.key, ' ', '-')}|" th:text="${entry.key}">Patients</label>
+                        <span class="badge badge-secondary" th:text="${entry.value.size()}">4</span>
+                    </div>
+                    <div class="perm-items">
+                        <label class="perm-item" th:each="p : ${entry.value}" th:classappend="${p.parent != null} ? 'perm-child'">
+                            <input type="checkbox" class="checkbox perm-check" th:field="*{pageIds}" th:value="${p.id}">
+                            <span th:text="${p.name}">Patient List</span>
+                            <span class="mono" th:text="${p.code}">PATIENT_LIST</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${roleDto.id == null} ? #{role.save} : #{role.update}">Save Role</button>
+                <a href="/roles" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

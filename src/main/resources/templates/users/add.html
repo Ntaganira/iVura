@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{user.addTitle}, ~{::content})}">
+<head><title>Add User - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{user.addTitle}">Add User</h1>
+            <div class="subtitle" th:text="#{user.addSubtitle}">Create a new system user</div>
+        </div>
+        <a href="/users" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="@{/users/add}" th:object="${userDto}" method="post" class="form-container">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" th:text="#{common.errors}">
+                Please fix the errors below.
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="username" th:text="#{user.username}">Username *</label>
+                    <input type="text" id="username" th:field="*{username}" th:placeholder="#{user.usernamePh}" required>
+                    <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="fullName" th:text="#{user.fullName}">Full Name *</label>
+                    <input type="text" id="fullName" th:field="*{fullName}" th:placeholder="#{user.fullNamePh}" required>
+                    <span th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email" th:text="#{user.email}">Email *</label>
+                    <input type="email" id="email" th:field="*{email}" th:placeholder="#{user.emailPh}" required>
+                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="phone" th:text="#{user.phone}">Phone</label>
+                    <input type="text" id="phone" th:field="*{phone}" th:placeholder="#{user.phonePh}">
+                </div>
+                <div class="form-group">
+                    <label for="password" th:text="#{user.password}">Password *</label>
+                    <input type="password" id="password" th:field="*{password}" th:placeholder="#{user.passwordPh}" required>
+                    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label th:text="#{user.enabled}">Status</label>
+                    <label class="switch">
+                        <input type="checkbox" th:field="*{enabled}" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="form-group full-width">
+                    <label th:text="#{user.roles}">Roles</label>
+                    <div class="checkbox-grid">
+                        <label class="perm-item" th:each="r : ${allRoles}">
+                            <input type="checkbox" class="checkbox" th:field="*{roleIds}" th:value="${r.id}">
+                            <span th:text="${r.name.replace('ROLE_', '')}">ADMIN</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="#{user.save}">Save User</button>
+                <a href="/users" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

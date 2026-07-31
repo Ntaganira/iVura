@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{user.title}, ~{::content})}">
+<head><title>Users - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{user.title}">Users</h1>
+            <div class="subtitle" th:text="#{user.subtitle}">Manage system users and their access</div>
+        </div>
+        <a href="/users/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_USER')">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span th:text="#{user.add}">Add User</span>
+        </a>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{user.sectionTitle}">System Users</span>
+                <span class="section-count" th:text="${users.totalElements}">0</span>
+            </h2>
+            <form th:action="@{/users}" method="get" class="table-toolbar">
+                <div class="toolbar-search">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="search" th:value="${search}" th:placeholder="#{common.search}">
+                </div>
+                <select name="status" class="toolbar-filter" onchange="this.form.submit()">
+                    <option value="" th:selected="${status == null or status == ''}" th:text="#{common.allStatus}">All Status</option>
+                    <option value="active" th:selected="${status == 'active'}" th:text="#{common.active}">Active</option>
+                    <option value="inactive" th:selected="${status == 'inactive'}" th:text="#{common.inactive}">Inactive</option>
+                </select>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{user.table.user}">User</th>
+                        <th th:text="#{user.table.roles}">Roles</th>
+                        <th th:text="#{user.table.phone}">Phone</th>
+                        <th th:text="#{user.table.status}">Status</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u, stat : ${users.content}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar"
+                                     th:classappend="${stat.index % 6 == 0 ? 'blue' : stat.index % 6 == 1 ? 'green' : stat.index % 6 == 2 ? 'yellow' : stat.index % 6 == 3 ? 'purple' : stat.index % 6 == 4 ? 'pink' : 'teal'}"
+                                     th:text="${#strings.substring(u.fullName, 0, 1)}">A</div>
+                                <div class="info">
+                                    <div class="name" th:text="${u.fullName}">Name</div>
+                                    <div class="email" th:text="${u.username}">username</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="role-tags">
+                                <span class="role-tag" th:each="r : ${u.roles}" th:text="${r.name.replace('ROLE_', '')}">ADMIN</span>
+                                <span class="text-muted" th:if="${u.roles == null or u.roles.isEmpty()}" th:text="#{user.noRoles}">No roles</span>
+                            </div>
+                        </td>
+                        <td th:text="${u.phone}">+250...</td>
+                        <td>
+                            <span class="badge badge-success" th:if="${u.enabled}" th:text="#{common.active}">Active</span>
+                            <span class="badge badge-secondary" th:unless="${u.enabled}" th:text="#{common.inactive}">Inactive</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/users/detail/{id}(id=${u.id})}" class="action-icon edit" th:title="#{common.view}" sec:authorize="hasAuthority('PERM_VIEW_USER')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/users/edit/{id}(id=${u.id})}" class="action-icon edit" th:title="#{common.edit}" sec:authorize="hasAuthority('PERM_EDIT_USER')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                </a>
+                                <button type="button" class="action-icon edit open-reset-modal"
+                                        th:attr="data-id=${u.id}, data-name=${u.fullName}"
+                                        th:title="#{user.resetPassword}"
+                                        sec:authorize="hasAuthority('PERM_RESET_PASSWORD')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                                    </svg>
+                                </button>
+                                <a th:if="${u.enabled}"
+                                   th:href="@{/users/toggle/{id}(id=${u.id})}"
+                                   class="action-icon delete confirm-action"
+                                   th:attr="data-confirm=#{user.deactivateConfirm}"
+                                   th:title="#{user.deactivate}"
+                                   sec:authorize="hasAuthority('PERM_EDIT_USER')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                                    </svg>
+                                </a>
+                                <a th:unless="${u.enabled}"
+                                   th:href="@{/users/toggle/{id}(id=${u.id})}"
+                                   class="action-icon edit confirm-action"
+                                   th:attr="data-confirm=#{user.activateConfirm}"
+                                   th:title="#{user.activate}"
+                                   sec:authorize="hasAuthority('PERM_EDIT_USER')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(users.content)}">
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{user.empty.title}">No users yet</h3>
+                                <p th:text="#{user.empty.subtitle}">Add your first user to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <th:block th:replace="~{layout/pagination :: pager(${users}, '/users', ${paginationQuery})}"></th:block>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal-overlay" id="reset-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 th:text="#{user.resetPasswordTitle}">Reset Password</h3>
+                <button type="button" class="modal-close" data-modal-close="reset-modal" aria-label="Close">×</button>
+            </div>
+            <form id="reset-form" method="post">
+                <div class="modal-body">
+                    <p class="text-muted">
+                        <span th:text="#{user.resetPasswordFor}">Reset password for</span>
+                        <strong id="reset-user-name"></strong>
+                    </p>
+                    <div class="form-group">
+                        <label for="reset-password" th:text="#{user.newPassword}">New Password</label>
+                        <input type="password" id="reset-password" name="newPassword" minlength="6" required>
+                        <span class="hint" th:text="#{user.newPasswordHint}">Minimum 6 characters</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-modal-close="reset-modal" th:text="#{common.cancel}">Cancel</button>
+                    <button type="submit" class="btn btn-primary" th:text="#{user.resetPassword}">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

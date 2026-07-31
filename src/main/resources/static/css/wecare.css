@@ -127,7 +127,21 @@ body {
   padding: 16px 0;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.18) transparent;
 }
+
+.sidebar-menu::-webkit-scrollbar { width: 5px; }
+.sidebar-menu::-webkit-scrollbar-track { background: transparent; }
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.18);
+  border-radius: 10px;
+}
+.sidebar-menu::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.32); }
+
+html.sidebar-collapsed .sidebar-menu { scrollbar-width: none; }
+html.sidebar-collapsed .sidebar-menu::-webkit-scrollbar { display: none; }
 
 .sidebar-menu .menu-label {
   padding: 8px 24px;
@@ -489,6 +503,7 @@ html.sidebar-collapsed .sidebar-toggle .icon-collapse { display: none; }
 }
 
 .header-right .profile .info .role {
+  display: none;
   font-size: 12px;
   color: var(--gray-500);
 }
@@ -1152,3 +1167,324 @@ table tbody td .patient-cell .info .email {
 
 [data-theme="dark"] .action-icon.edit { background: var(--primary-light); color: var(--primary-soft); }
 [data-theme="dark"] .action-icon.delete { background: #3d2226; color: #fca5a5; }
+
+/* === User Management Module === */
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: -1px;
+}
+
+.tab:hover { color: var(--primary); }
+
+.tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.section-body { padding: 24px; }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 24px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--gray-100);
+}
+
+.pagination .info {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+.pagination a {
+  min-width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.pagination a:hover { border-color: var(--primary); color: var(--primary); }
+
+.pagination a.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.pagination a.disabled { opacity: .4; pointer-events: none; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, .35);
+}
+
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 { font-size: 17px; font-weight: 600; color: var(--dark); }
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--gray-400);
+  cursor: pointer;
+}
+
+.modal-close:hover { color: var(--danger); }
+
+.modal-body { padding: 24px; }
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Permission / page tree */
+.perm-tree { display: flex; flex-direction: column; gap: 16px; }
+
+.perm-group {
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.perm-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.perm-group-header label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+  cursor: pointer;
+}
+
+.perm-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px 16px;
+}
+
+.perm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--gray-700);
+  cursor: pointer;
+}
+
+.perm-item .mono { margin-left: auto; }
+.perm-child { margin-left: 22px; }
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* Switch toggle */
+.switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.switch .slider {
+  position: absolute;
+  inset: 0;
+  background: var(--gray-300);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.switch .slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+
+.switch input:checked + .slider { background: var(--primary); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+/* Detail list */
+.detail-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px 28px;
+}
+
+.detail-list .item label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.detail-list .item .value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--dark);
+  margin-top: 4px;
+}
+
+/* Role cards (user detail) */
+.role-card {
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.role-card-header {
+  padding: 14px 20px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.role-card-title { font-weight: 600; color: var(--dark); font-size: 14px; }
+.role-card-desc { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+.role-card-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
+
+.role-card-section label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+  color: var(--gray-500);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.badge-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Role tags */
+.role-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.role-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--primary-light);
+  color: var(--primary-soft);
+}
+
+/* Misc helpers */
+.text-muted { color: var(--gray-500); font-size: 13px; }
+.hint { color: var(--gray-400); font-size: 12px; }
+
+.mono {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.form-divider {
+  margin: 28px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.form-divider h3 { font-size: 16px; font-weight: 600; color: var(--dark); }
+.form-divider p { margin-top: 4px; }
+
+.form-wide { max-width: 960px; }
+
+/* Responsive tweaks for the module */
+@media (max-width: 768px) {
+  .perm-items { grid-template-columns: 1fr; }
+  .pagination .info { width: 100%; margin-bottom: 6px; }
+  .tabs { padding: 0 16px; }
+}

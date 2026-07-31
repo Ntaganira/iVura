@@ -36,7 +36,7 @@
     </div>
     <nav class="sidebar-menu">
         <div class="menu-label" th:text="#{menu.main}">Main Menu</div>
-        <a th:classappend="${requestURI == '/' or requestURI == '/dashboard'} ? 'active' : ''" href="/dashboard">
+        <a sec:authorize="hasAuthority('PAGE_DASHBOARD')" th:classappend="${requestURI == '/' or requestURI == '/dashboard'} ? 'active' : ''" href="/dashboard">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -46,7 +46,7 @@
                 </svg>
             </span> <span th:text="#{nav.dashboard}">Dashboard</span>
         </a>
-        <a th:classappend="${#strings.contains(requestURI, '/patients')} ? 'active' : ''" href="/patients">
+        <a sec:authorize="hasAuthority('PAGE_PATIENTS')" th:classappend="${#strings.contains(requestURI, '/patients')} ? 'active' : ''" href="/patients">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -56,7 +56,7 @@
                 </svg>
             </span> <span th:text="#{nav.patients}">Patients</span>
         </a>
-        <a th:classappend="${#strings.contains(requestURI, '/doctors')} ? 'active' : ''" href="/doctors">
+        <a sec:authorize="hasAuthority('PAGE_DOCTORS')" th:classappend="${#strings.contains(requestURI, '/doctors')} ? 'active' : ''" href="/doctors">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -65,7 +65,7 @@
                 </svg>
             </span> <span th:text="#{nav.doctors}">Doctors</span>
         </a>
-        <a th:classappend="${#strings.contains(requestURI, '/appointments')} ? 'active' : ''" href="/appointments">
+        <a sec:authorize="hasAuthority('PAGE_APPOINTMENTS')" th:classappend="${#strings.contains(requestURI, '/appointments')} ? 'active' : ''" href="/appointments">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -76,7 +76,7 @@
             </span> <span th:text="#{nav.appointments}">Appointments</span>
         </a>
         <div class="menu-label" style="margin-top:16px;" th:text="#{menu.other}">Other</div>
-        <a href="#">
+        <a sec:authorize="hasAuthority('PAGE_DEPARTMENTS')" href="#">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -84,13 +84,40 @@
                 </svg>
             </span> <span th:text="#{nav.departments}">Departments</span>
         </a>
-        <a href="#">
+        <a sec:authorize="hasAuthority('PAGE_BILLING')" href="#">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <line x1="12" y1="1" x2="12" y2="23"></line>
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
             </span> <span th:text="#{nav.billing}">Billing</span>
+        </a>
+        <div class="menu-label" style="margin-top:16px;" sec:authorize="hasAnyAuthority('PAGE_USERS', 'PAGE_ROLES', 'PAGE_PERMISSIONS')" th:text="#{menu.admin}">Administration</div>
+        <a sec:authorize="hasAuthority('PAGE_USERS')" th:classappend="${#strings.contains(requestURI, '/users')} ? 'active' : ''" href="/users">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </span> <span th:text="#{nav.users}">Users</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_ROLES')" th:classappend="${#strings.contains(requestURI, '/roles')} ? 'active' : ''" href="/roles">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+            </span> <span th:text="#{nav.roles}">Roles</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_PERMISSIONS')" th:classappend="${#strings.contains(requestURI, '/permissions')} ? 'active' : ''" href="/permissions">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </span> <span th:text="#{nav.permissions}">Permissions</span>
         </a>
     </nav>
     <div class="sidebar-footer">
@@ -175,6 +202,9 @@
 
     <!-- Page Content -->
     <main class="page-content">
+        <div th:if="${flashSuccess}" class="alert alert-success" th:text="${flashSuccess}"></div>
+        <div th:if="${flashError}" class="alert alert-danger" th:text="${flashError}"></div>
+        <div th:if="${flashWarning}" class="alert alert-warning" th:text="${flashWarning}"></div>
         <th:block th:replace="${content}"></th:block>
     </main>
 </div>

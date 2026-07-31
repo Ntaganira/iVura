@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{role.title}, ~{::content})}">
+<head><title>Roles - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{role.title}">Roles</h1>
+            <div class="subtitle" th:text="#{role.subtitle}">Manage roles and their access</div>
+        </div>
+        <a href="/roles/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_ROLE')">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span th:text="#{role.add}">Add Role</span>
+        </a>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{role.sectionTitle}">System Roles</span>
+                <span class="section-count" th:text="${roles.totalElements}">0</span>
+            </h2>
+            <form th:action="@{/roles}" method="get" class="table-toolbar">
+                <div class="toolbar-search">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="search" th:value="${search}" th:placeholder="#{common.search}">
+                </div>
+                <select name="status" class="toolbar-filter" onchange="this.form.submit()">
+                    <option value="" th:selected="${status == null or status == ''}" th:text="#{common.allStatus}">All Status</option>
+                    <option value="active" th:selected="${status == 'active'}" th:text="#{common.active}">Active</option>
+                    <option value="inactive" th:selected="${status == 'inactive'}" th:text="#{common.inactive}">Inactive</option>
+                </select>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{role.table.role}">Role</th>
+                        <th th:text="#{role.table.code}">Code</th>
+                        <th th:text="#{role.table.users}">Users</th>
+                        <th th:text="#{role.table.permissions}">Permissions</th>
+                        <th th:text="#{role.table.pages}">Pages</th>
+                        <th th:text="#{role.table.status}">Status</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r, stat : ${roles.content}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar"
+                                     th:classappend="${stat.index % 5 == 0 ? 'blue' : stat.index % 5 == 1 ? 'green' : stat.index % 5 == 2 ? 'yellow' : stat.index % 5 == 3 ? 'purple' : 'teal'}"
+                                     th:text="${#strings.substring(r.name.replace('ROLE_', ''), 0, 1)}">A</div>
+                                <div class="info">
+                                    <div class="name" th:text="${r.name.replace('ROLE_', '')}">Admin</div>
+                                    <div class="email" th:text="${r.description}">Description</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="mono" th:text="${r.code}">ADMIN</span></td>
+                        <td th:text="${@roleService.countUsers(r.id)}">0</td>
+                        <td><span class="badge badge-info" th:text="${r.permissions.size()}">0</span></td>
+                        <td><span class="badge badge-secondary" th:text="${r.pages.size()}">0</span></td>
+                        <td>
+                            <span class="badge badge-success" th:if="${r.enabled}" th:text="#{common.active}">Active</span>
+                            <span class="badge badge-secondary" th:unless="${r.enabled}" th:text="#{common.inactive}">Inactive</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/roles/edit/{id}(id=${r.id})}" class="action-icon edit" th:title="#{role.editPermissions}" sec:authorize="hasAuthority('PERM_EDIT_ROLE')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                </a>
+                                <a th:if="${r.enabled}"
+                                   th:href="@{/roles/toggle/{id}(id=${r.id})}"
+                                   class="action-icon delete confirm-action"
+                                   th:attr="data-confirm=#{role.deactivateConfirm}"
+                                   th:title="#{role.deactivate}"
+                                   sec:authorize="hasAuthority('PERM_EDIT_ROLE')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                                    </svg>
+                                </a>
+                                <a th:unless="${r.enabled}"
+                                   th:href="@{/roles/toggle/{id}(id=${r.id})}"
+                                   class="action-icon edit confirm-action"
+                                   th:attr="data-confirm=#{role.activateConfirm}"
+                                   th:title="#{role.activate}"
+                                   sec:authorize="hasAuthority('PERM_EDIT_ROLE')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/roles/delete/{id}(id=${r.id})}" class="action-icon delete confirm-action"
+                                   th:attr="data-confirm=#{role.deleteConfirm}"
+                                   th:title="#{common.delete}"
+                                   sec:authorize="hasAuthority('PERM_DELETE_ROLE')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(roles.content)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{role.empty.title}">No roles yet</h3>
+                                <p th:text="#{role.empty.subtitle}">Add your first role</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <th:block th:replace="~{layout/pagination :: pager(${roles}, '/roles', ${paginationQuery})}"></th:block>
+    </div>
+</div>
+</body>
+</html>

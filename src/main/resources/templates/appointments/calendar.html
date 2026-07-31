@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{appointment.calendarTitle}, ~{::content})}">
+<head><title>Appointment Calendar - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{appointment.title}">Appointments</h1>
+            <div class="subtitle" th:text="#{appointment.calendarSubtitle}">View and manage appointments on a calendar</div>
+        </div>
+        <div class="page-actions">
+            <div class="view-toggle" role="group" th:aria-label="#{appointment.viewLabel}">
+                <a th:href="@{/appointments}" th:classappend="${requestURI == '/appointments'} ? 'active' : ''" th:text="#{appointment.viewList}">List</a>
+                <a th:href="@{/appointments/calendar}" th:classappend="${requestURI == '/appointments/calendar'} ? 'active' : ''" th:text="#{appointment.viewCalendar}">Calendar</a>
+            </div>
+            <a href="/appointments/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_APPOINTMENT')">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span th:text="#{appointment.add}">New Appointment</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{appointment.calendarTitle}">Appointment Calendar</h2>
+            <div class="calendar-legend">
+                <span class="legend-item"><span class="legend-dot legend-scheduled"></span><span th:text="#{status.scheduled}">Scheduled</span></span>
+                <span class="legend-item"><span class="legend-dot legend-confirmed"></span><span th:text="#{status.confirmed}">Confirmed</span></span>
+                <span class="legend-item"><span class="legend-dot legend-in-progress"></span><span th:text="#{status.inProgress}">In Progress</span></span>
+                <span class="legend-item"><span class="legend-dot legend-completed"></span><span th:text="#{status.completed}">Completed</span></span>
+                <span class="legend-item"><span class="legend-dot legend-cancelled"></span><span th:text="#{status.cancelled}">Cancelled</span></span>
+                <span class="legend-item"><span class="legend-dot legend-no-show"></span><span th:text="#{status.noShow}">No Show</span></span>
+            </div>
+        </div>
+        <div class="calendar-wrap">
+            <div class="calendar-skeleton" id="calendar-skeleton"></div>
+            <div id="appointment-calendar"></div>
+            <p class="calendar-hint" th:text="#{appointment.calendarHint}">Click an empty date or time to create an appointment. Drag an appointment to reschedule it. Click an appointment to view or edit it.</p>
+        </div>
+    </div>
+
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script th:inline="javascript">
+        window.ivuraMessages = Object.assign(window.ivuraMessages || {}, {
+            calMonth: /*[[#{appointment.calMonth}]]*/ 'Month',
+            calWeek: /*[[#{appointment.calWeek}]]*/ 'Week',
+            calDay: /*[[#{appointment.calDay}]]*/ 'Day',
+            calToday: /*[[#{appointment.calToday}]]*/ 'Today'
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('appointment-calendar');
+            if (!calendarEl || typeof FullCalendar === 'undefined') return;
+
+            var csrfMeta = document.querySelector('meta[name="_csrf"]');
+            var csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            var csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+            var csrfHeader = csrfHeaderMeta ? csrfHeaderMeta.getAttribute('content') : '';
+
+            function msg(key, fallback) {
+                return (window.ivuraMessages && window.ivuraMessages[key]) || fallback;
+            }
+
+            function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+            function fmtDate(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+
+            function fmtTime(d) { return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+
+            // Build the events-loading skeleton grid
+            var skeletonEl = document.getElementById('calendar-skeleton');
+            if (skeletonEl && !skeletonEl.hasChildNodes()) {
+                var grid = document.createElement('div');
+                grid.className = 'skeleton-grid';
+                var labels = document.createElement('div');
+                labels.className = 'skeleton-day-labels';
+                for (var d = 0; d < 7; d++) {
+                    var l = document.createElement('span');
+                    l.className = 'skeleton skeleton-day-label';
+                    labels.appendChild(l);
+                }
+                grid.appendChild(labels);
+                var body = document.createElement('div');
+                body.className = 'skeleton-cal-body';
+                for (var i = 0; i < 35; i++) {
+                    var cell = document.createElement('div');
+                    cell.className = 'skeleton-cal-cell';
+                    var head = document.createElement('div');
+                    head.className = 'skeleton skeleton-cell-head';
+                    var blk = document.createElement('div');
+                    blk.className = 'skeleton skeleton-cell-block';
+                    cell.appendChild(head);
+                    cell.appendChild(blk);
+                    body.appendChild(cell);
+                }
+                grid.appendChild(body);
+                skeletonEl.appendChild(grid);
+            }
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                timeZone: 'local',
+                height: 'auto',
+                firstDay: 1,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: msg('calToday', 'Today'),
+                    month: msg('calMonth', 'Month'),
+                    week: msg('calWeek', 'Week'),
+                    day: msg('calDay', 'Day')
+                },
+                eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+                slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+                events: {
+                    url: '/appointments/api/events',
+                    method: 'GET'
+                },
+                loading: function (isLoading) {
+                    if (skeletonEl) skeletonEl.style.display = isLoading ? '' : 'none';
+                    if (calendarEl) calendarEl.style.display = isLoading ? 'none' : '';
+                },
+                dayMaxEvents: 3,
+                eventDisplay: 'block',
+                selectable: true,
+                selectMirror: true,
+                editable: true,
+                select: function (info) {
+                    window.location.href = '/appointments/add?date=' + fmtDate(info.start) + '&time=' + fmtTime(info.start);
+                },
+                eventClick: function (info) {
+                    window.location.href = '/appointments/view/' + info.event.id;
+                },
+                eventDrop: function (info) {
+                    var start = info.event.start;
+                    var body = new URLSearchParams();
+                    body.append('id', info.event.id);
+                    body.append('date', fmtDate(start));
+                    body.append('time', fmtTime(start));
+                    var headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+                    if (csrfHeader && csrfToken) { headers[csrfHeader] = csrfToken; }
+                    fetch('/appointments/reschedule', {
+                        method: 'POST',
+                        headers: headers,
+                        body: body.toString(),
+                        credentials: 'same-origin'
+                    }).then(function (res) { return res.json().catch(function () { return {}; }); })
+                      .then(function (body) {
+                          if (body && body.ok === false) {
+                              alert(body.error || 'Failed to reschedule appointment');
+                          }
+                          calendar.refetchEvents();
+                      })
+                      .catch(function () { calendar.refetchEvents(); });
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+</div>
+</body>
+</html>

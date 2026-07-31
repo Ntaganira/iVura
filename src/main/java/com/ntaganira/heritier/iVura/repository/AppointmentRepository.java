@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     List<Appointment> findByAppointmentDate(LocalDate date);
+    List<Appointment> findByAppointmentDateBetween(LocalDate start, LocalDate end);
     List<Appointment> findByDoctorIdAndAppointmentDate(Long doctorId, LocalDate date);
     List<Appointment> findByPatientId(Long patientId);
     List<Appointment> findByStatus(AppointmentStatus status);

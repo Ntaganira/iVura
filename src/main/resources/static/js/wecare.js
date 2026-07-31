@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
             confirmDialog.open({
                 message: confirmDeleteMsg,
                 danger: true,
-                onConfirm: function () { window.location.href = href; }
+                onConfirm: function () { showPageSkeleton(); window.location.href = href; }
             });
         });
     });
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
             confirmDialog.open({
                 message: msg,
                 danger: danger,
-                onConfirm: function () { window.location.href = href; }
+                onConfirm: function () { showPageSkeleton(); window.location.href = href; }
             });
         });
     });
@@ -264,4 +264,39 @@ document.addEventListener('DOMContentLoaded', function () {
         if (searchInput) searchInput.addEventListener('input', applyFilters);
         if (filterSelect) filterSelect.addEventListener('change', applyFilters);
     }
+
+    // Page-load skeleton on navigation
+    window.showPageSkeleton = function () {
+        const el = document.getElementById('page-skeleton');
+        if (el) el.hidden = false;
+    };
+
+    const isPlainNavigation = function (a) {
+        if (!a || !a.href) return false;
+        if (a.target && a.target !== '_self') return false;
+        if (a.hasAttribute('download')) return false;
+        if (a.getAttribute('rel') === 'external') return false;
+        if (a.closest('.confirm-delete, .confirm-action')) return false;
+        if (a.getAttribute('href').charAt(0) === '#') return false;
+        if (a.getAttribute('href').indexOf('/logout') !== -1) return false;
+        return true;
+    };
+
+    document.addEventListener('click', function (e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const a = e.target.closest('a');
+        if (!a || !isPlainNavigation(a)) return;
+        showPageSkeleton();
+    });
+
+    document.addEventListener('submit', function (e) {
+        if (e.defaultPrevented) return;
+        const form = e.target;
+        if (form && form.action) showPageSkeleton();
+    });
+
+    window.addEventListener('pageshow', function () {
+        const el = document.getElementById('page-skeleton');
+        if (el) el.hidden = true;
+    });
 });

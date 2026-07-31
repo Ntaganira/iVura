@@ -9,13 +9,19 @@
             <h1 th:text="#{appointment.title}">Appointments</h1>
             <div class="subtitle" th:text="#{appointment.subtitle}">Schedule and manage appointments</div>
         </div>
-        <a href="/appointments/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_APPOINTMENT')">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span th:text="#{appointment.add}">New Appointment</span>
-        </a>
+        <div class="page-actions">
+            <div class="view-toggle" role="group" th:aria-label="#{appointment.viewLabel}">
+                <a th:href="@{/appointments}" th:classappend="${requestURI == '/appointments'} ? 'active' : ''" th:text="#{appointment.viewList}">List</a>
+                <a th:href="@{/appointments/calendar}" th:classappend="${requestURI == '/appointments/calendar'} ? 'active' : ''" th:text="#{appointment.viewCalendar}">Calendar</a>
+            </div>
+            <a href="/appointments/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_APPOINTMENT')">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span th:text="#{appointment.add}">New Appointment</span>
+            </a>
+        </div>
     </div>
 
     <div class="section">
@@ -34,11 +40,12 @@
                 </div>
                 <select class="toolbar-filter">
                     <option value="" th:text="#{common.allStatus}">All Status</option>
-                    <option value="Scheduled" th:text="#{status.scheduled}">Scheduled</option>
-                    <option value="In Progress" th:text="#{status.inProgress}">In Progress</option>
-                    <option value="Completed" th:text="#{status.completed}">Completed</option>
-                    <option value="Cancelled" th:text="#{status.cancelled}">Cancelled</option>
-                    <option value="No Show" th:text="#{status.noShow}">No Show</option>
+                    <option value="SCHEDULED" th:text="#{status.scheduled}">Scheduled</option>
+                    <option value="CONFIRMED" th:text="#{status.confirmed}">Confirmed</option>
+                    <option value="IN_PROGRESS" th:text="#{status.inProgress}">In Progress</option>
+                    <option value="COMPLETED" th:text="#{status.completed}">Completed</option>
+                    <option value="CANCELLED" th:text="#{status.cancelled}">Cancelled</option>
+                    <option value="NO_SHOW" th:text="#{status.noShow}">No Show</option>
                 </select>
             </div>
         </div>
@@ -63,7 +70,7 @@
                                      th:classappend="${stat.index % 6 == 0 ? 'blue' : stat.index % 6 == 1 ? 'green' : stat.index % 6 == 2 ? 'yellow' : stat.index % 6 == 3 ? 'purple' : stat.index % 6 == 4 ? 'pink' : 'teal'}"
                                      th:text="${#strings.substring(a.patient.firstName, 0, 1)}">A</div>
                                 <div class="info">
-                                    <div class="name" th:text="${a.patient.fullName}">Name</div>
+                                    <a class="name" th:href="@{/appointments/view/{id}(id=${a.id})}" th:text="${a.patient.fullName}">Name</a>
                                 </div>
                             </div>
                         </td>
@@ -73,6 +80,7 @@
                         <td th:text="${a.reason}">Checkup</td>
                         <td>
                             <span class="badge badge-info" th:if="${a.status.name() == 'SCHEDULED'}" th:text="#{status.scheduled}">Scheduled</span>
+                            <span class="badge badge-confirmed" th:if="${a.status.name() == 'CONFIRMED'}" th:text="#{status.confirmed}">Confirmed</span>
                             <span class="badge badge-success" th:if="${a.status.name() == 'COMPLETED'}" th:text="#{status.completed}">Completed</span>
                             <span class="badge badge-warning" th:if="${a.status.name() == 'IN_PROGRESS'}" th:text="#{status.inProgress}">In Progress</span>
                             <span class="badge badge-danger" th:if="${a.status.name() == 'CANCELLED'}" th:text="#{status.cancelled}">Cancelled</span>
@@ -80,6 +88,12 @@
                         </td>
                         <td>
                             <div class="btn-group">
+                                <a th:href="@{/appointments/view/{id}(id=${a.id})}" class="action-icon" th:title="#{common.view}" sec:authorize="hasAuthority('PERM_VIEW_APPOINTMENT')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </a>
                                 <a th:href="@{/appointments/status/{id}/{status}(id=${a.id}, status='COMPLETED')}" class="btn btn-success btn-sm" th:if="${a.status.name() == 'SCHEDULED' or a.status.name() == 'IN_PROGRESS'}" th:title="#{status.completed}" sec:authorize="hasAuthority('PERM_EDIT_APPOINTMENT')">
                                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <polyline points="20 6 9 17 4 12"></polyline>

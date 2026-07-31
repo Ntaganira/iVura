@@ -15,6 +15,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Controller
 @RequestMapping("/appointments")
 public class AppointmentController {
@@ -41,10 +49,74 @@ public class AppointmentController {
         return "appointments/list";
     }
 
+    @GetMapping("/calendar")
+    @PreAuthorize("hasAuthority('PERM_VIEW_APPOINTMENT')")
+    public String calendar() {
+        return "appointments/calendar";
+    }
+
+    @GetMapping("/api/events")
+    @PreAuthorize("hasAuthority('PERM_VIEW_APPOINTMENT')")
+    @ResponseBody
+    public List<Map<String, Object>> events(@RequestParam(required = false) String start,
+                                            @RequestParam(required = false) String end) {
+        LocalDate from = toLocalDate(start);
+        LocalDate to = toLocalDate(end);
+        List<Appointment> appointments = (from != null && to != null)
+            ? appointmentService.findBetween(from, to)
+            : appointmentService.findAll();
+        return appointments.stream().map(a -> {
+            LocalDateTime startDateTime = LocalDateTime.of(a.getAppointmentDate(), a.getAppointmentTime());
+            Map<String, Object> event = new HashMap<>();
+            event.put("id", a.getId());
+            event.put("title", a.getPatient().getFullName() + " \u00b7 " + a.getDoctor().getFullName());
+            event.put("start", startDateTime);
+            event.put("end", startDateTime.plusMinutes(30));
+            event.put("className", "cal-event-status-" + classNameForStatus(a.getStatus()));
+            event.put("extendedProps", Map.of("status", a.getStatus().name()));
+            return event;
+        }).collect(Collectors.toList());
+    }
+
+    @GetMapping("/view/{id}")
+    @PreAuthorize("hasAuthority('PERM_VIEW_APPOINTMENT')")
+    public String view(@PathVariable Long id, Model model) {
+        model.addAttribute("appointment", appointmentService.findById(id));
+        return "appointments/view";
+    }
+
+    @PostMapping("/reschedule")
+    @PreAuthorize("hasAuthority('PERM_EDIT_APPOINTMENT')")
+    @ResponseBody
+    public Map<String, Object> reschedule(@RequestParam Long id,
+                                          @RequestParam LocalDate date,
+                                          @RequestParam LocalTime time) {
+        Map<String, Object> body = new HashMap<>();
+        try {
+            appointmentService.reschedule(id, date, time);
+            activityLogService.record("Appointment Management", "UPDATE_APPOINTMENT",
+                "Rescheduled appointment #" + id + " to " + date + " " + time, ActivityStatus.SUCCESS);
+            body.put("ok", true);
+        } catch (Exception e) {
+            body.put("ok", false);
+            body.put("error", e.getMessage());
+        }
+        return body;
+    }
+
     @GetMapping("/add")
     @PreAuthorize("hasAuthority('PERM_CREATE_APPOINTMENT')")
-    public String addForm(Model model) {
-        model.addAttribute("appointmentDto", new AppointmentDto());
+    public String addForm(Model model,
+                          @RequestParam(required = false) LocalDate date,
+                          @RequestParam(required = false) LocalTime time) {
+        AppointmentDto dto = new AppointmentDto();
+        if (date != null) {
+            dto.setAppointmentDate(date);
+        }
+        if (time != null) {
+            dto.setAppointmentTime(time);
+        }
+        model.addAttribute("appointmentDto", dto);
         model.addAttribute("patients", patientRepo.findByIsActiveTrue());
         model.addAttribute("doctors", doctorRepo.findByIsActiveTrue());
         return "appointments/add";
@@ -83,5 +155,29 @@ public class AppointmentController {
         activityLogService.record("Appointment Management", "CANCEL_APPOINTMENT",
                 "Cancelled appointment #" + id, ActivityStatus.SUCCESS);
         return "redirect:/appointments";
+    }
+
+    private LocalDate toLocalDate(String iso) {
+        if (iso == null || iso.isEmpty()) {
+            return null;
+        }
+        return LocalDate.parse(iso.length() >= 10 ? iso.substring(0, 10) : iso);
+    }
+
+    private String classNameForStatus(AppointmentStatus status) {
+        switch (status) {
+            case CONFIRMED:
+                return "confirmed";
+            case IN_PROGRESS:
+                return "in-progress";
+            case COMPLETED:
+                return "completed";
+            case CANCELLED:
+                return "cancelled";
+            case NO_SHOW:
+                return "no-show";
+            default:
+                return "scheduled";
+        }
     }
 }

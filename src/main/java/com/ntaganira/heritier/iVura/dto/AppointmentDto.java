@@ -3,6 +3,7 @@ package com.ntaganira.heritier.iVura.dto;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -36,9 +37,11 @@ public class AppointmentDto implements Serializable {
 
     @NotNull(message = "Appointment date is required")
     @Future(message = "Appointment date must be in the future")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate appointmentDate;
 
     @NotNull(message = "Appointment time is required")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     private LocalTime appointmentTime;
 
     private String status;

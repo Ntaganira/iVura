@@ -8,6 +8,8 @@ import com.ntaganira.heritier.iVura.repository.DoctorRepository;
 import com.ntaganira.heritier.iVura.repository.PatientRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -27,6 +29,10 @@ public class AppointmentService {
 
     public List<Appointment> findAll() {
         return appointmentRepo.findAll();
+    }
+
+    public List<Appointment> findBetween(LocalDate start, LocalDate end) {
+        return appointmentRepo.findByAppointmentDateBetween(start, end);
     }
 
     public Appointment findById(Long id) {
@@ -52,6 +58,13 @@ public class AppointmentService {
     public Appointment updateStatus(Long id, String status) {
         Appointment appointment = findById(id);
         appointment.setStatus(AppointmentStatus.valueOf(status));
+        return appointmentRepo.save(appointment);
+    }
+
+    public Appointment reschedule(Long id, LocalDate date, LocalTime time) {
+        Appointment appointment = findById(id);
+        appointment.setAppointmentDate(date);
+        appointment.setAppointmentTime(time);
         return appointmentRepo.save(appointment);
     }
 

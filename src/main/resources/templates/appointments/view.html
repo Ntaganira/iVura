@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{appointment.viewTitle}, ~{::content})}">
+<head><title>Appointment Details - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{appointment.viewTitle}">Appointment Details</h1>
+            <div class="subtitle" th:text="#{appointment.viewSubtitle}">Details of the selected appointment</div>
+        </div>
+        <a href="/appointments" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="detail-avatar" th:text="${#strings.substring(appointment.patient.firstName, 0, 1)}">A</div>
+                <div>
+                    <div class="detail-title" th:text="${appointment.patient.fullName}">Patient Name</div>
+                    <div class="detail-sub" th:text="${appointment.doctor.fullName + ' - ' + appointment.doctor.specialization}">Dr. Name</div>
+                </div>
+                <span class="badge badge-info" th:if="${appointment.status.name() == 'SCHEDULED'}" th:text="#{status.scheduled}">Scheduled</span>
+                <span class="badge badge-confirmed" th:if="${appointment.status.name() == 'CONFIRMED'}" th:text="#{status.confirmed}">Confirmed</span>
+                <span class="badge badge-success" th:if="${appointment.status.name() == 'COMPLETED'}" th:text="#{status.completed}">Completed</span>
+                <span class="badge badge-warning" th:if="${appointment.status.name() == 'IN_PROGRESS'}" th:text="#{status.inProgress}">In Progress</span>
+                <span class="badge badge-danger" th:if="${appointment.status.name() == 'CANCELLED'}" th:text="#{status.cancelled}">Cancelled</span>
+                <span class="badge badge-secondary" th:if="${appointment.status.name() == 'NO_SHOW'}" th:text="#{status.noShow}">No Show</span>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="label" th:text="#{appointment.date}">Date</div>
+                    <div class="value" th:text="${appointment.appointmentDate}">2026-08-05</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{appointment.time}">Time</div>
+                    <div class="value" th:text="${appointment.appointmentTime}">09:00</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{appointment.doctor}">Doctor</div>
+                    <div class="value" th:text="${appointment.doctor.fullName}">Dr. Name</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{doctor.specialization}">Specialization</div>
+                    <div class="value" th:text="${appointment.doctor.specialization}">Cardiology</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{appointment.patient}">Patient</div>
+                    <div class="value" th:text="${appointment.patient.fullName}">Patient Name</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{appointment.reasonFull}">Reason for Visit</div>
+                    <div class="value" th:text="${#strings.isEmpty(appointment.reason) ? #messages.msg('common.na') : appointment.reason}">Checkup</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{appointment.notes}">Notes</div>
+                    <div class="value" th:text="${#strings.isEmpty(appointment.notes) ? #messages.msg('common.na') : appointment.notes}">Notes</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{appointment.createdAt}">Created</div>
+                    <div class="value" th:text="${appointment.createdAt}">2026-08-01</div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/appointments/status/{id}/{status}(id=${appointment.id}, status='COMPLETED')}" class="btn btn-success" th:if="${appointment.status.name() == 'SCHEDULED' or appointment.status.name() == 'IN_PROGRESS'}" th:text="#{appointment.markCompleted}" sec:authorize="hasAuthority('PERM_EDIT_APPOINTMENT')">Mark Completed</a>
+                <a th:href="@{/appointments/status/{id}/{status}(id=${appointment.id}, status='CANCELLED')}" class="btn btn-danger" th:if="${appointment.status.name() == 'SCHEDULED'}" th:text="#{appointment.cancelAppointment}" sec:authorize="hasAuthority('PERM_CANCEL_APPOINTMENT')">Cancel Appointment</a>
+                <a th:href="@{/appointments/delete/{id}(id=${appointment.id})}" class="btn btn-outline delete confirm-delete" th:text="#{common.delete}" sec:authorize="hasAuthority('PERM_CANCEL_APPOINTMENT')">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

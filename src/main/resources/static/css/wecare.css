@@ -1,23 +1,27 @@
 /* === WeCare Medical Dashboard Theme === */
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-light: #dbeafe;
-  --secondary: #0ea5e9;
+  --primary: #268071;
+  --primary-dark: #1f6a5e;
+  --primary-light: #f0f8ee;
+  --primary-soft: #266a54;
+  --secondary: #4fb8a8;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
   --info: #6366f1;
-  --dark: #1e293b;
-  --gray-50: #f8fafc;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --header-bg: rgba(255,255,255,.95);
+  --dark: #000000;
+  --gray-50: #fafafa;
   --gray-100: #f1f5f9;
   --gray-200: #e2e8f0;
   --gray-300: #cbd5e1;
   --gray-400: #94a3b8;
   --gray-500: #64748b;
   --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
+  --gray-700: #000000;
+  --gray-800: #000000;
   --gray-900: #0f172a;
   --sidebar-width: 260px;
   --header-height: 70px;
@@ -25,6 +29,34 @@
   --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -2px rgba(0,0,0,.04);
   --transition: all .2s ease;
+}
+
+[data-theme="dark"] {
+  --primary: #268071;
+  --primary-dark: #2d9a88;
+  --primary-light: #263a34;
+  --primary-soft: #8fd3b8;
+  --secondary: #4fb8a8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #6366f1;
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --header-bg: rgba(18,18,18,.9);
+  --dark: #ffffff;
+  --gray-50: #1a1a1a;
+  --gray-100: #262626;
+  --gray-200: #333333;
+  --gray-300: #444444;
+  --gray-400: #b0b0b0;
+  --gray-500: #b0b0b0;
+  --gray-600: #9a9a9a;
+  --gray-700: #d5d5d5;
+  --gray-800: #ffffff;
+  --gray-900: #ffffff;
+  --shadow: 0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.5), 0 4px 6px -2px rgba(0,0,0,.4);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,10 +69,11 @@ svg {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: var(--gray-50);
+  background: var(--bg);
   color: var(--gray-800);
   display: flex;
   min-height: 100vh;
+  transition: background-color .25s ease, color .25s ease;
 }
 
 /* === Sidebar === */
@@ -86,7 +119,7 @@ body {
 }
 
 .sidebar-brand span {
-  color: var(--primary);
+  color: #4fb8a8;
 }
 
 .sidebar-menu {
@@ -100,7 +133,7 @@ body {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--gray-400);
+  color: #7c8ba1;
   font-weight: 600;
 }
 
@@ -109,7 +142,7 @@ body {
   align-items: center;
   gap: 12px;
   padding: 12px 24px;
-  color: var(--gray-300);
+  color: #a8b3c2;
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
@@ -123,7 +156,7 @@ body {
 }
 
 .sidebar-menu a.active {
-  background: rgba(37,99,235,.15);
+  background: rgba(38,128,113,.18);
   color: white;
   border-left-color: var(--primary);
 }
@@ -165,7 +198,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--gray-400);
+  color: #8a97a8;
   text-decoration: none;
   font-size: 14px;
   transition: var(--transition);
@@ -203,7 +236,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255,255,255,.95);
+  background: var(--header-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--gray-200);
   padding: 0 32px;
@@ -211,6 +244,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: background-color .25s ease, border-color .25s ease;
 }
 
 .header-left {
@@ -295,7 +329,7 @@ body {
 .lang-select {
   border: 1.5px solid var(--gray-200);
   border-radius: 8px;
-  background: white;
+  background: var(--surface);
   color: var(--gray-700);
   font-size: 13px;
   font-weight: 600;
@@ -310,6 +344,48 @@ body {
 
 .header-right .notif-btn:hover { background: var(--gray-200); }
 
+/* === Theme toggle === */
+.theme-toggle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: var(--gray-100);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.theme-toggle:hover { background: var(--gray-200); }
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--gray-600);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle .icon-sun { display: none; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+.login-page .theme-toggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 100;
+  background: rgba(255,255,255,.1);
+}
+
+.login-page .theme-toggle:hover { background: rgba(255,255,255,.2); }
+.login-page .theme-toggle svg { stroke: rgba(255,255,255,.85); }
+
 .header-right .notif-btn .dot {
   position: absolute;
   top: 8px;
@@ -318,7 +394,7 @@ body {
   height: 8px;
   background: var(--danger);
   border-radius: 50%;
-  border: 2px solid white;
+  border: 2px solid var(--surface);
 }
 
 .header-right .profile {
@@ -387,7 +463,7 @@ body {
 }
 
 /* === Avatar variants === */
-.avatar.blue { background: #dbeafe; color: var(--primary); }
+.avatar.blue { background: var(--primary-light); color: var(--primary-soft); }
 .avatar.green { background: #d1fae5; color: #059669; }
 .avatar.yellow { background: #fef3c7; color: #d97706; }
 .avatar.purple { background: #ede9fe; color: #7c3aed; }
@@ -403,7 +479,7 @@ body {
 }
 
 .stat-card {
-  background: white;
+  background: var(--surface);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
@@ -463,14 +539,14 @@ body {
   stroke-linejoin: round;
 }
 
-.stat-card .stat-icon.blue { background: var(--primary-light); color: var(--primary); }
+.stat-card .stat-icon.blue { background: var(--primary-light); color: var(--primary-soft); }
 .stat-card .stat-icon.green { background: #d1fae5; color: var(--success); }
 .stat-card .stat-icon.yellow { background: #fef3c7; color: var(--warning); }
 .stat-card .stat-icon.purple { background: #ede9fe; color: var(--info); }
 
 /* === Section === */
 .section {
-  background: white;
+  background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   margin-bottom: 24px;
@@ -547,7 +623,7 @@ body {
   padding: 8px 12px;
   font-size: 13px;
   color: var(--gray-700);
-  background: white;
+  background: var(--surface);
   outline: none;
   cursor: pointer;
   font-family: inherit;
@@ -609,7 +685,7 @@ table tbody td .patient-cell .avatar {
   font-size: 14px;
 }
 
-table tbody td .patient-cell .avatar.blue { background: #dbeafe; color: var(--primary); }
+table tbody td .patient-cell .avatar.blue { background: var(--primary-light); color: var(--primary-soft); }
 table tbody td .patient-cell .avatar.green { background: #d1fae5; color: #059669; }
 table tbody td .patient-cell .avatar.yellow { background: #fef3c7; color: #d97706; }
 table tbody td .patient-cell .avatar.purple { background: #ede9fe; color: #7c3aed; }
@@ -652,7 +728,7 @@ table tbody td .patient-cell .info .email {
 .badge-danger { background: #fee2e2; color: #991b1b; }
 .badge-danger::before { background: var(--danger); }
 
-.badge-info { background: #dbeafe; color: #1e40af; }
+.badge-info { background: var(--primary-light); color: var(--primary-soft); }
 .badge-info::before { background: var(--primary); }
 
 .badge-secondary { background: var(--gray-200); color: var(--gray-600); }
@@ -703,7 +779,7 @@ table tbody td .patient-cell .info .email {
 
 .btn-outline:hover {
   border-color: var(--primary);
-  color: var(--primary);
+  color: var(--primary-soft);
   background: var(--primary-light);
 }
 
@@ -753,7 +829,7 @@ table tbody td .patient-cell .info .email {
   border-radius: 8px;
   font-size: 14px;
   color: var(--gray-800);
-  background: white;
+  background: var(--surface);
   transition: var(--transition);
   outline: none;
   font-family: inherit;
@@ -763,7 +839,7 @@ table tbody td .patient-cell .info .email {
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  box-shadow: 0 0 0 3px rgba(38,128,113,.15);
 }
 
 .form-group textarea {
@@ -790,7 +866,7 @@ table tbody td .patient-cell .info .email {
 }
 
 .login-card {
-  background: white;
+  background: var(--surface);
   border-radius: 16px;
   padding: 40px;
   width: 100%;
@@ -872,7 +948,7 @@ table tbody td .patient-cell .info .email {
 .alert-success { background: #d1fae5; color: #065f46; }
 .alert-danger { background: #fee2e2; color: #991b1b; }
 .alert-warning { background: #fef3c7; color: #92400e; }
-.alert-info { background: #dbeafe; color: #1e40af; }
+.alert-info { background: var(--primary-light); color: var(--primary-soft); }
 
 /* === Responsive === */
 @media (max-width: 768px) {
@@ -935,7 +1011,7 @@ table tbody td .patient-cell .info .email {
   stroke-linejoin: round;
 }
 
-.action-icon.edit { background: #dbeafe; color: var(--primary); }
+.action-icon.edit { background: var(--primary-light); color: var(--primary-soft); }
 .action-icon.edit:hover { background: var(--primary); color: white; }
 .action-icon.delete { background: #fee2e2; color: var(--danger); }
 .action-icon.delete:hover { background: var(--danger); color: white; }
@@ -991,3 +1067,27 @@ table tbody td .patient-cell .info .email {
   color: var(--gray-600);
   margin-bottom: 8px;
 }
+
+/* === Dark mode overrides === */
+[data-theme="dark"] .avatar.green { background: #1f3d33; color: #6ee7b7; }
+[data-theme="dark"] .avatar.yellow { background: #3d3320; color: #fcd34d; }
+[data-theme="dark"] .avatar.purple { background: #312e4f; color: #c4b5fd; }
+[data-theme="dark"] .avatar.pink { background: #432238; color: #f9a8d4; }
+[data-theme="dark"] .avatar.teal { background: #1f3b3d; color: #5eead4; }
+
+[data-theme="dark"] .stat-icon.green { background: #1f3d33; color: var(--success); }
+[data-theme="dark"] .stat-icon.yellow { background: #3d3320; color: var(--warning); }
+[data-theme="dark"] .stat-icon.purple { background: #312e4f; color: var(--info); }
+
+[data-theme="dark"] .badge-success { background: #1f3d33; color: #6ee7b7; }
+[data-theme="dark"] .badge-warning { background: #3d3320; color: #fcd34d; }
+[data-theme="dark"] .badge-danger { background: #3d2226; color: #fca5a5; }
+[data-theme="dark"] .badge-info { background: var(--primary-light); color: var(--primary-soft); }
+
+[data-theme="dark"] .alert-success { background: #1f3d33; color: #6ee7b7; }
+[data-theme="dark"] .alert-danger { background: #3d2226; color: #fca5a5; }
+[data-theme="dark"] .alert-warning { background: #3d3320; color: #fcd34d; }
+[data-theme="dark"] .alert-info { background: var(--primary-light); color: var(--primary-soft); }
+
+[data-theme="dark"] .action-icon.edit { background: var(--primary-light); color: var(--primary-soft); }
+[data-theme="dark"] .action-icon.delete { background: #3d2226; color: #fca5a5; }

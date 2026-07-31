@@ -22,6 +22,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        const themeLabels = (window.ivuraMessages && window.ivuraMessages.theme)
+            || { light: 'Light Mode', dark: 'Dark Mode' };
+        const syncThemeUI = function () {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            themeToggle.setAttribute('aria-label', isDark ? themeLabels.light : themeLabels.dark);
+        };
+        themeToggle.addEventListener('click', function () {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const next = isDark ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('ivura-theme', next);
+            syncThemeUI();
+        });
+        syncThemeUI();
+    }
+
     // Live table search + status filter
     const toolbar = document.querySelector('.table-toolbar');
     const searchInput = toolbar ? toolbar.querySelector('.table-search') : null;

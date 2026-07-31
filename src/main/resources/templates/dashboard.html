@@ -153,6 +153,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script th:inline="javascript">
         const chartLabel = [[#{appointment.chartLabel}]];
+        const themeColors = getComputedStyle(document.documentElement);
+        const cPrimary = (themeColors.getPropertyValue('--primary') || '#268071').trim();
+        const cGrid = (themeColors.getPropertyValue('--border') || '#e2e8f0').trim();
+        const cTick = (themeColors.getPropertyValue('--gray-500') || '#64748b').trim();
+        const cPointBorder = (themeColors.getPropertyValue('--surface') || '#ffffff').trim();
         const labels = [
             <th:block th:each="d : ${weeklyData}">'<span th:text="${d[0]}"></span>',
             </th:block>
@@ -168,12 +173,12 @@
                 datasets: [{
                     label: chartLabel,
                     data: data,
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37,99,235,.1)',
+                    borderColor: cPrimary,
+                    backgroundColor: 'rgba(38,128,113,.12)',
                     fill: true,
                     tension: .4,
-                    pointBackgroundColor: '#2563eb',
-                    pointBorderColor: '#fff',
+                    pointBackgroundColor: cPrimary,
+                    pointBorderColor: cPointBorder,
                     pointBorderWidth: 2,
                     pointRadius: 5
                 }]
@@ -183,8 +188,12 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' } },
-                    x: { grid: { display: false } }
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: cGrid },
+                        ticks: { color: cTick }
+                    },
+                    x: { grid: { display: false }, ticks: { color: cTick } }
                 }
             }
         });

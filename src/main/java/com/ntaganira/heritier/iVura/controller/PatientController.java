@@ -1,6 +1,9 @@
 package com.ntaganira.heritier.iVura.controller;
 
 import com.ntaganira.heritier.iVura.dto.PatientDto;
+import com.ntaganira.heritier.iVura.entity.Patient;
+import com.ntaganira.heritier.iVura.enums.ActivityStatus;
+import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.PatientService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class PatientController {
 
     private final PatientService patientService;
+    private final ActivityLogService activityLogService;
 
-    public PatientController(PatientService patientService) {
+    public PatientController(PatientService patientService, ActivityLogService activityLogService) {
         this.patientService = patientService;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping
@@ -36,11 +41,14 @@ public class PatientController {
     @PostMapping("/add")
     @PreAuthorize("hasAuthority('PERM_CREATE_PATIENT')")
     public String add(@Valid @ModelAttribute("patientDto") PatientDto dto,
-                      BindingResult result) {
+                      BindingResult result, Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "patients/add";
         }
-        patientService.create(dto);
+        Patient patient = patientService.create(dto);
+        activityLogService.record("Patient Management", "CREATE_PATIENT",
+                "Created patient " + patient.getFullName(), ActivityStatus.SUCCESS);
         return "redirect:/patients";
     }
 
@@ -73,18 +81,24 @@ public class PatientController {
     @PreAuthorize("hasAuthority('PERM_EDIT_PATIENT')")
     public String edit(@PathVariable Long id,
                        @Valid @ModelAttribute("patientDto") PatientDto dto,
-                       BindingResult result) {
+                       BindingResult result, Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "patients/edit";
         }
-        patientService.update(id, dto);
+        Patient patient = patientService.update(id, dto);
+        activityLogService.record("Patient Management", "UPDATE_PATIENT",
+                "Updated patient " + patient.getFullName(), ActivityStatus.SUCCESS);
         return "redirect:/patients";
     }
 
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('PERM_DELETE_PATIENT')")
     public String delete(@PathVariable Long id) {
+        Patient patient = patientService.findById(id);
         patientService.delete(id);
+        activityLogService.record("Patient Management", "DELETE_PATIENT",
+                "Deleted patient " + patient.getFullName(), ActivityStatus.SUCCESS);
         return "redirect:/patients";
     }
 }

@@ -1,7 +1,10 @@
 package com.ntaganira.heritier.iVura.controller;
 
 import com.ntaganira.heritier.iVura.dto.UserDto;
+import com.ntaganira.heritier.iVura.entity.User;
+import com.ntaganira.heritier.iVura.enums.ActivityStatus;
 import com.ntaganira.heritier.iVura.repository.RoleRepository;
+import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -20,10 +23,13 @@ public class UserController {
 
     private final UserService userService;
     private final RoleRepository roleRepo;
+    private final ActivityLogService activityLogService;
 
-    public UserController(UserService userService, RoleRepository roleRepo) {
+    public UserController(UserService userService, RoleRepository roleRepo,
+                          ActivityLogService activityLogService) {
         this.userService = userService;
         this.roleRepo = roleRepo;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping
@@ -68,13 +74,18 @@ public class UserController {
                       RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("allRoles", roleRepo.findAll());
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "users/add";
         }
         try {
-            userService.create(dto);
+            User user = userService.create(dto);
+            activityLogService.record("User Management", "CREATE_USER",
+                    "Created user " + user.getUsername(), ActivityStatus.SUCCESS);
             redirectAttributes.addFlashAttribute("flashSuccess", "User created successfully");
             return "redirect:/users";
         } catch (RuntimeException e) {
+            activityLogService.record("User Management", "CREATE_USER",
+                    "Failed to create user " + dto.getUsername(), ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", e.getMessage());
             return "redirect:/users/add";
         }
@@ -107,13 +118,18 @@ public class UserController {
                        RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("allRoles", roleRepo.findAll());
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "users/edit";
         }
         try {
-            userService.update(id, dto);
+            User user = userService.update(id, dto);
+            activityLogService.record("User Management", "UPDATE_USER",
+                    "Updated user " + user.getUsername(), ActivityStatus.SUCCESS);
             redirectAttributes.addFlashAttribute("flashSuccess", "User updated successfully");
             return "redirect:/users";
         } catch (RuntimeException e) {
+            activityLogService.record("User Management", "UPDATE_USER",
+                    "Failed to update user " + dto.getUsername(), ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", e.getMessage());
             return "redirect:/users/edit/" + id;
         }
@@ -129,7 +145,10 @@ public class UserController {
     @GetMapping("/toggle/{id}")
     @PreAuthorize("hasAuthority('PERM_EDIT_USER')")
     public String toggleStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var user = userService.toggleStatus(id);
+        User user = userService.toggleStatus(id);
+        activityLogService.record("User Management", "UPDATE_USER",
+                (user.isEnabled() ? "Activated" : "Deactivated") + " user " + user.getUsername(),
+                ActivityStatus.SUCCESS);
         redirectAttributes.addFlashAttribute("flashSuccess",
                 user.isEnabled() ? "User activated" : "User deactivated");
         return "redirect:/users";
@@ -141,10 +160,15 @@ public class UserController {
                                 @RequestParam String newPassword,
                                 RedirectAttributes redirectAttributes) {
         if (newPassword == null || newPassword.length() < 6) {
+            activityLogService.record("User Management", "RESET_PASSWORD",
+                    "Failed to reset password for user #" + id, ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", "Password must be at least 6 characters");
             return "redirect:/users";
         }
+        User user = userService.findById(id);
         userService.resetPassword(id, newPassword);
+        activityLogService.record("User Management", "RESET_PASSWORD",
+                "Reset password for user " + user.getUsername(), ActivityStatus.SUCCESS);
         redirectAttributes.addFlashAttribute("flashSuccess", "Password has been reset successfully");
         return "redirect:/users";
     }

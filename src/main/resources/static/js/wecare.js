@@ -11,6 +11,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 5000);
     });
 
+    // Dismissible error summary
+    document.querySelectorAll('[data-error-close]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const box = this.closest('.error-summary');
+            if (!box) return;
+            box.classList.add('is-closing');
+            setTimeout(() => box.remove(), 260);
+        });
+    });
+
     // Custom confirm dialog (replaces native confirm())
     const ivuraMsg = (key, fallback) =>
         (window.ivuraMessages && window.ivuraMessages[key]) || fallback;

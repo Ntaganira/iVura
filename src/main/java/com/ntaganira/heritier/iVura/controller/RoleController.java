@@ -2,7 +2,10 @@ package com.ntaganira.heritier.iVura.controller;
 
 import com.ntaganira.heritier.iVura.dto.RoleDto;
 import com.ntaganira.heritier.iVura.entity.AppPage;
+import com.ntaganira.heritier.iVura.entity.Role;
+import com.ntaganira.heritier.iVura.enums.ActivityStatus;
 import com.ntaganira.heritier.iVura.repository.AppPageRepository;
+import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.PermissionService;
 import com.ntaganira.heritier.iVura.service.RoleService;
 import jakarta.validation.Valid;
@@ -28,11 +31,14 @@ public class RoleController {
     private final RoleService roleService;
     private final PermissionService permissionService;
     private final AppPageRepository pageRepo;
+    private final ActivityLogService activityLogService;
 
-    public RoleController(RoleService roleService, PermissionService permissionService, AppPageRepository pageRepo) {
+    public RoleController(RoleService roleService, PermissionService permissionService,
+                          AppPageRepository pageRepo, ActivityLogService activityLogService) {
         this.roleService = roleService;
         this.permissionService = permissionService;
         this.pageRepo = pageRepo;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping
@@ -101,13 +107,18 @@ public class RoleController {
         if (result.hasErrors()) {
             model.addAttribute("permissionsByModule", permissionService.findEnabledByModule());
             model.addAttribute("pagesByModule", groupPagesByModule());
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "roles/form";
         }
         try {
-            roleService.create(dto);
+            Role role = roleService.create(dto);
+            activityLogService.record("Role Management", "CREATE_ROLE",
+                    "Created role " + role.getName(), ActivityStatus.SUCCESS);
             redirectAttributes.addFlashAttribute("flashSuccess", "Role created successfully");
             return "redirect:/roles";
         } catch (RuntimeException e) {
+            activityLogService.record("Role Management", "CREATE_ROLE",
+                    "Failed to create role " + dto.getName(), ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", e.getMessage());
             return "redirect:/roles/add";
         }
@@ -122,13 +133,18 @@ public class RoleController {
         if (result.hasErrors()) {
             model.addAttribute("permissionsByModule", permissionService.findEnabledByModule());
             model.addAttribute("pagesByModule", groupPagesByModule());
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "roles/form";
         }
         try {
-            roleService.update(id, dto);
+            Role role = roleService.update(id, dto);
+            activityLogService.record("Role Management", "UPDATE_ROLE",
+                    "Updated role " + role.getName(), ActivityStatus.SUCCESS);
             redirectAttributes.addFlashAttribute("flashSuccess", "Role updated successfully");
             return "redirect:/roles";
         } catch (RuntimeException e) {
+            activityLogService.record("Role Management", "UPDATE_ROLE",
+                    "Failed to update role " + dto.getName(), ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", e.getMessage());
             return "redirect:/roles/edit/" + id;
         }
@@ -137,7 +153,10 @@ public class RoleController {
     @GetMapping("/toggle/{id}")
     @PreAuthorize("hasAuthority('PERM_EDIT_ROLE')")
     public String toggleStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var role = roleService.toggleStatus(id);
+        Role role = roleService.toggleStatus(id);
+        activityLogService.record("Role Management", "UPDATE_ROLE",
+                (role.isEnabled() ? "Activated" : "Deactivated") + " role " + role.getName(),
+                ActivityStatus.SUCCESS);
         redirectAttributes.addFlashAttribute("flashSuccess",
                 role.isEnabled() ? "Role activated" : "Role deactivated");
         return "redirect:/roles";
@@ -147,9 +166,14 @@ public class RoleController {
     @PreAuthorize("hasAuthority('PERM_DELETE_ROLE')")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
+            Role role = roleService.findById(id);
             roleService.delete(id);
+            activityLogService.record("Role Management", "DELETE_ROLE",
+                    "Deleted role " + role.getName(), ActivityStatus.SUCCESS);
             redirectAttributes.addFlashAttribute("flashSuccess", "Role deleted successfully");
         } catch (RuntimeException e) {
+            activityLogService.record("Role Management", "DELETE_ROLE",
+                    "Failed to delete role #" + id, ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", e.getMessage());
         }
         return "redirect:/roles";

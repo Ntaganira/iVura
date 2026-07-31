@@ -1,9 +1,12 @@
 package com.ntaganira.heritier.iVura.controller;
 
 import com.ntaganira.heritier.iVura.dto.AppointmentDto;
+import com.ntaganira.heritier.iVura.entity.Appointment;
+import com.ntaganira.heritier.iVura.enums.ActivityStatus;
 import com.ntaganira.heritier.iVura.enums.AppointmentStatus;
 import com.ntaganira.heritier.iVura.repository.DoctorRepository;
 import com.ntaganira.heritier.iVura.repository.PatientRepository;
+import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.AppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,13 +22,16 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final PatientRepository patientRepo;
     private final DoctorRepository doctorRepo;
+    private final ActivityLogService activityLogService;
 
     public AppointmentController(AppointmentService appointmentService,
                                   PatientRepository patientRepo,
-                                  DoctorRepository doctorRepo) {
+                                  DoctorRepository doctorRepo,
+                                  ActivityLogService activityLogService) {
         this.appointmentService = appointmentService;
         this.patientRepo = patientRepo;
         this.doctorRepo = doctorRepo;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping
@@ -51,16 +57,22 @@ public class AppointmentController {
         if (result.hasErrors()) {
             model.addAttribute("patients", patientRepo.findByIsActiveTrue());
             model.addAttribute("doctors", doctorRepo.findByIsActiveTrue());
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "appointments/add";
         }
-        appointmentService.create(dto);
+        Appointment appointment = appointmentService.create(dto);
+        String patientName = appointment.getPatient() != null ? appointment.getPatient().getFullName() : "#" + dto.getPatientId();
+        activityLogService.record("Appointment Management", "CREATE_APPOINTMENT",
+                "Created appointment for patient " + patientName, ActivityStatus.SUCCESS);
         return "redirect:/appointments";
     }
 
     @GetMapping("/status/{id}/{status}")
     @PreAuthorize("hasAuthority('PERM_EDIT_APPOINTMENT')")
     public String updateStatus(@PathVariable Long id, @PathVariable String status) {
-        appointmentService.updateStatus(id, status);
+        Appointment appointment = appointmentService.updateStatus(id, status);
+        activityLogService.record("Appointment Management", "UPDATE_APPOINTMENT",
+                "Changed appointment #" + id + " status to " + appointment.getStatus(), ActivityStatus.SUCCESS);
         return "redirect:/appointments";
     }
 
@@ -68,6 +80,8 @@ public class AppointmentController {
     @PreAuthorize("hasAuthority('PERM_CANCEL_APPOINTMENT')")
     public String delete(@PathVariable Long id) {
         appointmentService.delete(id);
+        activityLogService.record("Appointment Management", "CANCEL_APPOINTMENT",
+                "Cancelled appointment #" + id, ActivityStatus.SUCCESS);
         return "redirect:/appointments";
     }
 }

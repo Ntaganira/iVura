@@ -79,6 +79,14 @@
             </span> <span th:text="#{nav.appointments}">Appointments</span>
         </a>
         <div class="menu-label" style="margin-top:16px;" th:text="#{menu.other}">Other</div>
+        <a sec:authorize="hasAuthority('PAGE_MY_ACTIVITY')" th:classappend="${#strings.contains(requestURI, '/activity/me')} ? 'active' : ''" href="/activity/me">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </span> <span th:text="#{nav.myActivity}">My Activity</span>
+        </a>
         <a sec:authorize="hasAuthority('PAGE_DEPARTMENTS')" href="#">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -95,7 +103,7 @@
                 </svg>
             </span> <span th:text="#{nav.billing}">Billing</span>
         </a>
-        <div class="menu-label" style="margin-top:16px;" sec:authorize="hasAnyAuthority('PAGE_USERS', 'PAGE_ROLES', 'PAGE_PERMISSIONS')" th:text="#{menu.admin}">Administration</div>
+        <div class="menu-label" style="margin-top:16px;" sec:authorize="hasAnyAuthority('PAGE_USERS', 'PAGE_ROLES', 'PAGE_PERMISSIONS', 'PAGE_ACTIVITY_LOGS')" th:text="#{menu.admin}">Administration</div>
         <a sec:authorize="hasAuthority('PAGE_USERS')" th:classappend="${#strings.contains(requestURI, '/users')} ? 'active' : ''" href="/users">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -121,6 +129,16 @@
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
             </span> <span th:text="#{nav.permissions}">Permissions</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_ACTIVITY_LOGS')" th:classappend="${requestURI == '/activity'} ? 'active' : ''" href="/activity">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+            </span> <span th:text="#{nav.activityLogs}">Activity Logs</span>
         </a>
     </nav>
     <div class="sidebar-footer">

@@ -1,6 +1,9 @@
 package com.ntaganira.heritier.iVura.controller;
 
 import com.ntaganira.heritier.iVura.dto.PermissionDto;
+import com.ntaganira.heritier.iVura.entity.Permission;
+import com.ntaganira.heritier.iVura.enums.ActivityStatus;
+import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.PermissionService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -18,9 +21,12 @@ public class PermissionController {
     private static final int PAGE_SIZE = 10;
 
     private final PermissionService permissionService;
+    private final ActivityLogService activityLogService;
 
-    public PermissionController(PermissionService permissionService) {
+    public PermissionController(PermissionService permissionService,
+                                ActivityLogService activityLogService) {
         this.permissionService = permissionService;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping
@@ -77,16 +83,21 @@ public class PermissionController {
     @PostMapping("/save")
     @PreAuthorize("hasAuthority('PERM_CREATE_PERMISSION')")
     public String create(@Valid @ModelAttribute("permissionDto") PermissionDto dto,
-                         BindingResult result,
+                         BindingResult result, Model model,
                          RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "permissions/form";
         }
         try {
-            permissionService.create(dto);
+            Permission permission = permissionService.create(dto);
+            activityLogService.record("Permission Management", "CREATE_PERMISSION",
+                    "Created permission " + permission.getCode(), ActivityStatus.SUCCESS);
             redirectAttributes.addFlashAttribute("flashSuccess", "Permission created successfully");
             return "redirect:/permissions";
         } catch (RuntimeException e) {
+            activityLogService.record("Permission Management", "CREATE_PERMISSION",
+                    "Failed to create permission " + dto.getCode(), ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", e.getMessage());
             return "redirect:/permissions/add";
         }
@@ -96,16 +107,21 @@ public class PermissionController {
     @PreAuthorize("hasAuthority('PERM_EDIT_PERMISSION')")
     public String update(@PathVariable Long id,
                          @Valid @ModelAttribute("permissionDto") PermissionDto dto,
-                         BindingResult result,
+                         BindingResult result, Model model,
                          RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "permissions/form";
         }
         try {
-            permissionService.update(id, dto);
+            Permission permission = permissionService.update(id, dto);
+            activityLogService.record("Permission Management", "UPDATE_PERMISSION",
+                    "Updated permission " + permission.getCode(), ActivityStatus.SUCCESS);
             redirectAttributes.addFlashAttribute("flashSuccess", "Permission updated successfully");
             return "redirect:/permissions";
         } catch (RuntimeException e) {
+            activityLogService.record("Permission Management", "UPDATE_PERMISSION",
+                    "Failed to update permission " + dto.getCode(), ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", e.getMessage());
             return "redirect:/permissions/edit/" + id;
         }
@@ -114,7 +130,10 @@ public class PermissionController {
     @GetMapping("/toggle/{id}")
     @PreAuthorize("hasAuthority('PERM_EDIT_PERMISSION')")
     public String toggleStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var permission = permissionService.toggleStatus(id);
+        Permission permission = permissionService.toggleStatus(id);
+        activityLogService.record("Permission Management", "UPDATE_PERMISSION",
+                (permission.isEnabled() ? "Activated" : "Deactivated") + " permission " + permission.getCode(),
+                ActivityStatus.SUCCESS);
         redirectAttributes.addFlashAttribute("flashSuccess",
                 permission.isEnabled() ? "Permission activated" : "Permission deactivated");
         return "redirect:/permissions";
@@ -124,9 +143,14 @@ public class PermissionController {
     @PreAuthorize("hasAuthority('PERM_DELETE_PERMISSION')")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
+            Permission permission = permissionService.findById(id);
             permissionService.delete(id);
+            activityLogService.record("Permission Management", "DELETE_PERMISSION",
+                    "Deleted permission " + permission.getCode(), ActivityStatus.SUCCESS);
             redirectAttributes.addFlashAttribute("flashSuccess", "Permission deleted successfully");
         } catch (RuntimeException e) {
+            activityLogService.record("Permission Management", "DELETE_PERMISSION",
+                    "Failed to delete permission #" + id, ActivityStatus.FAILED);
             redirectAttributes.addFlashAttribute("flashError", e.getMessage());
         }
         return "redirect:/permissions";

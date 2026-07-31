@@ -15,9 +15,7 @@
     <div class="section">
         <form th:action="${roleDto.id == null} ? @{/roles/save} : @{/roles/edit/{id}(id=${roleDto.id})}"
               th:object="${roleDto}" method="post" class="form-container form-wide">
-            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" th:text="#{common.errors}">
-                Please fix the errors below.
-            </div>
+            <div th:replace="~{layout/errors :: error-summary}"></div>
 
             <div class="form-grid">
                 <div class="form-group">

@@ -1,7 +1,10 @@
 package com.ntaganira.heritier.iVura.controller;
 
 import com.ntaganira.heritier.iVura.dto.DoctorDto;
+import com.ntaganira.heritier.iVura.entity.Doctor;
+import com.ntaganira.heritier.iVura.enums.ActivityStatus;
 import com.ntaganira.heritier.iVura.repository.DepartmentRepository;
+import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.DoctorService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,10 +19,13 @@ public class DoctorController {
 
     private final DoctorService doctorService;
     private final DepartmentRepository departmentRepo;
+    private final ActivityLogService activityLogService;
 
-    public DoctorController(DoctorService doctorService, DepartmentRepository departmentRepo) {
+    public DoctorController(DoctorService doctorService, DepartmentRepository departmentRepo,
+                            ActivityLogService activityLogService) {
         this.doctorService = doctorService;
         this.departmentRepo = departmentRepo;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping
@@ -43,9 +49,12 @@ public class DoctorController {
                       BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("departments", departmentRepo.findAll());
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "doctors/add";
         }
-        doctorService.create(dto);
+        Doctor doctor = doctorService.create(dto);
+        activityLogService.record("Doctor Management", "CREATE_DOCTOR",
+                "Created doctor " + doctor.getFullName(), ActivityStatus.SUCCESS);
         return "redirect:/doctors";
     }
 
@@ -79,16 +88,22 @@ public class DoctorController {
                        BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("departments", departmentRepo.findAll());
+            model.addAttribute("formErrors", result.getFieldErrors());
             return "doctors/edit";
         }
-        doctorService.update(id, dto);
+        Doctor doctor = doctorService.update(id, dto);
+        activityLogService.record("Doctor Management", "UPDATE_DOCTOR",
+                "Updated doctor " + doctor.getFullName(), ActivityStatus.SUCCESS);
         return "redirect:/doctors";
     }
 
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('PERM_DELETE_DOCTOR')")
     public String delete(@PathVariable Long id) {
+        Doctor doctor = doctorService.findById(id);
         doctorService.delete(id);
+        activityLogService.record("Doctor Management", "DELETE_DOCTOR",
+                "Deleted doctor " + doctor.getFullName(), ActivityStatus.SUCCESS);
         return "redirect:/doctors";
     }
 }

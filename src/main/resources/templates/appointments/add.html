@@ -14,9 +14,7 @@
 
     <div class="section">
         <form th:action="@{/appointments/add}" th:object="${appointmentDto}" method="post" class="form-container">
-            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" th:text="#{common.errors}">
-                Please fix the errors below.
-            </div>
+            <div th:replace="~{layout/errors :: error-summary}"></div>
 
             <div class="form-grid">
                 <div class="form-group">

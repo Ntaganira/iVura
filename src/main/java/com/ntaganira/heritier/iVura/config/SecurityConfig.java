@@ -13,6 +13,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,23 +27,30 @@ import java.util.Set;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   AuthenticationSuccessHandler auditSuccessHandler,
+                                                   AuthenticationFailureHandler auditFailureHandler,
+                                                   LogoutSuccessHandler auditLogoutHandler,
+                                                   AccessDeniedHandler auditAccessDeniedHandler) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/login").permitAll()
                 .requestMatchers("/patients/**", "/doctors/**", "/appointments/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE")
                 .requestMatchers("/departments/**", "/billings/**", "/users/**", "/roles/**", "/permissions/**").hasRole("ADMIN")
+                .requestMatchers("/activity/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/dashboard")
+                .successHandler(auditSuccessHandler)
+                .failureHandler(auditFailureHandler)
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessHandler(auditLogoutHandler)
                 .permitAll()
-            );
+            )
+            .exceptionHandling(ex -> ex.accessDeniedHandler(auditAccessDeniedHandler));
         return http.build();
     }
 

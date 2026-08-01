@@ -55,7 +55,7 @@
                 <thead>
                     <tr>
                         <th th:text="#{doctor.table.doctor}">Doctor</th>
-                        <th th:text="#{doctor.table.specialization}">Specialization</th>
+                        <th th:text="#{doctor.table.service}">Service</th>
                         <th th:text="#{doctor.table.phone}">Phone</th>
                     </tr>
                 </thead>
@@ -70,7 +70,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="badge badge-info" th:text="${d.specialization?.name}">Cardiology</span></td>
+                        <td><span class="badge badge-info" th:text="${d.service?.name}">Cardiology</span></td>
                         <td th:text="${d.phone}">+250...</td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(doctors)}">

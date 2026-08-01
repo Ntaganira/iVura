@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(${serviceDto.id == null} ? #{srv.addTitle} : #{srv.editTitle}, ~{::content})}">
+<head><title>Service - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${serviceDto.id == null} ? #{srv.addTitle} : #{srv.editTitle}">Service</h1>
+            <div class="subtitle" th:text="${serviceDto.id == null} ? #{srv.addSubtitle} : #{srv.editSubtitle}">Service details</div>
+        </div>
+        <a href="/services" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="${serviceDto.id == null} ? @{/services/add} : @{/services/edit/{id}(id=${serviceDto.id})}"
+              th:object="${serviceDto}" method="post" class="form-container">
+            <div th:replace="~{layout/errors :: error-summary}"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name" th:text="#{srv.name}">Service Name *</label>
+                    <input type="text" id="name" th:field="*{name}" th:placeholder="#{srv.namePh}" required>
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="price" th:text="#{srv.price}">Price (RWF) *</label>
+                    <input type="number" id="price" th:field="*{price}" step="0.01" min="0" required>
+                    <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group full-width">
+                    <label for="description" th:text="#{srv.description}">Description</label>
+                    <textarea id="description" th:field="*{description}" th:placeholder="#{srv.descriptionPh}"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${serviceDto.id == null} ? #{srv.save} : #{srv.update}">Save Service</button>
+                <a href="/services" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

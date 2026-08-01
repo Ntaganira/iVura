@@ -37,10 +37,10 @@
                     <input type="text" id="phone" th:field="*{phone}">
                 </div>
                 <div class="form-group">
-                    <label for="specializationId" th:text="#{doctor.specialization}">Specialization</label>
-                    <select id="specializationId" th:field="*{specializationId}">
-                        <option value="" th:text="#{doctor.specializationSelect}">Select specialization</option>
-                        <option th:each="spec : ${specializations}" th:value="${spec.id}" th:text="${spec.name + ' - ' + spec.price + ' RWF'}">Cardiology - 20000 RWF</option>
+                    <label for="serviceId" th:text="#{doctor.service}">Service</label>
+                    <select id="serviceId" th:field="*{serviceId}">
+                        <option value="" th:text="#{doctor.serviceSelect}">Select service</option>
+                        <option th:each="svc : ${services}" th:value="${svc.id}" th:text="${svc.name + ' - ' + svc.price + ' RWF'}">Cardiology - 20000 RWF</option>
                     </select>
                 </div>
                 <div class="form-group">

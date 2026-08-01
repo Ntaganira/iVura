@@ -46,8 +46,8 @@ public class Doctor implements Serializable {
     private String phone;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "specialization_id")
-    private Specialization specialization;
+    @JoinColumn(name = "service_id")
+    private Service service;
 
     @Column(name = "license_number", unique = true, length = 50)
     private String licenseNumber;

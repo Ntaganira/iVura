@@ -39,7 +39,7 @@ public class DoctorDto implements Serializable {
     private String email;
 
     private String phone;
-    private Long specializationId;
+    private Long serviceId;
     private String licenseNumber;
     private Long departmentId;
     private String qualification;

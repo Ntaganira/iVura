@@ -95,14 +95,14 @@
                 </svg>
             </span> <span th:text="#{nav.departments}">Departments</span>
         </a>
-        <a sec:authorize="hasAuthority('PAGE_SPECIALIZATIONS')" th:classappend="${#strings.contains(requestURI, '/specializations')} ? 'active' : ''" href="/specializations">
+        <a sec:authorize="hasAuthority('PAGE_SERVICES')" th:classappend="${#strings.contains(requestURI, '/services')} ? 'active' : ''" href="/services">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
                     <polyline points="2 17 12 22 22 17"></polyline>
                     <polyline points="2 12 12 17 22 12"></polyline>
                 </svg>
-            </span> <span th:text="#{nav.specializations}">Specializations</span>
+            </span> <span th:text="#{nav.services}">Services</span>
         </a>
         <a sec:authorize="hasAuthority('PAGE_BILLING')" href="#">
             <span class="icon">

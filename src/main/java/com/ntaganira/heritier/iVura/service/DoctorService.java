@@ -3,26 +3,25 @@ package com.ntaganira.heritier.iVura.service;
 import com.ntaganira.heritier.iVura.dto.DoctorDto;
 import com.ntaganira.heritier.iVura.entity.Department;
 import com.ntaganira.heritier.iVura.entity.Doctor;
-import com.ntaganira.heritier.iVura.entity.Specialization;
+import com.ntaganira.heritier.iVura.entity.Service;
 import com.ntaganira.heritier.iVura.repository.DepartmentRepository;
 import com.ntaganira.heritier.iVura.repository.DoctorRepository;
-import com.ntaganira.heritier.iVura.repository.SpecializationRepository;
-import org.springframework.stereotype.Service;
+import com.ntaganira.heritier.iVura.repository.ServiceRepository;
 
 import java.util.List;
 
-@Service
+@org.springframework.stereotype.Service
 public class DoctorService {
 
     private final DoctorRepository doctorRepo;
     private final DepartmentRepository departmentRepo;
-    private final SpecializationRepository specializationRepo;
+    private final ServiceRepository serviceRepo;
 
     public DoctorService(DoctorRepository doctorRepo, DepartmentRepository departmentRepo,
-                         SpecializationRepository specializationRepo) {
+                         ServiceRepository serviceRepo) {
         this.doctorRepo = doctorRepo;
         this.departmentRepo = departmentRepo;
-        this.specializationRepo = specializationRepo;
+        this.serviceRepo = serviceRepo;
     }
 
     public List<Doctor> findAll() {
@@ -37,15 +36,15 @@ public class DoctorService {
     public Doctor create(DoctorDto dto) {
         Department dept = dto.getDepartmentId() != null
             ? departmentRepo.findById(dto.getDepartmentId()).orElse(null) : null;
-        Specialization specialization = dto.getSpecializationId() != null
-            ? specializationRepo.findById(dto.getSpecializationId()).orElse(null) : null;
+        Service service = dto.getServiceId() != null
+            ? serviceRepo.findById(dto.getServiceId()).orElse(null) : null;
 
         Doctor doctor = Doctor.builder()
             .firstName(dto.getFirstName())
             .lastName(dto.getLastName())
             .email(dto.getEmail())
             .phone(dto.getPhone())
-            .specialization(specialization)
+            .service(service)
             .licenseNumber(dto.getLicenseNumber())
             .department(dept)
             .qualification(dto.getQualification())
@@ -62,14 +61,14 @@ public class DoctorService {
         Doctor doctor = findById(id);
         Department dept = dto.getDepartmentId() != null
             ? departmentRepo.findById(dto.getDepartmentId()).orElse(null) : null;
-        Specialization specialization = dto.getSpecializationId() != null
-            ? specializationRepo.findById(dto.getSpecializationId()).orElse(null) : null;
+        Service service = dto.getServiceId() != null
+            ? serviceRepo.findById(dto.getServiceId()).orElse(null) : null;
 
         doctor.setFirstName(dto.getFirstName());
         doctor.setLastName(dto.getLastName());
         doctor.setEmail(dto.getEmail());
         doctor.setPhone(dto.getPhone());
-        doctor.setSpecialization(specialization);
+        doctor.setService(service);
         doctor.setLicenseNumber(dto.getLicenseNumber());
         doctor.setDepartment(dept);
         doctor.setQualification(dto.getQualification());

@@ -11,20 +11,20 @@ import java.time.LocalDateTime;
  * <pre>
  * - Project   : iVura - Hospital Management System
  * - Package   : com.ntaganira.heritier.iVura.entity
- * - File      : Specialization.java
+ * - File      : Service.java
  * - Date      : 2026. 08. 01.
  * - User      : Hntaganira
- * - Desc      : Specialization Entity (managed lookup for doctors)
+ * - Desc      : Service Entity (medical service provided by the hospital, with price)
  * </pre>
  */
 @Entity
-@Table(name = "specializations")
+@Table(name = "services")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Specialization implements Serializable {
+public class Service implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

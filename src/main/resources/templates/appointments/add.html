@@ -29,7 +29,7 @@
                     <label for="doctorId" th:text="#{appointment.doctor}">Doctor *</label>
                     <select id="doctorId" th:field="*{doctorId}" required>
                         <option value="" th:text="#{appointment.doctorSelect}">Select doctor</option>
-                        <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.fullName + ' - ' + d.specialization}">Doctor</option>
+                        <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.fullName + ' - ' + d.specialization?.name}">Doctor</option>
                     </select>
                     <span th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}" style="color:var(--danger);font-size:12px;"></span>
                 </div>

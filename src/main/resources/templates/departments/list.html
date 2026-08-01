@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{dept.title}, ~{::content})}">
+<head><title>Departments - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{dept.title}">Departments</h1>
+            <div class="subtitle" th:text="#{dept.subtitle}">Manage hospital departments</div>
+        </div>
+        <a href="/departments/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_DEPARTMENT')">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span th:text="#{dept.add}">Add Department</span>
+        </a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${departments.totalElements}">6</div>
+            <div class="label" th:text="#{dept.stat.total}">Total Departments</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${doctorCount}">0</div>
+            <div class="label" th:text="#{dept.stat.doctors}">Doctors</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{dept.sectionTitle}">Department List</span>
+                <span class="section-count" th:text="${departments.totalElements}">0</span>
+            </h2>
+            <form th:action="@{/departments}" method="get" class="table-toolbar">
+                <div class="toolbar-search">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="search" th:value="${search}" th:placeholder="#{common.search}">
+                </div>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{dept.table.department}">Department</th>
+                        <th th:text="#{dept.table.location}">Location</th>
+                        <th th:text="#{dept.table.phone}">Phone</th>
+                        <th th:text="#{dept.table.doctors}">Doctors</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="d, stat : ${departments.content}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar"
+                                     th:classappend="${stat.index % 6 == 0 ? 'blue' : stat.index % 6 == 1 ? 'green' : stat.index % 6 == 2 ? 'yellow' : stat.index % 6 == 3 ? 'purple' : stat.index % 6 == 4 ? 'pink' : 'teal'}"
+                                     th:text="${#strings.substring(d.name, 0, 1)}">C</div>
+                                <div class="info">
+                                    <div class="name" th:text="${d.name}">Cardiology</div>
+                                    <div class="email" th:text="${d.description}">Heart and cardiovascular system</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${d.location}">Floor 1 - East Wing</td>
+                        <td th:text="${d.phone}">+250...</td>
+                        <td th:text="${doctorCounts.get(d.id) == null ? 0 : doctorCounts.get(d.id)}">0</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/departments/view/{id}(id=${d.id})}" class="action-icon edit" th:title="#{common.view}" sec:authorize="hasAuthority('PERM_VIEW_DEPARTMENT')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/departments/edit/{id}(id=${d.id})}" class="action-icon edit" th:title="#{common.edit}" sec:authorize="hasAuthority('PERM_EDIT_DEPARTMENT')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/departments/delete/{id}(id=${d.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}" th:attr="data-confirm=#{dept.deleteConfirm}" sec:authorize="hasAuthority('PERM_DELETE_DEPARTMENT')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(departments.content)}">
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{dept.empty.title}">No departments yet</h3>
+                                <p th:text="#{dept.empty.subtitle}">Add your first department to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <th:block th:replace="~{layout/pagination :: pager(${departments}, '/departments', ${paginationQuery})}"></th:block>
+    </div>
+</div>
+</body>
+</html>

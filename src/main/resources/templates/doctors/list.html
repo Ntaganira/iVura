@@ -60,7 +60,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="badge badge-info" th:text="${d.specialization}">Cardiology</span></td>
+                        <td><span class="badge badge-info" th:text="${d.specialization?.name}">Cardiology</span></td>
                         <td th:text="${d.department?.name}">Dept</td>
                         <td th:text="${d.phone}">+250...</td>
                         <td th:text="${d.experienceYears} + ' yrs'">5 yrs</td>

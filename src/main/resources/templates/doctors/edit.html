@@ -37,8 +37,11 @@
                     <input type="text" id="phone" th:field="*{phone}">
                 </div>
                 <div class="form-group">
-                    <label for="specialization" th:text="#{doctor.specialization}">Specialization</label>
-                    <input type="text" id="specialization" th:field="*{specialization}">
+                    <label for="specializationId" th:text="#{doctor.specialization}">Specialization</label>
+                    <select id="specializationId" th:field="*{specializationId}">
+                        <option value="" th:text="#{doctor.specializationSelect}">Select specialization</option>
+                        <option th:each="spec : ${specializations}" th:value="${spec.id}" th:text="${spec.name + ' - ' + spec.price + ' RWF'}">Cardiology - 20000 RWF</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="licenseNumber" th:text="#{doctor.licenseNumber}">License Number</label>

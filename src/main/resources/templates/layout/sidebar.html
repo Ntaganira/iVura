@@ -87,13 +87,22 @@
                 </svg>
             </span> <span th:text="#{nav.myActivity}">My Activity</span>
         </a>
-        <a sec:authorize="hasAuthority('PAGE_DEPARTMENTS')" href="#">
+        <a sec:authorize="hasAuthority('PAGE_DEPARTMENTS')" th:classappend="${#strings.contains(requestURI, '/departments')} ? 'active' : ''" href="/departments">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
             </span> <span th:text="#{nav.departments}">Departments</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_SPECIALIZATIONS')" th:classappend="${#strings.contains(requestURI, '/specializations')} ? 'active' : ''" href="/specializations">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+            </span> <span th:text="#{nav.specializations}">Specializations</span>
         </a>
         <a sec:authorize="hasAuthority('PAGE_BILLING')" href="#">
             <span class="icon">

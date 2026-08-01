@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{spec.title}, ~{::content})}">
+<head><title>Specializations - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{spec.title}">Specializations</h1>
+            <div class="subtitle" th:text="#{spec.subtitle}">Manage medical specialization lookup values</div>
+        </div>
+        <a href="/specializations/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_SPECIALIZATION')">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span th:text="#{spec.add}">Add Specialization</span>
+        </a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${specializations.totalElements}">6</div>
+            <div class="label" th:text="#{spec.stat.total}">Total Specializations</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${doctorCount}">0</div>
+            <div class="label" th:text="#{spec.stat.doctors}">Doctors</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{spec.sectionTitle}">Specialization Lookup</span>
+                <span class="section-count" th:text="${specializations.totalElements}">0</span>
+            </h2>
+            <form th:action="@{/specializations}" method="get" class="table-toolbar">
+                <div class="toolbar-search">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="search" th:value="${search}" th:placeholder="#{common.search}">
+                </div>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{spec.table.specialization}">Specialization</th>
+                        <th th:text="#{spec.table.description}">Description</th>
+                        <th th:text="#{spec.table.price}">Price</th>
+                        <th th:text="#{spec.table.doctors}">Doctors</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s, stat : ${specializations.content}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar"
+                                     th:classappend="${stat.index % 6 == 0 ? 'blue' : stat.index % 6 == 1 ? 'green' : stat.index % 6 == 2 ? 'yellow' : stat.index % 6 == 3 ? 'purple' : stat.index % 6 == 4 ? 'pink' : 'teal'}"
+                                     th:text="${#strings.substring(s.name, 0, 1)}">C</div>
+                                <div class="info">
+                                    <div class="name" th:text="${s.name}">Cardiology</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${s.description}">Heart and cardiovascular system</td>
+                        <td><span class="badge badge-success" th:text="${s.price} + ' RWF'">20000 RWF</span></td>
+                        <td th:text="${doctorCounts.get(s.id) == null ? 0 : doctorCounts.get(s.id)}">0</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/specializations/edit/{id}(id=${s.id})}" class="action-icon edit" th:title="#{common.edit}" sec:authorize="hasAuthority('PERM_EDIT_SPECIALIZATION')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/specializations/delete/{id}(id=${s.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}" th:attr="data-confirm=#{spec.deleteConfirm}" sec:authorize="hasAuthority('PERM_DELETE_SPECIALIZATION')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(specializations.content)}">
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                        <polyline points="2 17 12 22 22 17"></polyline>
+                                        <polyline points="2 12 12 17 22 12"></polyline>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{spec.empty.title}">No specializations yet</h3>
+                                <p th:text="#{spec.empty.subtitle}">Add your first specialization</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <th:block th:replace="~{layout/pagination :: pager(${specializations}, '/specializations', ${paginationQuery})}"></th:block>
+    </div>
+</div>
+</body>
+</html>

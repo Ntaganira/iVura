@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{dept.viewTitle}, ~{::content})}">
+<head><title>Department - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{dept.viewTitle}">Department Details</h1>
+            <div class="subtitle" th:text="#{dept.viewSubtitle}">Overview of the department</div>
+        </div>
+        <a href="/departments" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="detail-avatar" th:text="${#strings.substring(department.name, 0, 1)}">C</div>
+                <div>
+                    <div class="detail-title" th:text="${department.name}">Cardiology</div>
+                    <div class="detail-sub" th:text="${department.location}">Floor 1 - East Wing</div>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="label" th:text="#{dept.phone}">Phone</div>
+                    <div class="value" th:text="${department.phone}">+250...</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{dept.table.doctors}">Doctors</div>
+                    <div class="value" th:text="${#lists.size(doctors)}">0</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label" th:text="#{user.createdAt}">Created</div>
+                    <div class="value" th:text="${department.createdAt}">2026-08-01</div>
+                </div>
+                <div class="detail-item full">
+                    <div class="label" th:text="#{dept.description}">Description</div>
+                    <div class="value" th:text="${department.description}">Heart and cardiovascular system</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{dept.table.doctors}">Doctors</span>
+                <span class="section-count" th:text="${#lists.size(doctors)}">0</span>
+            </h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{doctor.table.doctor}">Doctor</th>
+                        <th th:text="#{doctor.table.specialization}">Specialization</th>
+                        <th th:text="#{doctor.table.phone}">Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="d : ${doctors}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar" th:text="${#strings.substring(d.firstName, 0, 1)}">D</div>
+                                <div class="info">
+                                    <div class="name" th:text="${d.fullName}">Dr. Name</div>
+                                    <div class="email" th:text="${d.email}">email</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge badge-info" th:text="${d.specialization?.name}">Cardiology</span></td>
+                        <td th:text="${d.phone}">+250...</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(doctors)}">
+                        <td colspan="3">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="8.5" cy="7" r="4"></circle>
+                                        <polyline points="17 11 19 13 23 9"></polyline>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{dept.viewDoctorsEmpty}">No doctors in this department</h3>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

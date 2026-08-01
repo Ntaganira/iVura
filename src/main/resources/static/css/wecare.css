@@ -2292,3 +2292,34 @@ html.sidebar-collapsed .page-skeleton { left: var(--sidebar-collapsed-width); }
   padding-top: 0;
   border-top: none;
 }
+
+/* Summary stat cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  background: var(--card-bg, var(--white));
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--shadow-sm, none);
+}
+
+.summary-card .value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1.1;
+}
+
+.summary-card .label {
+  font-size: 13px;
+  color: var(--gray-500, var(--gray-400));
+}

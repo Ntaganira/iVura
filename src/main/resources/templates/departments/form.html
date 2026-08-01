@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(${departmentDto.id == null} ? #{dept.addTitle} : #{dept.editTitle}, ~{::content})}">
+<head><title>Department - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${departmentDto.id == null} ? #{dept.addTitle} : #{dept.editTitle}">Department</h1>
+            <div class="subtitle" th:text="${departmentDto.id == null} ? #{dept.addSubtitle} : #{dept.editSubtitle}">Department details</div>
+        </div>
+        <a href="/departments" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="${departmentDto.id == null} ? @{/departments/add} : @{/departments/edit/{id}(id=${departmentDto.id})}"
+              th:object="${departmentDto}" method="post" class="form-container">
+            <div th:replace="~{layout/errors :: error-summary}"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name" th:text="#{dept.name}">Department Name *</label>
+                    <input type="text" id="name" th:field="*{name}" th:placeholder="#{dept.namePh}" required>
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="phone" th:text="#{dept.phone}">Phone</label>
+                    <input type="text" id="phone" th:field="*{phone}" th:placeholder="#{dept.phonePh}">
+                </div>
+                <div class="form-group">
+                    <label for="location" th:text="#{dept.location}">Location</label>
+                    <input type="text" id="location" th:field="*{location}" th:placeholder="#{dept.locationPh}">
+                </div>
+                <div class="form-group full-width">
+                    <label for="description" th:text="#{dept.description}">Description</label>
+                    <textarea id="description" th:field="*{description}" th:placeholder="#{dept.descriptionPh}"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${departmentDto.id == null} ? #{dept.save} : #{dept.update}">Save Department</button>
+                <a href="/departments" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

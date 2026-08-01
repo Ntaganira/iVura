@@ -31,31 +31,90 @@
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </svg>
     </button>
-    <div class="login-card">
-        <div class="login-header">
-            <div class="logo">iV</div>
-            <h1 th:text="#{login.welcome}">Welcome to iVura</h1>
-            <p th:text="#{login.subtitle}">Sign in to your hospital dashboard</p>
+
+    <div class="login-split">
+        <div class="login-brand">
+            <div class="brand-header">
+                <div class="brand-logo">iV</div>
+                <div>
+                    <h2>iVura</h2>
+                    <p th:text="#{login.brand.tagline}">Hospital Management System</p>
+                </div>
+            </div>
+
+            <div class="brand-copy">
+                <h1 th:text="#{login.brand.title}">Manage your hospital in one place</h1>
+                <p th:text="#{login.brand.subtitle}">iVura brings patients, doctors, services, appointments and billing together in a single dashboard.</p>
+                <ul class="brand-features">
+                    <li>
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span th:text="#{login.brand.feat1}">Patients, doctors &amp; appointments</span>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span th:text="#{login.brand.feat2}">Departments &amp; services with pricing</span>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span th:text="#{login.brand.feat3}">Full activity audit trail</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="brand-stats">
+                <div class="stat">
+                    <div class="num">24/7</div>
+                    <div class="lbl" th:text="#{login.brand.stat1}">Care</div>
+                </div>
+                <div class="stat">
+                    <div class="num">100%</div>
+                    <div class="lbl" th:text="#{login.brand.stat2}">Secure</div>
+                </div>
+                <div class="stat">
+                    <div class="num">3</div>
+                    <div class="lbl" th:text="#{login.brand.stat3}">Languages</div>
+                </div>
+            </div>
+
+            <div class="brand-footer" th:text="#{login.brand.copyright}">© 2026 iVura</div>
         </div>
-        <form th:action="@{/login}" method="post">
-            <div th:if="${param.error}" class="alert alert-danger" th:text="#{login.error}">
-                Invalid username or password
+
+        <div class="login-form-side">
+            <div class="login-card">
+                <div class="login-header">
+                    <h1 th:text="#{login.welcome}">Welcome to iVura</h1>
+                    <p th:text="#{login.subtitle}">Sign in to your hospital dashboard</p>
+                </div>
+                <form th:action="@{/login}" method="post">
+                    <div th:if="${param.error}" class="alert alert-danger" th:text="#{login.error}">
+                        Invalid username or password
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-info" th:text="#{login.logout}">
+                        You have been logged out
+                    </div>
+                    <div class="form-group">
+                        <label for="username" th:text="#{login.username}">Username</label>
+                        <input type="text" id="username" name="username" th:placeholder="#{login.usernamePh}" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" th:text="#{login.password}">Password</label>
+                        <input type="password" id="password" name="password" th:placeholder="#{login.passwordPh}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:text="#{login.signIn}">Sign In</button>
+                </form>
+                <div class="login-footer">
+                    <p th:text="#{login.defaultCredentials}">Default: admin / password123</p>
+                </div>
             </div>
-            <div th:if="${param.logout}" class="alert alert-info" th:text="#{login.logout}">
-                You have been logged out
-            </div>
-            <div class="form-group">
-                <label for="username" th:text="#{login.username}">Username</label>
-                <input type="text" id="username" name="username" th:placeholder="#{login.usernamePh}" required autofocus>
-            </div>
-            <div class="form-group">
-                <label for="password" th:text="#{login.password}">Password</label>
-                <input type="password" id="password" name="password" th:placeholder="#{login.passwordPh}" required>
-            </div>
-            <button type="submit" class="btn btn-primary" th:text="#{login.signIn}">Sign In</button>
-        </form>
-        <div class="login-footer">
-            <p th:text="#{login.defaultCredentials}">Default: admin / admin123</p>
         </div>
     </div>
 </body>

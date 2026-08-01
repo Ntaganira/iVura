@@ -47,6 +47,9 @@ public class User implements Serializable {
     @Column(length = 20)
     private String phone;
 
+    @Column(name = "photo_url", length = 255)
+    private String photoUrl;
+
     @Column(nullable = false)
     private boolean enabled = true;
 

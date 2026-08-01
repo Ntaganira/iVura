@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{profile.title}, ~{::content})}">
+<head><title>My Profile - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{profile.title}">My Profile</h1>
+            <div class="subtitle" th:text="#{profile.subtitle}">View and update your personal information</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <form th:action="@{/profile}" th:object="${profileDto}" method="post"
+              enctype="multipart/form-data" class="form-container">
+            <div th:replace="~{layout/errors :: error-summary}"></div>
+
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label th:text="#{profile.photo}">Profile Picture</label>
+                    <div class="profile-photo">
+                        <div class="avatar" id="profileAvatar">
+                            <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}"
+                                 alt="Profile" class="avatar-img" id="profilePhotoImg">
+                            <span th:if="${profilePhotoUrl == null}" th:text="${profileInitials}"
+                                  id="profilePhotoInitials" style="font-size:32px">A</span>
+                        </div>
+                        <div class="avatar-meta">
+                            <div class="profile-username" th:text="${profileDto.username}">admin</div>
+                            <div class="profile-roles">
+                                <span class="profile-role" th:each="auth : ${#authentication.authorities}"
+                                      th:if="${#strings.startsWith(auth.authority, 'ROLE_')}"
+                                      th:text="${#strings.capitalize(#strings.toLowerCase(#strings.substringAfter(auth.authority, 'ROLE_')))}">Admin</span>
+                            </div>
+                            <div class="photo-actions">
+                                <input type="file" id="photoFile" name="photoFile"
+                                       accept="image/*" th:aria-label="#{profile.uploadPhoto}">
+                            </div>
+                            <span class="photo-hint" th:text="#{profile.photoHint}">JPG or PNG, max 5MB. Leave empty to keep your current photo.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName" th:text="#{profile.fullName}">Full Name *</label>
+                    <input type="text" id="fullName" th:field="*{fullName}" th:placeholder="#{profile.fullNamePh}" required>
+                    <span th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email" th:text="#{profile.email}">Email *</label>
+                    <input type="email" id="email" th:field="*{email}" th:placeholder="#{profile.emailPh}" required>
+                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="phone" th:text="#{profile.phone}">Phone</label>
+                    <input type="text" id="phone" th:field="*{phone}" th:placeholder="#{profile.phonePh}">
+                </div>
+
+                <div class="form-section-title full-width" th:text="#{profile.passwordSection}">Change Password</div>
+
+                <div class="form-group">
+                    <label for="currentPassword" th:text="#{profile.currentPassword}">Current Password</label>
+                    <input type="password" id="currentPassword" th:field="*{currentPassword}" th:placeholder="#{profile.currentPasswordPh}">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword" th:text="#{profile.newPassword}">New Password</label>
+                    <input type="password" id="newPassword" th:field="*{newPassword}" th:placeholder="#{profile.newPasswordPh}">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword" th:text="#{profile.confirmPassword}">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" th:field="*{confirmPassword}" th:placeholder="#{profile.confirmPasswordPh}">
+                </div>
+                <div class="form-group full-width">
+                    <span class="hint" th:text="#{profile.passwordHint}">Leave the password fields blank to keep your current password.</span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="#{profile.save}">Save Changes</button>
+                <a href="/dashboard" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script th:inline="javascript">
+        (function () {
+            var fileInput = document.getElementById('photoFile');
+            var img = document.getElementById('profilePhotoImg');
+            var initials = document.getElementById('profilePhotoInitials');
+            if (!fileInput) return;
+            fileInput.addEventListener('change', function () {
+                var file = fileInput.files && fileInput.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    if (img) {
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                    }
+                    if (initials) {
+                        initials.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        })();
+    </script>
+</div>
+</body>
+</html>

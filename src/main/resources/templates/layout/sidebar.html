@@ -248,19 +248,20 @@
                 </svg>
                 <span class="dot"></span>
             </button>
-            <div class="profile">
-                <div class="avatar" sec:authorize="isAuthenticated()">
-                    <span sec:authentication="principal.username" style="text-transform:uppercase;font-size:14px">A</span>
+            <a href="/profile" class="profile" sec:authorize="isAuthenticated()">
+                <div class="avatar">
+                    <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile" class="avatar-img">
+                    <span th:if="${profilePhotoUrl == null}" th:text="${profileInitials}" style="font-size:14px">A</span>
                 </div>
                 <div class="info">
-                    <div class="name" sec:authorize="isAuthenticated()" sec:authentication="principal.username">Admin</div>
-                    <div class="role" sec:authorize="isAuthenticated()">
+                    <div class="name" th:text="${profileFullName}">Admin</div>
+                    <div class="role">
                         <span th:each="auth : ${#authentication.authorities}"
                               th:if="${#strings.startsWith(auth.authority, 'ROLE_')}"
                               th:text="${#strings.capitalize(#strings.toLowerCase(#strings.substringAfter(auth.authority, 'ROLE_')))}">Admin</span>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </header>
 

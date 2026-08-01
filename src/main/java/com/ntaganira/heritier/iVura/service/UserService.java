@@ -1,5 +1,6 @@
 package com.ntaganira.heritier.iVura.service;
 
+import com.ntaganira.heritier.iVura.dto.ProfileDto;
 import com.ntaganira.heritier.iVura.dto.UserDto;
 import com.ntaganira.heritier.iVura.entity.Role;
 import com.ntaganira.heritier.iVura.entity.User;
@@ -110,6 +111,52 @@ public class UserService {
         User user = findById(id);
         user.setEnabled(!user.isEnabled());
         return userRepo.save(user);
+    }
+
+    /**
+     * Self-service profile update. Preserves username, roles, enabled and photo;
+     * only email, fullName and phone are changed. Password is only updated when
+     * newPassword is provided, in which case the current password must match.
+     */
+    @Transactional
+    public User updateProfile(Long userId, ProfileDto dto) {
+        User user = findById(userId);
+        userRepo.findByEmail(dto.getEmail())
+                .filter(u -> !u.getId().equals(userId))
+                .ifPresent(u -> {
+                    throw new RuntimeException("Email is already registered: " + dto.getEmail());
+                });
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        if (StringUtils.hasText(dto.getNewPassword())) {
+            if (!StringUtils.hasText(dto.getCurrentPassword())) {
+                throw new RuntimeException("Current password is required to change the password");
+            }
+            if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+                throw new RuntimeException("Current password is incorrect");
+            }
+            if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
+                throw new RuntimeException("New password and confirmation do not match");
+            }
+            user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        }
+        return userRepo.save(user);
+    }
+
+    /**
+     * Builds avatar initials from a full name: first letter of the first word and
+     * first letter of the last word (e.g. "System Admin" -> "SA", "Alice" -> "A").
+     */
+    public static String initials(String fullName) {
+        if (!StringUtils.hasText(fullName)) {
+            return "";
+        }
+        String[] parts = fullName.trim().split("\\s+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, 1).toUpperCase();
+        }
+        return (parts[0].substring(0, 1) + parts[parts.length - 1].substring(0, 1)).toUpperCase();
     }
 
     @Transactional

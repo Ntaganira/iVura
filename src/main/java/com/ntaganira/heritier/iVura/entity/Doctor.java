@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <pre>
@@ -45,9 +46,21 @@ public class Doctor implements Serializable {
     @Column(length = 20)
     private String phone;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_id")
-    private Service service;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "doctor_specializations",
+            joinColumns = @JoinColumn(name = "doctor_id"),
+            inverseJoinColumns = @JoinColumn(name = "specialization_id")
+    )
+    private Set<Specialization> specializations = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "doctor_services",
+            joinColumns = @JoinColumn(name = "doctor_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private Set<Service> services = new HashSet<>();
 
     @Column(name = "license_number", unique = true, length = 50)
     private String licenseNumber;
@@ -61,9 +74,6 @@ public class Doctor implements Serializable {
 
     @Column(name = "experience_years")
     private Integer experienceYears = 0;
-
-    @Column(name = "consultation_fee", precision = 10, scale = 2)
-    private BigDecimal consultationFee = BigDecimal.ZERO;
 
     @Column(name = "available_from")
     private LocalTime availableFrom = LocalTime.of(9, 0);

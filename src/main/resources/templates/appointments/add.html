@@ -26,10 +26,21 @@
                     <span th:if="${#fields.hasErrors('patientId')}" th:errors="*{patientId}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
                 <div class="form-group">
+                    <label for="serviceId" th:text="#{appointment.service}">Service</label>
+                    <select id="serviceId" th:field="*{serviceId}">
+                        <option value="" th:text="#{appointment.serviceSelect}">Select service</option>
+                        <option th:each="svc : ${services}" th:value="${svc.id}" th:text="${svc.name + ' - ' + svc.price + ' RWF'}">Cardiology Consultation - 20000 RWF</option>
+                    </select>
+                    <div class="hint" th:text="#{appointment.serviceHint}">Doctors will be filtered to those providing the selected service</div>
+                </div>
+                <div class="form-group">
                     <label for="doctorId" th:text="#{appointment.doctor}">Doctor *</label>
                     <select id="doctorId" th:field="*{doctorId}" required>
                         <option value="" th:text="#{appointment.doctorSelect}">Select doctor</option>
-                        <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.fullName + ' - ' + d.service?.name}">Doctor</option>
+                        <option th:each="d : ${doctors}"
+                                th:value="${d.id}"
+                                th:attr="data-services=${#strings.listJoin(d.services.![id], ',')}"
+                                th:text="${d.fullName + ' (' + #strings.listJoin(d.specializations.![name], ', ') + ')'}">Doctor</option>
                     </select>
                     <span th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}" style="color:var(--danger);font-size:12px;"></span>
                 </div>
@@ -60,5 +71,26 @@
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var serviceSelect = document.getElementById('serviceId');
+        var doctorSelect = document.getElementById('doctorId');
+        if (!serviceSelect || !doctorSelect) return;
+        var options = Array.prototype.slice.call(doctorSelect.querySelectorAll('option[data-services]'));
+        function applyFilter() {
+            var selected = serviceSelect.value;
+            options.forEach(function (opt) {
+                var services = (opt.getAttribute('data-services') || '').split(',');
+                opt.hidden = !!selected && services.indexOf(selected) === -1;
+            });
+            var chosen = doctorSelect.value;
+            var chosenOpt = doctorSelect.querySelector('option[value="' + chosen + '"]');
+            if (chosenOpt && chosenOpt.hidden) {
+                doctorSelect.value = '';
+            }
+        }
+        serviceSelect.addEventListener('change', applyFilter);
+    });
+</script>
 </body>
 </html>

@@ -3,6 +3,7 @@ package com.ntaganira.heritier.iVura.controller;
 import com.ntaganira.heritier.iVura.dto.ServiceDto;
 import com.ntaganira.heritier.iVura.entity.Service;
 import com.ntaganira.heritier.iVura.enums.ActivityStatus;
+import com.ntaganira.heritier.iVura.repository.DepartmentRepository;
 import com.ntaganira.heritier.iVura.repository.DoctorRepository;
 import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.ServiceService;
@@ -26,12 +27,15 @@ public class ServiceController {
 
     private final ServiceService serviceService;
     private final DoctorRepository doctorRepo;
+    private final DepartmentRepository departmentRepo;
     private final ActivityLogService activityLogService;
 
     public ServiceController(ServiceService serviceService, DoctorRepository doctorRepo,
+                             DepartmentRepository departmentRepo,
                              ActivityLogService activityLogService) {
         this.serviceService = serviceService;
         this.doctorRepo = doctorRepo;
+        this.departmentRepo = departmentRepo;
         this.activityLogService = activityLogService;
     }
 
@@ -60,6 +64,7 @@ public class ServiceController {
     @PreAuthorize("hasAuthority('PERM_CREATE_SERVICE')")
     public String addForm(Model model) {
         model.addAttribute("serviceDto", new ServiceDto());
+        model.addAttribute("departments", departmentRepo.findAll());
         return "services/form";
     }
 
@@ -69,6 +74,7 @@ public class ServiceController {
                          BindingResult result, Model model,
                          RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
+            model.addAttribute("departments", departmentRepo.findAll());
             model.addAttribute("formErrors", result.getFieldErrors());
             return "services/form";
         }
@@ -94,8 +100,13 @@ public class ServiceController {
         dto.setId(service.getId());
         dto.setName(service.getName());
         dto.setDescription(service.getDescription());
+        dto.setDepartmentId(service.getDepartment() != null ? service.getDepartment().getId() : null);
+        dto.setCategory(service.getCategory());
+        dto.setInsuranceCode(service.getInsuranceCode());
+        dto.setIsActive(service.getIsActive());
         dto.setPrice(service.getPrice());
         model.addAttribute("serviceDto", dto);
+        model.addAttribute("departments", departmentRepo.findAll());
         return "services/form";
     }
 
@@ -106,6 +117,7 @@ public class ServiceController {
                          BindingResult result, Model model,
                          RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
+            model.addAttribute("departments", departmentRepo.findAll());
             model.addAttribute("formErrors", result.getFieldErrors());
             return "services/form";
         }

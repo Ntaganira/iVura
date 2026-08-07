@@ -4,27 +4,26 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
  * <pre>
  * - Project   : iVura - Hospital Management System
  * - Package   : com.ntaganira.heritier.iVura.entity
- * - File      : Service.java
- * - Date      : 2026. 08. 01.
+ * - File      : Specialization.java
+ * - Date      : 2026. 08. 07.
  * - User      : Hntaganira
- * - Desc      : Service Entity (medical service provided by the hospital, with price)
+ * - Desc      : Specialization Entity (a doctor's area of medical expertise, no pricing)
  * </pre>
  */
 @Entity
-@Table(name = "services")
+@Table(name = "specializations")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Service implements Serializable {
+public class Specialization implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,22 +36,6 @@ public class Service implements Serializable {
 
     @Column(columnDefinition = "TEXT")
     private String description;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
-    private Department department;
-
-    @Column(length = 100)
-    private String category;
-
-    @Column(name = "insurance_code", length = 50)
-    private String insuranceCode;
-
-    @Column(name = "is_active")
-    private Boolean isActive = true;
-
-    @Column(precision = 10, scale = 2)
-    private BigDecimal price = BigDecimal.ZERO;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

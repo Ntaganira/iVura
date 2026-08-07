@@ -1,7 +1,9 @@
 package com.ntaganira.heritier.iVura.service;
 
 import com.ntaganira.heritier.iVura.dto.ServiceDto;
+import com.ntaganira.heritier.iVura.entity.Department;
 import com.ntaganira.heritier.iVura.entity.Service;
+import com.ntaganira.heritier.iVura.repository.DepartmentRepository;
 import com.ntaganira.heritier.iVura.repository.DoctorRepository;
 import com.ntaganira.heritier.iVura.repository.ServiceRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -22,10 +24,13 @@ public class ServiceService {
 
     private final ServiceRepository serviceRepo;
     private final DoctorRepository doctorRepo;
+    private final DepartmentRepository departmentRepo;
 
-    public ServiceService(ServiceRepository serviceRepo, DoctorRepository doctorRepo) {
+    public ServiceService(ServiceRepository serviceRepo, DoctorRepository doctorRepo,
+                          DepartmentRepository departmentRepo) {
         this.serviceRepo = serviceRepo;
         this.doctorRepo = doctorRepo;
+        this.departmentRepo = departmentRepo;
     }
 
     public Page<Service> findPage(String search, int page, int size) {
@@ -35,7 +40,8 @@ public class ServiceService {
                 String term = "%" + search.trim().toLowerCase() + "%";
                 predicate = cb.and(predicate, cb.or(
                         cb.like(cb.lower(root.get("name")), term),
-                        cb.like(cb.lower(root.get("description")), term)
+                        cb.like(cb.lower(root.get("description")), term),
+                        cb.like(cb.lower(root.get("category")), term)
                 ));
             }
             return predicate;
@@ -61,6 +67,10 @@ public class ServiceService {
         Service service = Service.builder()
                 .name(dto.getName().trim())
                 .description(dto.getDescription())
+                .department(resolveDepartment(dto.getDepartmentId()))
+                .category(dto.getCategory())
+                .insuranceCode(dto.getInsuranceCode())
+                .isActive(dto.getIsActive() != null ? dto.getIsActive() : true)
                 .price(dto.getPrice() != null ? dto.getPrice() : BigDecimal.ZERO)
                 .build();
         return serviceRepo.save(service);
@@ -76,14 +86,24 @@ public class ServiceService {
                 });
         service.setName(dto.getName().trim());
         service.setDescription(dto.getDescription());
+        service.setDepartment(resolveDepartment(dto.getDepartmentId()));
+        service.setCategory(dto.getCategory());
+        service.setInsuranceCode(dto.getInsuranceCode());
+        service.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         service.setPrice(dto.getPrice() != null ? dto.getPrice() : BigDecimal.ZERO);
         return serviceRepo.save(service);
+    }
+
+    private Department resolveDepartment(Long departmentId) {
+        return departmentId != null
+                ? departmentRepo.findById(departmentId).orElse(null)
+                : null;
     }
 
     @Transactional
     public void delete(Long id) {
         Service service = findById(id);
-        long doctorCount = doctorRepo.countByServiceId(id);
+        long doctorCount = doctorRepo.countByServicesId(id);
         if (doctorCount > 0) {
             throw new RuntimeException("Service is assigned to " + doctorCount + " doctor(s) and cannot be deleted");
         }
@@ -96,7 +116,7 @@ public class ServiceService {
 
     public Map<Long, Long> doctorCounts() {
         return doctorRepo.findAll().stream()
-                .filter(d -> d.getService() != null)
-                .collect(Collectors.groupingBy(d -> d.getService().getId(), Collectors.counting()));
+                .flatMap(d -> d.getServices().stream().map(s -> Map.entry(s.getId(), d.getId())))
+                .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.counting()));
     }
 }

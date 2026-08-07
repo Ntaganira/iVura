@@ -42,6 +42,10 @@ public class Appointment implements Serializable {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id")
+    private Service service;
+
     @Column(name = "appointment_date", nullable = false)
     private LocalDate appointmentDate;
 

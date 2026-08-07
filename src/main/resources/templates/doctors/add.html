@@ -37,11 +37,11 @@
                     <input type="text" id="phone" th:field="*{phone}">
                 </div>
                 <div class="form-group">
-                    <label for="serviceId" th:text="#{doctor.service}">Service</label>
-                    <select id="serviceId" th:field="*{serviceId}">
-                        <option value="" th:text="#{doctor.serviceSelect}">Select service</option>
-                        <option th:each="svc : ${services}" th:value="${svc.id}" th:text="${svc.name + ' - ' + svc.price + ' RWF'}">Cardiology - 20000 RWF</option>
+                    <label for="specializationIds" th:text="#{doctor.specializations}">Specializations</label>
+                    <select id="specializationIds" th:field="*{specializationIds}" multiple data-multiselect>
+                        <option th:each="s : ${specializations}" th:value="${s.id}" th:text="${s.name}">Cardiology</option>
                     </select>
+                    <div class="hint" th:text="#{doctor.specializationsHint}">Select areas of expertise</div>
                 </div>
                 <div class="form-group">
                     <label for="licenseNumber" th:text="#{doctor.licenseNumber}">License Number</label>
@@ -55,12 +55,15 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="experienceYears" th:text="#{doctor.experienceYears}">Experience (years)</label>
-                    <input type="number" id="experienceYears" th:field="*{experienceYears}" min="0">
+                    <label for="serviceIds" th:text="#{doctor.services}">Provided Services</label>
+                    <select id="serviceIds" th:field="*{serviceIds}" multiple data-multiselect>
+                        <option th:each="svc : ${services}" th:value="${svc.id}" th:text="${svc.name + ' - ' + svc.price + ' RWF'}">Cardiology Consultation - 20000 RWF</option>
+                    </select>
+                    <div class="hint" th:text="#{doctor.servicesHint}">Services this doctor is authorized to provide</div>
                 </div>
                 <div class="form-group">
-                    <label for="consultationFee" th:text="#{doctor.consultationFee}">Consultation Fee</label>
-                    <input type="number" id="consultationFee" th:field="*{consultationFee}" step="0.01" min="0">
+                    <label for="experienceYears" th:text="#{doctor.experienceYears}">Experience (years)</label>
+                    <input type="number" id="experienceYears" th:field="*{experienceYears}" min="0">
                 </div>
                 <div class="form-group">
                     <label for="qualification" th:text="#{doctor.qualification}">Qualification</label>

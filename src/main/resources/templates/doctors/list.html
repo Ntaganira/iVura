@@ -39,11 +39,11 @@
                 <thead>
                     <tr>
                         <th th:text="#{doctor.table.doctor}">Doctor</th>
-                        <th th:text="#{doctor.table.service}">Service</th>
+                        <th th:text="#{doctor.table.specializations}">Specializations</th>
                         <th th:text="#{doctor.table.department}">Department</th>
+                        <th th:text="#{doctor.table.services}">Provided Services</th>
                         <th th:text="#{doctor.table.phone}">Phone</th>
                         <th th:text="#{doctor.table.experience}">Experience</th>
-                        <th th:text="#{doctor.table.fee}">Fee</th>
                         <th th:text="#{common.actions}">Actions</th>
                     </tr>
                 </thead>
@@ -60,11 +60,17 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="badge badge-info" th:text="${d.service?.name}">Cardiology</span></td>
+                        <td>
+                            <span th:each="sp : ${d.specializations}" class="badge badge-info" th:text="${sp.name}">Cardiology</span>
+                            <span th:if="${#sets.isEmpty(d.specializations)}" th:text="#{common.na}">N/A</span>
+                        </td>
                         <td th:text="${d.department?.name}">Dept</td>
+                        <td>
+                            <span th:each="sv : ${d.services}" class="badge badge-success" th:text="${sv.name}">Cardiology Consultation</span>
+                            <span th:if="${#sets.isEmpty(d.services)}" th:text="#{common.na}">N/A</span>
+                        </td>
                         <td th:text="${d.phone}">+250...</td>
                         <td th:text="${d.experienceYears} + ' yrs'">5 yrs</td>
-                        <td th:text="${d.consultationFee} + ' RWF'">0</td>
                         <td>
                             <div class="btn-group">
                                 <a th:href="@{/doctors/edit/{id}(id=${d.id})}" class="action-icon edit" th:title="#{common.edit}" sec:authorize="hasAuthority('PERM_EDIT_DOCTOR')">

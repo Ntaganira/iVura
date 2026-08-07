@@ -6,6 +6,7 @@ import com.ntaganira.heritier.iVura.enums.ActivityStatus;
 import com.ntaganira.heritier.iVura.enums.AppointmentStatus;
 import com.ntaganira.heritier.iVura.repository.DoctorRepository;
 import com.ntaganira.heritier.iVura.repository.PatientRepository;
+import com.ntaganira.heritier.iVura.repository.ServiceRepository;
 import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.AppointmentService;
 import jakarta.validation.Valid;
@@ -30,15 +31,18 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final PatientRepository patientRepo;
     private final DoctorRepository doctorRepo;
+    private final ServiceRepository serviceRepo;
     private final ActivityLogService activityLogService;
 
     public AppointmentController(AppointmentService appointmentService,
                                   PatientRepository patientRepo,
                                   DoctorRepository doctorRepo,
+                                  ServiceRepository serviceRepo,
                                   ActivityLogService activityLogService) {
         this.appointmentService = appointmentService;
         this.patientRepo = patientRepo;
         this.doctorRepo = doctorRepo;
+        this.serviceRepo = serviceRepo;
         this.activityLogService = activityLogService;
     }
 
@@ -119,6 +123,7 @@ public class AppointmentController {
         model.addAttribute("appointmentDto", dto);
         model.addAttribute("patients", patientRepo.findByIsActiveTrue());
         model.addAttribute("doctors", doctorRepo.findByIsActiveTrue());
+        model.addAttribute("services", serviceRepo.findAllByOrderByNameAsc());
         return "appointments/add";
     }
 
@@ -129,6 +134,7 @@ public class AppointmentController {
         if (result.hasErrors()) {
             model.addAttribute("patients", patientRepo.findByIsActiveTrue());
             model.addAttribute("doctors", doctorRepo.findByIsActiveTrue());
+            model.addAttribute("services", serviceRepo.findAllByOrderByNameAsc());
             model.addAttribute("formErrors", result.getFieldErrors());
             return "appointments/add";
         }

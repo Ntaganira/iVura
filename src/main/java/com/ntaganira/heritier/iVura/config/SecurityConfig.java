@@ -34,7 +34,7 @@ public class SecurityConfig {
                                                    AccessDeniedHandler auditAccessDeniedHandler) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/login").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/vendor/**", "/login").permitAll()
                 .requestMatchers("/patients/**", "/doctors/**", "/appointments/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE")
                 .requestMatchers("/departments/**", "/services/**", "/billings/**", "/users/**", "/roles/**", "/permissions/**").hasRole("ADMIN")
                 .requestMatchers("/activity/**").authenticated()

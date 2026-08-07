@@ -35,6 +35,8 @@ public class AppointmentDto implements Serializable {
     @NotNull(message = "Doctor is required")
     private Long doctorId;
 
+    private Long serviceId;
+
     @NotNull(message = "Appointment date is required")
     @Future(message = "Appointment date must be in the future")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

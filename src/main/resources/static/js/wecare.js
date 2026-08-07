@@ -265,6 +265,25 @@ document.addEventListener('DOMContentLoaded', function () {
         if (filterSelect) filterSelect.addEventListener('change', applyFilters);
     }
 
+    // Choices.js enhanced multi-selects
+    if (typeof Choices !== 'undefined') {
+        document.querySelectorAll('select[data-multiselect]').forEach(sel => {
+            new Choices(sel, {
+                removeItemButton: true,
+                addItems: false,
+                allowHTML: false,
+                searchEnabled: true,
+                searchPlaceholderValue: ' ',
+                itemSelectText: ' ',
+                noChoicesText: ' ',
+                noResultsText: ' ',
+                classNames: {
+                    containerOuter: 'choices multiselect-choices'
+                }
+            });
+        });
+    }
+
     // Page-load skeleton on navigation
     window.showPageSkeleton = function () {
         const el = document.getElementById('page-skeleton');

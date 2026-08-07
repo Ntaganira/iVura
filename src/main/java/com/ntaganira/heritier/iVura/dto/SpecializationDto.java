@@ -1,45 +1,32 @@
 package com.ntaganira.heritier.iVura.dto;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
  * <pre>
  * - Project   : iVura - Hospital Management System
  * - Package   : com.ntaganira.heritier.iVura.dto
- * - File      : ServiceDto.java
- * - Date      : 2026. 08. 01.
+ * - File      : SpecializationDto.java
+ * - Date      : 2026. 08. 07.
  * - User      : Hntaganira
- * - Desc      : Service DTO
+ * - Desc      : Specialization DTO
  * </pre>
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceDto implements Serializable {
+public class SpecializationDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    @NotBlank(message = "Service name is required")
+    @NotBlank(message = "Specialization name is required")
     private String name;
 
     private String description;
-
-    private Long departmentId;
-
-    private String category;
-
-    private String insuranceCode;
-
-    private Boolean isActive = true;
-
-    @DecimalMin(value = "0.0", message = "Price cannot be negative")
-    private BigDecimal price;
 }

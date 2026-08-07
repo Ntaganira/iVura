@@ -5,6 +5,7 @@ import com.ntaganira.heritier.iVura.entity.Doctor;
 import com.ntaganira.heritier.iVura.enums.ActivityStatus;
 import com.ntaganira.heritier.iVura.repository.DepartmentRepository;
 import com.ntaganira.heritier.iVura.repository.ServiceRepository;
+import com.ntaganira.heritier.iVura.repository.SpecializationRepository;
 import com.ntaganira.heritier.iVura.service.ActivityLogService;
 import com.ntaganira.heritier.iVura.service.DoctorService;
 import jakarta.validation.Valid;
@@ -14,20 +15,25 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.stream.Collectors;
+
 @Controller
 @RequestMapping("/doctors")
 public class DoctorController {
 
     private final DoctorService doctorService;
     private final DepartmentRepository departmentRepo;
+    private final SpecializationRepository specializationRepo;
     private final ServiceRepository serviceRepo;
     private final ActivityLogService activityLogService;
 
     public DoctorController(DoctorService doctorService, DepartmentRepository departmentRepo,
+                            SpecializationRepository specializationRepo,
                             ServiceRepository serviceRepo,
                             ActivityLogService activityLogService) {
         this.doctorService = doctorService;
         this.departmentRepo = departmentRepo;
+        this.specializationRepo = specializationRepo;
         this.serviceRepo = serviceRepo;
         this.activityLogService = activityLogService;
     }
@@ -43,8 +49,7 @@ public class DoctorController {
     @PreAuthorize("hasAuthority('PERM_CREATE_DOCTOR')")
     public String addForm(Model model) {
         model.addAttribute("doctorDto", new DoctorDto());
-        model.addAttribute("departments", departmentRepo.findAll());
-        model.addAttribute("services", serviceRepo.findAllByOrderByNameAsc());
+        addReferenceData(model);
         return "doctors/add";
     }
 
@@ -53,8 +58,7 @@ public class DoctorController {
     public String add(@Valid @ModelAttribute("doctorDto") DoctorDto dto,
                       BindingResult result, Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("departments", departmentRepo.findAll());
-            model.addAttribute("services", serviceRepo.findAllByOrderByNameAsc());
+            addReferenceData(model);
             model.addAttribute("formErrors", result.getFieldErrors());
             return "doctors/add";
         }
@@ -74,17 +78,18 @@ public class DoctorController {
         dto.setLastName(doctor.getLastName());
         dto.setEmail(doctor.getEmail());
         dto.setPhone(doctor.getPhone());
-        dto.setServiceId(doctor.getService() != null ? doctor.getService().getId() : null);
+        dto.setSpecializationIds(doctor.getSpecializations().stream()
+                .map(s -> s.getId()).collect(Collectors.toList()));
+        dto.setServiceIds(doctor.getServices().stream()
+                .map(s -> s.getId()).collect(Collectors.toList()));
         dto.setLicenseNumber(doctor.getLicenseNumber());
         dto.setDepartmentId(doctor.getDepartment() != null ? doctor.getDepartment().getId() : null);
         dto.setQualification(doctor.getQualification());
         dto.setExperienceYears(doctor.getExperienceYears());
-        dto.setConsultationFee(doctor.getConsultationFee());
         dto.setAvailableFrom(doctor.getAvailableFrom());
         dto.setAvailableTo(doctor.getAvailableTo());
         model.addAttribute("doctorDto", dto);
-        model.addAttribute("departments", departmentRepo.findAll());
-        model.addAttribute("services", serviceRepo.findAllByOrderByNameAsc());
+        addReferenceData(model);
         return "doctors/edit";
     }
 
@@ -94,8 +99,7 @@ public class DoctorController {
                        @Valid @ModelAttribute("doctorDto") DoctorDto dto,
                        BindingResult result, Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("departments", departmentRepo.findAll());
-            model.addAttribute("services", serviceRepo.findAllByOrderByNameAsc());
+            addReferenceData(model);
             model.addAttribute("formErrors", result.getFieldErrors());
             return "doctors/edit";
         }
@@ -113,5 +117,11 @@ public class DoctorController {
         activityLogService.record("Doctor Management", "DELETE_DOCTOR",
                 "Deleted doctor " + doctor.getFullName(), ActivityStatus.SUCCESS);
         return "redirect:/doctors";
+    }
+
+    private void addReferenceData(Model model) {
+        model.addAttribute("departments", departmentRepo.findAll());
+        model.addAttribute("specializations", specializationRepo.findAllByOrderByNameAsc());
+        model.addAttribute("services", serviceRepo.findAllByOrderByNameAsc());
     }
 }

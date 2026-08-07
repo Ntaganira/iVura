@@ -5,8 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <pre>
@@ -39,12 +40,12 @@ public class DoctorDto implements Serializable {
     private String email;
 
     private String phone;
-    private Long serviceId;
+    private List<Long> specializationIds = new ArrayList<>();
+    private List<Long> serviceIds = new ArrayList<>();
     private String licenseNumber;
     private Long departmentId;
     private String qualification;
     private Integer experienceYears;
-    private BigDecimal consultationFee;
     private LocalTime availableFrom;
     private LocalTime availableTo;
 }

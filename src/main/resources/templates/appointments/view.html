@@ -18,7 +18,7 @@
                 <div class="detail-avatar" th:text="${#strings.substring(appointment.patient.firstName, 0, 1)}">A</div>
                 <div>
                     <div class="detail-title" th:text="${appointment.patient.fullName}">Patient Name</div>
-                    <div class="detail-sub" th:text="${appointment.doctor.fullName + ' - ' + appointment.doctor.service?.name}">Dr. Name</div>
+                    <div class="detail-sub" th:text="${appointment.doctor.fullName + ' (' + #strings.listJoin(appointment.doctor.specializations.![name], ', ') + ')'}">Dr. Name</div>
                 </div>
                 <span class="badge badge-info" th:if="${appointment.status.name() == 'SCHEDULED'}" th:text="#{status.scheduled}">Scheduled</span>
                 <span class="badge badge-confirmed" th:if="${appointment.status.name() == 'CONFIRMED'}" th:text="#{status.confirmed}">Confirmed</span>
@@ -42,8 +42,8 @@
                     <div class="value" th:text="${appointment.doctor.fullName}">Dr. Name</div>
                 </div>
                 <div class="detail-item">
-                    <div class="label" th:text="#{doctor.service}">Service</div>
-                    <div class="value" th:text="${appointment.doctor.service?.name}">Cardiology</div>
+                    <div class="label" th:text="#{appointment.service}">Service</div>
+                    <div class="value" th:text="${appointment.service?.name}">Cardiology Consultation</div>
                 </div>
                 <div class="detail-item">
                     <div class="label" th:text="#{appointment.patient}">Patient</div>

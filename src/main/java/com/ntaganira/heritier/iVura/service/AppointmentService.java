@@ -6,6 +6,7 @@ import com.ntaganira.heritier.iVura.enums.AppointmentStatus;
 import com.ntaganira.heritier.iVura.repository.AppointmentRepository;
 import com.ntaganira.heritier.iVura.repository.DoctorRepository;
 import com.ntaganira.heritier.iVura.repository.PatientRepository;
+import com.ntaganira.heritier.iVura.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,13 +19,16 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepo;
     private final PatientRepository patientRepo;
     private final DoctorRepository doctorRepo;
+    private final ServiceRepository serviceRepo;
 
     public AppointmentService(AppointmentRepository appointmentRepo,
                                PatientRepository patientRepo,
-                               DoctorRepository doctorRepo) {
+                               DoctorRepository doctorRepo,
+                               ServiceRepository serviceRepo) {
         this.appointmentRepo = appointmentRepo;
         this.patientRepo = patientRepo;
         this.doctorRepo = doctorRepo;
+        this.serviceRepo = serviceRepo;
     }
 
     public List<Appointment> findAll() {
@@ -46,6 +50,9 @@ public class AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Patient not found")))
             .doctor(doctorRepo.findById(dto.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Doctor not found")))
+            .service(dto.getServiceId() != null
+                ? serviceRepo.findById(dto.getServiceId()).orElse(null)
+                : null)
             .appointmentDate(dto.getAppointmentDate())
             .appointmentTime(dto.getAppointmentTime())
             .status(AppointmentStatus.SCHEDULED)

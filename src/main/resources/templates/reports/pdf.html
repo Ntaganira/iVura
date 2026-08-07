@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="#{report.pdfTitle}">iVura Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.8cm 1.5cm 2.2cm 1.5cm;
+            @bottom-center {
+                content: "iVura - " counter(page) " / " counter(pages);
+                font-size: 9px;
+                color: #64748b;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .report-header {
+            border-bottom: 3px solid #268071;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+        .report-header h1 {
+            font-size: 22px;
+            margin: 0 0 4px 0;
+            color: #0f766e;
+        }
+        .report-header .sub {
+            font-size: 12px;
+            color: #64748b;
+        }
+        h2 {
+            font-size: 14px;
+            color: #0f766e;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 4px;
+            margin: 18px 0 8px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 8px;
+            text-align: left;
+            font-size: 11px;
+        }
+        th {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        .kpi-grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+        .kpi-grid td {
+            border: 1px solid #cbd5e1;
+            padding: 10px;
+            width: 25%;
+        }
+        .kpi-grid .num {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0f766e;
+        }
+        .kpi-grid .lbl {
+            font-size: 11px;
+            color: #64748b;
+        }
+        .right { text-align: right; }
+        .footer-note {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #94a3b8;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="report-header">
+    <h1 th:text="#{app.name}">iVura Hospital</h1>
+    <div class="sub">
+        <span th:text="#{report.pdfTitle}">Financial &amp; Activity Report</span> — <span th:text="#{report.period}">Period</span>:
+        <span th:text="${from} + ' - ' + ${to}"></span>
+        · <span th:text="#{report.generated}">Generated</span>: <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMM yyyy HH:mm')}"></span>
+    </div>
+</div>
+
+<h2 th:text="#{report.kpi}">Summary</h2>
+<table class="kpi-grid">
+    <tr>
+        <td><div class="num" th:text="${report.totalBilled} + ' RWF'">0 RWF</div><div class="lbl" th:text="#{report.stat.billed}">Total Billed</div></td>
+        <td><div class="num" th:text="${report.totalCollected} + ' RWF'">0 RWF</div><div class="lbl" th:text="#{report.stat.collected}">Collected</div></td>
+        <td><div class="num" th:text="${report.outstanding} + ' RWF'">0 RWF</div><div class="lbl" th:text="#{report.stat.outstanding}">Outstanding</div></td>
+        <td><div class="num" th:text="${report.billsCount}">0</div><div class="lbl" th:text="#{report.stat.bills}">Bills Issued</div></td>
+    </tr>
+    <tr>
+        <td><div class="num" th:text="${report.pendingBills}">0</div><div class="lbl" th:text="#{report.stat.pending}">Pending Bills</div></td>
+        <td><div class="num" th:text="${report.patientsCount}">0</div><div class="lbl" th:text="#{report.stat.patients}">New Patients</div></td>
+        <td><div class="num" th:text="${report.appointmentsCount}">0</div><div class="lbl" th:text="#{report.stat.appointments}">Appointments</div></td>
+        <td><div class="num" th:text="${report.recentPayments.size()}">0</div><div class="lbl" th:text="#{report.stat.recent}">Recent Payments</div></td>
+    </tr>
+</table>
+
+<h2 th:text="#{report.chart.revenue}">Revenue Over Time</h2>
+<table>
+    <thead>
+        <tr>
+            <th th:text="#{report.col.date}">Date</th>
+            <th class="right" th:text="#{report.col.amount}">Amount (RWF)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="d : ${report.revenueByDay}">
+            <td th:text="${d[0]}">2026-08-07</td>
+            <td class="right" th:text="${d[1]}">0</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 th:text="#{report.chart.methods}">Collections by Method</h2>
+<table>
+    <thead>
+        <tr>
+            <th th:text="#{report.col.method}">Method</th>
+            <th class="right" th:text="#{report.col.amount}">Amount (RWF)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="m : ${report.collectionsByMethod}">
+            <td th:text="${m[0] != null} ? #{'bill.method.' + ${m[0]}} : #{common.na}">Cash</td>
+            <td class="right" th:text="${m[1]}">0</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 th:text="#{report.chart.status}">Bills by Status</h2>
+<table>
+    <thead>
+        <tr>
+            <th th:text="#{common.status}">Status</th>
+            <th class="right" th:text="#{report.col.count}">Count</th>
+            <th class="right" th:text="#{report.col.amount}">Amount (RWF)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="s : ${report.billsByStatus}">
+            <td th:text="#{'bill.status.' + ${s[0]}}">Pending</td>
+            <td class="right" th:text="${s[1]}">0</td>
+            <td class="right" th:text="${s[2]}">0</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 th:text="#{report.chart.services}">Top Services by Billed Amount</h2>
+<table>
+    <thead>
+        <tr>
+            <th th:text="#{report.col.service}">Service</th>
+            <th class="right" th:text="#{report.col.amount}">Amount (RWF)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="s : ${report.topServices}">
+            <td th:text="${s[0]}">Consultation</td>
+            <td class="right" th:text="${s[1]}">0</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 th:text="#{report.chart.doctors}">Appointments per Doctor</h2>
+<table>
+    <thead>
+        <tr>
+            <th th:text="#{report.col.doctor}">Doctor</th>
+            <th class="right" th:text="#{report.col.count}">Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="d : ${report.appointmentsByDoctor}">
+            <td th:text="${d[0]}">Dr. Kim</td>
+            <td class="right" th:text="${d[1]}">0</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 th:text="#{report.recentBills}">Recent Bills</h2>
+<table>
+    <thead>
+        <tr>
+            <th th:text="#{payment.table.invoice}">Invoice</th>
+            <th th:text="#{payment.table.patient}">Patient</th>
+            <th th:text="#{payment.table.date}">Date</th>
+            <th th:text="#{payment.table.amount}">Amount</th>
+            <th th:text="#{payment.table.method}">Method</th>
+            <th th:text="#{common.status}">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="b : ${report.recentBills}">
+            <td th:text="${b.invoiceNumber}">INV-2026-000001</td>
+            <td th:text="${b.patient != null ? b.patient.fullName : ''}">John Doe</td>
+            <td th:text="${#temporals.format(b.createdAt, 'dd MMM yyyy')}">07 Aug 2026</td>
+            <td class="right" th:text="${b.totalAmount} + ' RWF'">0 RWF</td>
+            <td th:if="${b.paymentMethod != null}" th:text="#{'bill.method.' + ${b.paymentMethod}}">Cash</td>
+            <td th:if="${b.paymentMethod == null}" th:text=""></td>
+            <td th:text="#{'bill.status.' + ${b.status}}">Pending</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="footer-note" th:text="#{app.name} + ' · ' + #{report.pdfTitle}">iVura · Report</div>
+</body>
+</html>

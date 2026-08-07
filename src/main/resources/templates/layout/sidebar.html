@@ -131,6 +131,15 @@
                 </svg>
             </span> <span th:text="#{nav.payments}">Payments</span>
         </a>
+        <a sec:authorize="hasAuthority('PAGE_REPORTS')" th:classappend="${#strings.contains(requestURI, '/reports')} ? 'active' : ''" href="/reports">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 20V10"></path>
+                    <path d="M12 20V4"></path>
+                    <path d="M6 20v-6"></path>
+                </svg>
+            </span> <span th:text="#{nav.reports}">Reports</span>
+        </a>
         <div class="menu-label" style="margin-top:16px;" sec:authorize="hasAnyAuthority('PAGE_USERS', 'PAGE_ROLES', 'PAGE_PERMISSIONS', 'PAGE_ACTIVITY_LOGS')" th:text="#{menu.admin}">Administration</div>
         <a sec:authorize="hasAuthority('PAGE_USERS')" th:classappend="${#strings.contains(requestURI, '/users')} ? 'active' : ''" href="/users">
             <span class="icon">

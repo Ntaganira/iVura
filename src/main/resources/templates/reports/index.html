@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{report.title}, ~{::content})}">
+<head><title>Reports - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{report.title}">Reports</h1>
+            <div class="subtitle" th:text="#{report.subtitle}">Financial and activity analytics</div>
+        </div>
+        <div class="btn-group">
+            <form th:action="@{/reports}" method="get" class="table-toolbar">
+                <input type="date" name="from" class="toolbar-filter" th:value="${from}">
+                <input type="date" name="to" class="toolbar-filter" th:value="${to}">
+                <button type="submit" class="btn btn-outline" th:text="#{report.apply}">Apply</button>
+            </form>
+            <a th:href="@{/reports/export(from=${from}, to=${to})}" class="btn btn-primary"
+               sec:authorize="hasAuthority('PERM_EXPORT_REPORT')">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span th:text="#{report.export}">Export PDF</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${report.totalBilled} + ' RWF'">0 RWF</div>
+            <div class="label" th:text="#{report.stat.billed}">Total Billed</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${report.totalCollected} + ' RWF'">0 RWF</div>
+            <div class="label" th:text="#{report.stat.collected}">Collected</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${report.outstanding} + ' RWF'">0 RWF</div>
+            <div class="label" th:text="#{report.stat.outstanding}">Outstanding</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${report.billsCount}">0</div>
+            <div class="label" th:text="#{report.stat.bills}">Bills Issued</div>
+        </div>
+    </div>
+    <div class="summary-grid" style="margin-top:0;">
+        <div class="summary-card">
+            <div class="value" th:text="${report.pendingBills}">0</div>
+            <div class="label" th:text="#{report.stat.pending}">Pending Bills</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${report.patientsCount}">0</div>
+            <div class="label" th:text="#{report.stat.patients}">New Patients</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${report.appointmentsCount}">0</div>
+            <div class="label" th:text="#{report.stat.appointments}">Appointments</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${report.recentPayments.size()}">0</div>
+            <div class="label" th:text="#{report.stat.recent}">Recent Payments</div>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div class="section">
+            <div class="section-header">
+                <h2 th:text="#{report.chart.revenue}">Revenue Over Time</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-header">
+                <h2 th:text="#{report.chart.methods}">Collections by Method</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="methodChart"></canvas>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-header">
+                <h2 th:text="#{report.chart.status}">Bills by Status</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-header">
+                <h2 th:text="#{report.chart.services}">Top Services by Billed Amount</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="serviceChart"></canvas>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-header">
+                <h2 th:text="#{report.chart.doctors}">Appointments per Doctor</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="doctorChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" style="margin-top:24px;">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{report.recentPayments}">Recent Payments</span>
+                <span class="section-count" th:text="${report.recentPayments.size()}">0</span>
+            </h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{payment.table.reference}">Reference</th>
+                        <th th:text="#{payment.table.invoice}">Invoice</th>
+                        <th th:text="#{payment.table.patient}">Patient</th>
+                        <th th:text="#{payment.table.method}">Method</th>
+                        <th th:text="#{payment.table.amount}">Amount</th>
+                        <th th:text="#{payment.table.date}">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${report.recentPayments}">
+                        <td th:text="${p.referenceNumber != null and !p.referenceNumber.isEmpty() ? p.referenceNumber : 'REF-' + p.id}">REF-1</td>
+                        <td th:text="${p.billing != null ? p.billing.invoiceNumber : ''}">INV-2026-000001</td>
+                        <td th:text="${p.billing != null and p.billing.patient != null ? p.billing.patient.fullName : ''}">John Doe</td>
+                        <td>
+                            <span th:if="${p.paymentMethod}" class="badge badge-info"
+                                  th:text="#{'bill.method.' + ${p.paymentMethod}}">Cash</span>
+                            <span th:unless="${p.paymentMethod}" th:text="#{common.na}">N/A</span>
+                        </td>
+                        <td><span class="badge badge-success" th:text="${p.amountPaid} + ' RWF'">20000 RWF</span></td>
+                        <td th:text="${#temporals.format(p.paymentDate, 'dd MMM yyyy HH:mm')}">07 Aug 2026 09:30</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(report.recentPayments)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{payment.empty.title}">No payments yet</h3>
+                                <p th:text="#{payment.empty.subtitle}">Record your first payment to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/vendor/chartjs/chart.umd.min.js"></script>
+    <script th:inline="javascript">
+        const themeColors = getComputedStyle(document.documentElement);
+        const cPrimary = (themeColors.getPropertyValue('--primary') || '#268071').trim();
+        const cGrid = (themeColors.getPropertyValue('--border') || '#e2e8f0').trim();
+        const cTick = (themeColors.getPropertyValue('--gray-500') || '#64748b').trim();
+        const cPointBorder = (themeColors.getPropertyValue('--surface') || '#ffffff').trim();
+        const palette = ['#268071', '#e8b44c', '#e06c4f', '#6c7ae0', '#9b59b6', '#2e86de', '#1abc9c', '#f39c12'];
+
+        const revLabels = [
+            <th:block th:each="d : ${report.revenueByDay}">'<span th:text="${d[0]}"></span>',
+            </th:block>
+        ];
+        const revData = [
+            <th:block th:each="d : ${report.revenueByDay}"><span th:text="${d[1]}"></span>,
+            </th:block>
+        ];
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: revLabels,
+                datasets: [{
+                    label: [[#{report.chart.revenue}]],
+                    data: revData,
+                    borderColor: cPrimary,
+                    backgroundColor: 'rgba(38,128,113,.12)',
+                    fill: true,
+                    tension: .4,
+                    pointBackgroundColor: cPrimary,
+                    pointBorderColor: cPointBorder,
+                    pointBorderWidth: 2,
+                    pointRadius: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: cGrid }, ticks: { color: cTick } },
+                    x: { grid: { display: false }, ticks: { color: cTick, maxRotation: 45 } }
+                }
+            }
+        });
+
+        const methodLabels = [
+            <th:block th:each="m : ${report.collectionsByMethod}">'<span th:text="${m[0] != null ? m[0] : 'N/A'}"></span>',
+            </th:block>
+        ];
+        const methodData = [
+            <th:block th:each="m : ${report.collectionsByMethod}"><span th:text="${m[1]}"></span>,
+            </th:block>
+        ];
+        new Chart(document.getElementById('methodChart'), {
+            type: 'doughnut',
+            data: {
+                labels: methodLabels,
+                datasets: [{ data: methodData, backgroundColor: palette }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: cTick } } }
+            }
+        });
+
+        const statusLabels = [
+            <th:block th:each="s : ${report.billsByStatus}">'<span th:text="#{'bill.status.' + ${s[0]}}"></span>',
+            </th:block>
+        ];
+        const statusData = [
+            <th:block th:each="s : ${report.billsByStatus}"><span th:text="${s[1]}"></span>,
+            </th:block>
+        ];
+        new Chart(document.getElementById('statusChart'), {
+            type: 'bar',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    label: [[#{report.chart.status}]],
+                    data: statusData,
+                    backgroundColor: palette
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: cGrid }, ticks: { color: cTick } },
+                    x: { grid: { display: false }, ticks: { color: cTick } }
+                }
+            }
+        });
+
+        const serviceLabels = [
+            <th:block th:each="s : ${report.topServices}">'<span th:text="${s[0]}"></span>',
+            </th:block>
+        ];
+        const serviceData = [
+            <th:block th:each="s : ${report.topServices}"><span th:text="${s[1]}"></span>,
+            </th:block>
+        ];
+        new Chart(document.getElementById('serviceChart'), {
+            type: 'bar',
+            data: {
+                labels: serviceLabels,
+                datasets: [{
+                    label: [[#{report.chart.services}]],
+                    data: serviceData,
+                    backgroundColor: cPrimary
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { color: cGrid }, ticks: { color: cTick } },
+                    y: { grid: { display: false }, ticks: { color: cTick } }
+                }
+            }
+        });
+
+        const doctorLabels = [
+            <th:block th:each="d : ${report.appointmentsByDoctor}">'<span th:text="${d[0]}"></span>',
+            </th:block>
+        ];
+        const doctorData = [
+            <th:block th:each="d : ${report.appointmentsByDoctor}"><span th:text="${d[1]}"></span>,
+            </th:block>
+        ];
+        new Chart(document.getElementById('doctorChart'), {
+            type: 'bar',
+            data: {
+                labels: doctorLabels,
+                datasets: [{
+                    label: [[#{report.chart.doctors}]],
+                    data: doctorData,
+                    backgroundColor: palette
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: cGrid }, ticks: { color: cTick } },
+                    x: { grid: { display: false }, ticks: { color: cTick } }
+                }
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

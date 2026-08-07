@@ -13,6 +13,7 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 - **Appointments** — scheduling between patients and doctors with a calendar view (FullCalendar)
 - **Billing** — invoices linked to patients and services
 - **Payments** — payment collections against bills (cash, mobile money, card, bank, insurance) with automatic bill status reconciliation
+- **Reports** — financial and activity analytics dashboard with charts and HTML-to-PDF export (OpenHTMLToPDF)
 - **Users, Roles & Permissions** — role-based access control (RBAC) with fine-grained page/action permissions
 - **Activity Logs** — audit trail of every system action (success/failure)
 - **Profile** — avatar upload, profile editing, and password change
@@ -28,6 +29,7 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 | Frontend  | Thymeleaf, Thymeleaf Spring Security extras, custom CSS, Choices.js, Chart.js, FullCalendar (all vendored locally, no CDN) |
 | Database  | PostgreSQL 16                                           |
 | Storage   | MinIO (object storage)                                  |
+| PDF       | OpenHTMLToPDF (HTML-to-PDF, pure Java)                  |
 | Build     | Maven, Lombok                                           |
 
 ## Requirements
@@ -112,6 +114,7 @@ Schema is managed by **Flyway**. Migrations live in `src/main/resources/db/migra
 | `V7`    | Rename specialization → services             |
 | `V8`    | Separate specializations and services        |
 | `V9`    | Payments module (payments table, permissions, page) |
+| `V10`   | *(none — Reports reuses existing REPORT permissions and REPORTS page)* |
 
 ## Project Structure
 
@@ -130,8 +133,8 @@ src/main/resources/
 ├── db/migration/          # Flyway SQL migrations
 ├── templates/             # Thymeleaf views
 │   ├── layout/            # Sidebar, pagination, errors fragments
-│   ├── patients/ doctors/ appointments/ billings/
-│   ├── departments/ services/ specializations/ users/ roles/ permissions/
+│   ├── patients/ doctors/ appointments/ billings/ payments/
+│   ├── reports/ departments/ services/ specializations/ users/ roles/ permissions/
 │   └── activity/ profile/ auth/
 ├── static/css/            # Stylesheets
 ├── static/js/             # Application scripts (wecare.js)

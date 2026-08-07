@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{payment.title}, ~{::content})}">
+<head><title>Payments - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{payment.title}">Payments</h1>
+            <div class="subtitle" th:text="#{payment.subtitle}">Payments received against bills</div>
+        </div>
+        <a href="/payments/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_PAYMENT')">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span th:text="#{payment.add}">Record Payment</span>
+        </a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${payments.totalElements}">6</div>
+            <div class="label" th:text="#{payment.stat.total}">Total Payments</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${collectedToday} + ' RWF'">0 RWF</div>
+            <div class="label" th:text="#{payment.stat.today}">Collected Today</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${totalCollected} + ' RWF'">0 RWF</div>
+            <div class="label" th:text="#{payment.stat.collected}">Total Collected</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${methodCounts.size()}">0</div>
+            <div class="label" th:text="#{payment.stat.methods}">Payment Methods</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{payment.sectionTitle}">Payment List</span>
+                <span class="section-count" th:text="${payments.totalElements}">0</span>
+            </h2>
+            <form th:action="@{/payments}" method="get" class="table-toolbar">
+                <select name="method" class="toolbar-filter">
+                    <option value="" th:text="#{payment.methodAll}">All Methods</option>
+                    <option th:each="m : ${paymentMethods}" th:value="${m}"
+                            th:text="#{'bill.method.' + ${m}}"
+                            th:selected="${m == selectedMethod}">CASH</option>
+                </select>
+                <input type="date" name="from" class="toolbar-filter" th:value="${from}"
+                       th:title="#{common.from}">
+                <input type="date" name="to" class="toolbar-filter" th:value="${to}"
+                       th:title="#{common.to}">
+                <div class="toolbar-search">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="search" th:value="${search}" th:placeholder="#{common.search}">
+                </div>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{payment.table.reference}">Reference</th>
+                        <th th:text="#{payment.table.invoice}">Invoice</th>
+                        <th th:text="#{payment.table.patient}">Patient</th>
+                        <th th:text="#{payment.table.method}">Method</th>
+                        <th th:text="#{payment.table.amount}">Amount</th>
+                        <th th:text="#{payment.table.date}">Date</th>
+                        <th th:text="#{payment.table.recordedBy}">Recorded By</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${payments.content}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar green" th:text="${p.referenceNumber != null and !p.referenceNumber.isEmpty()} ? ${#strings.substring(p.referenceNumber, 0, 3)} : 'PYT'">PYT</div>
+                                <div class="info">
+                                    <div class="name" th:text="${p.referenceNumber != null and !p.referenceNumber.isEmpty() ? p.referenceNumber : 'REF-' + p.id}">REF-0001</div>
+                                    <div class="hint" th:text="#{payment.recorded}">Payment</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${p.billing != null ? p.billing.invoiceNumber : ''}">INV-2026-000001</td>
+                        <td th:text="${p.billing != null and p.billing.patient != null ? p.billing.patient.fullName : ''}">John Doe</td>
+                        <td>
+                            <span th:if="${p.paymentMethod}" class="badge badge-info"
+                                  th:text="#{'bill.method.' + ${p.paymentMethod}}">Cash</span>
+                            <span th:unless="${p.paymentMethod}" th:text="#{common.na}">N/A</span>
+                        </td>
+                        <td><span class="badge badge-success" th:text="${p.amountPaid} + ' RWF'">20000 RWF</span></td>
+                        <td th:text="${#temporals.format(p.paymentDate, 'dd MMM yyyy HH:mm')}">07 Aug 2026 09:30</td>
+                        <td th:text="${p.recordedBy != null ? p.recordedBy.fullName : ''}">Admin</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/payments/edit/{id}(id=${p.id})}" class="action-icon edit" th:title="#{common.edit}" sec:authorize="hasAuthority('PERM_EDIT_PAYMENT')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/payments/delete/{id}(id=${p.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}" th:attr="data-confirm=#{payment.deleteConfirm}" sec:authorize="hasAuthority('PERM_DELETE_PAYMENT')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(payments.content)}">
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{payment.empty.title}">No payments yet</h3>
+                                <p th:text="#{payment.empty.subtitle}">Record your first payment to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <th:block th:replace="~{layout/pagination :: pager(${payments}, '/payments', ${paginationQuery})}"></th:block>
+    </div>
+</div>
+</body>
+</html>

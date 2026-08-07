@@ -9,6 +9,7 @@ import java.util.List;
 public interface BillingRepository extends JpaRepository<Billing, Long>, JpaSpecificationExecutor<Billing> {
     List<Billing> findByPatientId(Long patientId);
     List<Billing> findByStatus(String status);
+    List<Billing> findByStatusIn(List<String> statuses);
     long countByStatus(String status);
     Billing findTopByOrderByIdDesc();
 }

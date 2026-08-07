@@ -123,6 +123,14 @@
                 </svg>
             </span> <span th:text="#{nav.billing}">Billing</span>
         </a>
+        <a sec:authorize="hasAuthority('PAGE_PAYMENTS')" th:classappend="${#strings.contains(requestURI, '/payments')} ? 'active' : ''" href="/payments">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+            </span> <span th:text="#{nav.payments}">Payments</span>
+        </a>
         <div class="menu-label" style="margin-top:16px;" sec:authorize="hasAnyAuthority('PAGE_USERS', 'PAGE_ROLES', 'PAGE_PERMISSIONS', 'PAGE_ACTIVITY_LOGS')" th:text="#{menu.admin}">Administration</div>
         <a sec:authorize="hasAuthority('PAGE_USERS')" th:classappend="${#strings.contains(requestURI, '/users')} ? 'active' : ''" href="/users">
             <span class="icon">

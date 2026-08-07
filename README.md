@@ -12,6 +12,7 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 - **Services** — medical services offered by the hospital, each with a price (RWF)
 - **Appointments** — scheduling between patients and doctors with a calendar view (FullCalendar)
 - **Billing** — invoices linked to patients and services
+- **Payments** — payment collections against bills (cash, mobile money, card, bank, insurance) with automatic bill status reconciliation
 - **Users, Roles & Permissions** — role-based access control (RBAC) with fine-grained page/action permissions
 - **Activity Logs** — audit trail of every system action (success/failure)
 - **Profile** — avatar upload, profile editing, and password change
@@ -110,6 +111,7 @@ Schema is managed by **Flyway**. Migrations live in `src/main/resources/db/migra
 | `V6`    | Service pricing                              |
 | `V7`    | Rename specialization → services             |
 | `V8`    | Separate specializations and services        |
+| `V9`    | Payments module (payments table, permissions, page) |
 
 ## Project Structure
 

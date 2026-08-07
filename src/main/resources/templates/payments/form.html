@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(${paymentDto.id == null} ? #{payment.addTitle} : #{payment.editTitle}, ~{::content})}">
+<head><title>Payment - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${paymentDto.id == null} ? #{payment.addTitle} : #{payment.editTitle}">Payment</h1>
+            <div class="subtitle" th:text="${paymentDto.id == null} ? #{payment.addSubtitle} : #{payment.editSubtitle}">Payment details</div>
+        </div>
+        <a href="/payments" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="${paymentDto.id == null} ? @{/payments/add} : @{/payments/edit/{id}(id=${paymentDto.id})}"
+              th:object="${paymentDto}" method="post" class="form-container">
+            <div th:replace="~{layout/errors :: error-summary}"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="billingId" th:text="#{payment.bill}">Bill *</label>
+                    <select id="billingId" th:field="*{billingId}" required>
+                        <option value="" th:text="#{payment.billSelect}">Select bill</option>
+                        <option th:each="b : ${payableBills}" th:value="${b.id}"
+                                th:text="${b.invoiceNumber} + ' - ' + ${b.patient.fullName} + ' (' + ${b.totalAmount} + ' RWF)'">INV-2026-000001 - John Doe (25000 RWF)</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('billingId')}" th:errors="*{billingId}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="amountPaid" th:text="#{payment.amount}">Amount Paid (RWF) *</label>
+                    <input type="number" id="amountPaid" th:field="*{amountPaid}" step="0.01" min="0.01" required>
+                    <span th:if="${#fields.hasErrors('amountPaid')}" th:errors="*{amountPaid}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="paymentMethod" th:text="#{payment.method}">Payment Method</label>
+                    <select id="paymentMethod" th:field="*{paymentMethod}">
+                        <option value="" th:text="#{payment.methodSelect}">Select method</option>
+                        <option th:each="m : ${paymentMethods}" th:value="${m}"
+                                th:text="#{'bill.method.' + ${m}}">CASH</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="referenceNumber" th:text="#{payment.reference}">Reference / Transaction No.</label>
+                    <input type="text" id="referenceNumber" th:field="*{referenceNumber}"
+                           th:placeholder="#{payment.referencePh}">
+                </div>
+                <div class="form-group">
+                    <label for="paymentDate" th:text="#{payment.date}">Payment Date</label>
+                    <input type="datetime-local" id="paymentDate" th:field="*{paymentDate}">
+                    <span class="hint" th:text="#{payment.dateAuto}">Defaults to now if empty</span>
+                </div>
+                <div class="form-group full-width">
+                    <label for="notes" th:text="#{payment.notes}">Notes</label>
+                    <textarea id="notes" th:field="*{notes}" th:placeholder="#{payment.notesPh}"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${paymentDto.id == null} ? #{payment.save} : #{payment.update}">Save Payment</button>
+                <a href="/payments" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

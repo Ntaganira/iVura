@@ -81,6 +81,14 @@
             </span> <span th:text="#{nav.appointments}">Appointments</span>
         </a>
         <div class="menu-label" style="margin-top:16px;" th:text="#{menu.other}">Other</div>
+        <a sec:authorize="hasAuthority('PAGE_NOTIFICATIONS')" th:classappend="${#strings.contains(requestURI, '/notifications')} ? 'active' : ''" href="/notifications">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+            </span> <span th:text="#{nav.notifications}">Notifications</span>
+        </a>
         <a sec:authorize="hasAuthority('PAGE_MY_ACTIVITY')" th:classappend="${#strings.contains(requestURI, '/activity/me')} ? 'active' : ''" href="/activity/me">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -280,13 +288,34 @@
                     <option value="rw" th:selected="${#locale.language == 'rw'}">RW</option>
                 </select>
             </form>
-            <button class="notif-btn">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                <span class="dot"></span>
-            </button>
+            <div class="notif-dropdown">
+                <button type="button" class="notif-btn" id="notif-btn" aria-label="Notifications" sec:authorize="isAuthenticated()">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notif-badge" th:if="${unreadNotificationCount > 0}" th:text="${unreadNotificationCount}">0</span>
+                </button>
+                <div class="notif-panel" id="notif-panel" sec:authorize="isAuthenticated()">
+                    <div class="notif-panel-header">
+                        <span th:text="#{notification.title}">Notifications</span>
+                        <form th:action="@{/notifications/read-all}" method="post" sec:authorize="hasAuthority('PERM_MARK_NOTIFICATION_READ')">
+                            <button type="submit" th:text="#{notification.markAll}">Mark all read</button>
+                        </form>
+                    </div>
+                    <div class="notif-panel-list">
+                        <a class="notif-item" th:each="n : ${recentNotifications}" th:href="@{/notifications}">
+                            <span class="notif-item-title" th:text="${n.title}">Payment recorded</span>
+                            <span class="notif-item-msg" th:text="${n.message}">Payment of 20000 RWF</span>
+                            <span class="notif-item-time" th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy HH:mm')}">07 Aug 09:30</span>
+                            <span class="notif-item-dot" th:if="${!n.read}"></span>
+                        </a>
+                        <div class="notif-item-empty" th:if="${#lists.isEmpty(recentNotifications)}"
+                             th:text="#{notification.empty.title}">No notifications yet</div>
+                    </div>
+                    <a class="notif-panel-footer" th:href="@{/notifications}" th:text="#{notification.viewAll}">View all</a>
+                </div>
+            </div>
             <a href="/profile" class="profile" sec:authorize="isAuthenticated()">
                 <div class="avatar">
                     <img th:if="${profilePhotoUrl != null}" th:src="${profilePhotoUrl}" alt="Profile" class="avatar-img">

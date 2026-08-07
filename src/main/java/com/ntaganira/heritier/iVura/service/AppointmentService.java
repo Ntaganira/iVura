@@ -8,6 +8,7 @@ import com.ntaganira.heritier.iVura.repository.DoctorRepository;
 import com.ntaganira.heritier.iVura.repository.PatientRepository;
 import com.ntaganira.heritier.iVura.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,15 +21,18 @@ public class AppointmentService {
     private final PatientRepository patientRepo;
     private final DoctorRepository doctorRepo;
     private final ServiceRepository serviceRepo;
+    private final NotificationService notificationService;
 
     public AppointmentService(AppointmentRepository appointmentRepo,
                                PatientRepository patientRepo,
                                DoctorRepository doctorRepo,
-                               ServiceRepository serviceRepo) {
+                               ServiceRepository serviceRepo,
+                               NotificationService notificationService) {
         this.appointmentRepo = appointmentRepo;
         this.patientRepo = patientRepo;
         this.doctorRepo = doctorRepo;
         this.serviceRepo = serviceRepo;
+        this.notificationService = notificationService;
     }
 
     public List<Appointment> findAll() {
@@ -44,6 +48,7 @@ public class AppointmentService {
             .orElseThrow(() -> new RuntimeException("Appointment not found with id: " + id));
     }
 
+    @Transactional
     public Appointment create(AppointmentDto dto) {
         Appointment appointment = Appointment.builder()
             .patient(patientRepo.findById(dto.getPatientId())
@@ -59,7 +64,14 @@ public class AppointmentService {
             .reason(dto.getReason())
             .notes(dto.getNotes())
             .build();
-        return appointmentRepo.save(appointment);
+        Appointment saved = appointmentRepo.save(appointment);
+        notificationService.notifyAll(
+                "New appointment scheduled",
+                appointment.getPatient().getFullName() + " scheduled with "
+                        + appointment.getDoctor().getFullName() + " on " + appointment.getAppointmentDate()
+                        + " at " + appointment.getAppointmentTime(),
+                NotificationService.TYPE_APPOINTMENT);
+        return saved;
     }
 
     public Appointment updateStatus(Long id, String status) {

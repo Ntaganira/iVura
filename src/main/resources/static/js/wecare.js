@@ -211,6 +211,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Notifications bell dropdown
+    const notifBtn = document.getElementById('notif-btn');
+    const notifPanel = document.getElementById('notif-panel');
+    if (notifBtn && notifPanel) {
+        notifBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const open = notifPanel.classList.toggle('open');
+            notifBtn.classList.toggle('active', open);
+        });
+        document.addEventListener('click', function (e) {
+            if (!notifPanel.contains(e.target) && e.target !== notifBtn) {
+                notifPanel.classList.remove('open');
+                notifBtn.classList.remove('active');
+            }
+        });
+        notifPanel.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+    }
+
     // Theme toggle
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {

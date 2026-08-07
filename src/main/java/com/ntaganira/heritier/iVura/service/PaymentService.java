@@ -34,12 +34,14 @@ public class PaymentService {
     private final PaymentRepository paymentRepo;
     private final BillingRepository billingRepo;
     private final UserRepository userRepo;
+    private final NotificationService notificationService;
 
     public PaymentService(PaymentRepository paymentRepo, BillingRepository billingRepo,
-                          UserRepository userRepo) {
+                          UserRepository userRepo, NotificationService notificationService) {
         this.paymentRepo = paymentRepo;
         this.billingRepo = billingRepo;
         this.userRepo = userRepo;
+        this.notificationService = notificationService;
     }
 
     public Page<Payment> findPage(String search, String method, LocalDate from, LocalDate to,
@@ -134,6 +136,11 @@ public class PaymentService {
                 .build();
         paymentRepo.save(payment);
         refreshBillingStatus(billing.getId());
+        notificationService.notifyAll(
+                "Payment recorded",
+                "Payment of " + amount + " RWF received against " + billing.getInvoiceNumber()
+                        + (billing.getPatient() != null ? " (" + billing.getPatient().getFullName() + ")" : ""),
+                NotificationService.TYPE_PAYMENT);
         return payment;
     }
 

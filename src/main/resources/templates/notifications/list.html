@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{notification.title}, ~{::content})}">
+<head><title>Notifications - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{notification.title}">Notifications</h1>
+            <div class="subtitle" th:text="#{notification.subtitle}">In-app alerts and system updates</div>
+        </div>
+        <div class="btn-group">
+            <form th:action="@{/notifications/read-all}" method="post" sec:authorize="hasAuthority('PERM_MARK_NOTIFICATION_READ')">
+                <button type="submit" class="btn btn-outline" th:disabled="${unreadCount == 0}">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span th:text="#{notification.markAll}">Mark all read</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${unreadCount}">0</div>
+            <div class="label" th:text="#{notification.stat.unread}">Unread</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${notifications.totalElements}">0</div>
+            <div class="label" th:text="#{notification.stat.total}">Total</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${notifications.totalElements == 0 ? 0 : #numbers.formatDecimal(100 * unreadCount / notifications.totalElements, 0, 'COMMA', 0, 'POINT') + '%'}">0%</div>
+            <div class="label" th:text="#{notification.stat.rate}">Unread Rate</div>
+        </div>
+    </div>
+
+    <div class="section" sec:authorize="hasAuthority('PERM_CREATE_NOTIFICATION')">
+        <div class="section-header">
+            <h2 th:text="#{notification.broadcast}">Send a notification to everyone</h2>
+        </div>
+        <form th:action="@{/notifications/send}" method="post" class="form-grid">
+            <div class="form-field">
+                <label th:text="#{notification.titleField}">Title</label>
+                <input type="text" name="title" required maxlength="255" th:placeholder="#{notification.titlePh}">
+            </div>
+            <div class="form-field">
+                <label th:text="#{notification.messageField}">Message</label>
+                <input type="text" name="message" th:placeholder="#{notification.messagePh}">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="#{notification.send}">Send</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{notification.sectionTitle}">Notification List</span>
+                <span class="section-count" th:text="${notifications.totalElements}">0</span>
+            </h2>
+            <form th:action="@{/notifications}" method="get" class="table-toolbar">
+                <select name="status" class="toolbar-filter">
+                    <option value="" th:text="#{common.allStatus}">All</option>
+                    <option value="unread" th:text="#{notification.filterUnread}" th:selected="${unreadOnly}">Unread</option>
+                </select>
+                <button type="submit" class="btn btn-outline" th:text="#{report.apply}">Apply</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{notification.table.type}">Type</th>
+                        <th th:text="#{notification.table.title}">Title</th>
+                        <th th:text="#{notification.table.message}">Message</th>
+                        <th th:text="#{payment.table.date}">Date</th>
+                        <th th:text="#{common.status}">Status</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="n : ${notifications.content}">
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${n.type == 'PAYMENT' or n.type == 'SUCCESS'} ? 'badge-success' : (${n.type == 'BILL' or n.type == 'INFO'} ? 'badge-info' : (${n.type == 'APPOINTMENT'} ? 'badge-confirmed' : (${n.type == 'WARNING'} ? 'badge-warning' : 'badge-secondary')))"
+                                  th:text="#{'notification.type.' + ${n.type}}">Payment</span>
+                        </td>
+                        <td>
+                            <div class="patient-cell">
+                                <div class="info">
+                                    <div class="name" th:text="${n.title}">Payment recorded</div>
+                                    <div class="hint" th:if="${n.referenceId != null}"
+                                         th:text="${n.referenceType + ' #' + n.referenceId}">Payment #1</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${n.message}">Payment of 20000 RWF received</td>
+                        <td th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy HH:mm')}">07 Aug 2026 09:30</td>
+                        <td>
+                            <span class="badge" th:classappend="${n.read} ? 'badge-secondary' : 'badge-warning'"
+                                  th:text="${n.read} ? #{notification.read} : #{notification.unread}">Unread</span>
+                        </td>
+                        <td>
+                            <form th:if="${!n.read}" th:action="@{/notifications/{id}/read(id=${n.id})}" method="post" sec:authorize="hasAuthority('PERM_MARK_NOTIFICATION_READ')">
+                                <button type="submit" class="action-icon pay">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(notifications.content)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="${unreadOnly} ? #{notification.empty.unread} : #{notification.empty.title}">No notifications yet</h3>
+                                <p th:text="#{notification.empty.subtitle}">You will see system alerts here</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <th:block th:replace="~{layout/pagination :: pager(${notifications}, '/notifications', ${paginationQuery})}"></th:block>
+    </div>
+</div>
+</body>
+</html>

@@ -31,12 +31,14 @@ public class BillingService {
     private final BillingRepository billingRepo;
     private final PatientRepository patientRepo;
     private final AppointmentRepository appointmentRepo;
+    private final NotificationService notificationService;
 
     public BillingService(BillingRepository billingRepo, PatientRepository patientRepo,
-                          AppointmentRepository appointmentRepo) {
+                          AppointmentRepository appointmentRepo, NotificationService notificationService) {
         this.billingRepo = billingRepo;
         this.patientRepo = patientRepo;
         this.appointmentRepo = appointmentRepo;
+        this.notificationService = notificationService;
     }
 
     public Page<Billing> findPage(String search, String status, int page, int size) {
@@ -86,7 +88,13 @@ public class BillingService {
         if ("PAID".equals(status)) {
             billing.setPaymentDate(LocalDateTime.now());
         }
-        return billingRepo.save(billing);
+        Billing saved = billingRepo.save(billing);
+        notificationService.notifyAll(
+                "New bill created",
+                "Bill " + saved.getInvoiceNumber() + " of " + saved.getTotalAmount() + " RWF for "
+                        + (patient != null ? patient.getFullName() : ""),
+                NotificationService.TYPE_BILL);
+        return saved;
     }
 
     @Transactional

@@ -14,6 +14,7 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 - **Billing** — invoices linked to patients and services
 - **Payments** — payment collections against bills (cash, mobile money, card, bank, insurance) with automatic bill status reconciliation
 - **Reports** — financial and activity analytics dashboard with charts and HTML-to-PDF export (OpenHTMLToPDF)
+- **Notifications** — per-user in-app notifications with header bell, auto-alerts on payments/bills/appointments, and admin broadcasts
 - **Users, Roles & Permissions** — role-based access control (RBAC) with fine-grained page/action permissions
 - **Activity Logs** — audit trail of every system action (success/failure)
 - **Profile** — avatar upload, profile editing, and password change
@@ -114,7 +115,7 @@ Schema is managed by **Flyway**. Migrations live in `src/main/resources/db/migra
 | `V7`    | Rename specialization → services             |
 | `V8`    | Separate specializations and services        |
 | `V9`    | Payments module (payments table, permissions, page) |
-| `V10`   | *(none — Reports reuses existing REPORT permissions and REPORTS page)* |
+| `V10`   | Notifications module (notifications table, permissions, page) |
 
 ## Project Structure
 
@@ -133,7 +134,7 @@ src/main/resources/
 ├── db/migration/          # Flyway SQL migrations
 ├── templates/             # Thymeleaf views
 │   ├── layout/            # Sidebar, pagination, errors fragments
-│   ├── patients/ doctors/ appointments/ billings/ payments/
+│   ├── patients/ doctors/ appointments/ billings/ payments/ notifications/
 │   ├── reports/ departments/ services/ specializations/ users/ roles/ permissions/
 │   └── activity/ profile/ auth/
 ├── static/css/            # Stylesheets

@@ -3,6 +3,7 @@ package com.ntaganira.heritier.iVura.config;
 import com.ntaganira.heritier.iVura.entity.User;
 import com.ntaganira.heritier.iVura.repository.UserRepository;
 import com.ntaganira.heritier.iVura.service.FileStorageService;
+import com.ntaganira.heritier.iVura.service.NotificationService;
 import com.ntaganira.heritier.iVura.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
@@ -16,10 +17,13 @@ public class GlobalModelAdvice {
 
     private final UserRepository userRepo;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
 
-    public GlobalModelAdvice(UserRepository userRepo, FileStorageService fileStorageService) {
+    public GlobalModelAdvice(UserRepository userRepo, FileStorageService fileStorageService,
+                             NotificationService notificationService) {
         this.userRepo = userRepo;
         this.fileStorageService = fileStorageService;
+        this.notificationService = notificationService;
     }
 
     @ModelAttribute("requestURI")
@@ -50,6 +54,18 @@ public class GlobalModelAdvice {
         } catch (RuntimeException e) {
             return null;
         }
+    }
+
+    @ModelAttribute("unreadNotificationCount")
+    public long unreadNotificationCount() {
+        Long userId = notificationService.currentUserId();
+        return notificationService.unreadCount(userId);
+    }
+
+    @ModelAttribute("recentNotifications")
+    public java.util.List<com.ntaganira.heritier.iVura.entity.Notification> recentNotifications() {
+        Long userId = notificationService.currentUserId();
+        return userId == null ? java.util.List.of() : notificationService.recent(userId, 5);
     }
 
     private User currentUser() {

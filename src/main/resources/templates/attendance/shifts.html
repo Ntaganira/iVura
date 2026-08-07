@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{att.shiftTitle}, ~{::content})}">
+<head><title>Shift Schedule - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{att.shiftTitle}">Shift Schedule</h1>
+            <div class="subtitle" th:text="#{att.shiftSubtitle}">Weekly working schedule per doctor</div>
+        </div>
+        <div class="tab-nav">
+            <a href="/attendance" th:text="#{att.tabDaily}">Daily</a>
+            <a href="/attendance/shifts" class="active" th:text="#{att.tabShifts}">Shifts</a>
+        </div>
+    </div>
+
+    <div class="section" th:each="d : ${doctors}">
+        <div class="section-header">
+            <h2>
+                <span th:text="${d.fullName}">Dr. Smith</span>
+                <span class="hint" th:if="${d.department != null}" th:text="${d.department.name}">Cardiology</span>
+            </h2>
+        </div>
+        <div class="shift-grid">
+            <form th:each="day : ${days}" th:action="@{/attendance/shifts/save}" method="post" class="shift-cell"
+                  th:with="shifts=${shiftMapsByDoctor.get(d.id)}">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                <input type="hidden" name="doctorId" th:value="${d.id}">
+                <input type="hidden" name="dayOfWeek" th:value="${day}">
+                <div class="shift-day" th:text="#{'att.day.' + ${day}}">Monday</div>
+                <label class="shift-label" th:text="#{att.from}">From</label>
+                <input type="time" name="start"
+                       th:value="${shifts != null and shifts.get(day) != null} ? ${shifts.get(day).startTime} : '09:00'">
+                <label class="shift-label" th:text="#{att.to}">To</label>
+                <input type="time" name="end"
+                       th:value="${shifts != null and shifts.get(day) != null} ? ${shifts.get(day).endTime} : '17:00'">
+                <label class="shift-label" th:text="#{att.label}">Label</label>
+                <input type="text" name="label"
+                       th:value="${shifts != null and shifts.get(day) != null} ? ${shifts.get(day).shiftLabel} : ''"
+                       maxlength="50">
+                <button type="submit" class="btn btn-outline btn-sm" th:text="#{att.saveShift}">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -138,10 +138,18 @@ public class AppointmentController {
             model.addAttribute("formErrors", result.getFieldErrors());
             return "appointments/add";
         }
-        Appointment appointment = appointmentService.create(dto);
-        String patientName = appointment.getPatient() != null ? appointment.getPatient().getFullName() : "#" + dto.getPatientId();
-        activityLogService.record("Appointment Management", "CREATE_APPOINTMENT",
-                "Created appointment for patient " + patientName, ActivityStatus.SUCCESS);
+        try {
+            Appointment appointment = appointmentService.create(dto);
+            String patientName = appointment.getPatient() != null ? appointment.getPatient().getFullName() : "#" + dto.getPatientId();
+            activityLogService.record("Appointment Management", "CREATE_APPOINTMENT",
+                    "Created appointment for patient " + patientName, ActivityStatus.SUCCESS);
+        } catch (RuntimeException e) {
+            model.addAttribute("flashError", e.getMessage());
+            model.addAttribute("patients", patientRepo.findByIsActiveTrue());
+            model.addAttribute("doctors", doctorRepo.findByIsActiveTrue());
+            model.addAttribute("services", serviceRepo.findAllByOrderByNameAsc());
+            return "appointments/add";
+        }
         return "redirect:/appointments";
     }
 

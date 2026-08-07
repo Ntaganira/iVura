@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{his.title}, ~{::content})}">
+<head><title>Patient History - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{his.title}">Patient History</h1>
+            <div class="subtitle" th:text="${patient.fullName} + ' · ' + ${patient.phone != null ? patient.phone : ''}">Patient</div>
+        </div>
+        <a href="/patients" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${#lists.size(records)}">0</div>
+            <div class="label" th:text="#{his.stat.records}">Records</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${#lists.size(labs)}">0</div>
+            <div class="label" th:text="#{his.stat.labs}">Lab Tests</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${#lists.size(immunizations)}">0</div>
+            <div class="label" th:text="#{his.stat.immunizations}">Immunizations</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${#lists.size(appointments)}">0</div>
+            <div class="label" th:text="#{his.stat.appointments}">Appointments</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{his.patientInfo}">Patient Information</span>
+            </h2>
+        </div>
+        <div class="patient-info-grid">
+            <div class="info-item"><span class="info-label" th:text="#{his.gender}">Gender</span><span class="info-value" th:text="${patient.gender != null ? patient.gender : '-'}">Male</span></div>
+            <div class="info-item"><span class="info-label" th:text="#{his.dob}">Date of Birth</span><span class="info-value" th:text="${patient.dateOfBirth != null ? #temporals.format(patient.dateOfBirth, 'dd MMM yyyy') : '-'}">01 Jan 1990</span></div>
+            <div class="info-item"><span class="info-label" th:text="#{his.blood}">Blood Group</span><span class="info-value" th:text="${patient.bloodGroup != null ? patient.bloodGroup : '-'}">O+</span></div>
+            <div class="info-item"><span class="info-label" th:text="#{his.phone}">Phone</span><span class="info-value" th:text="${patient.phone != null ? patient.phone : '-'}">+250</span></div>
+            <div class="info-item"><span class="info-label" th:text="#{his.email}">Email</span><span class="info-value" th:text="${patient.email != null ? patient.email : '-'}">a@b.c</span></div>
+            <div class="info-item"><span class="info-label" th:text="#{his.allergies}">Allergies</span><span class="info-value" th:text="${patient.allergies != null ? patient.allergies : '-'}">None</span></div>
+            <div class="info-item full"><span class="info-label" th:text="#{his.medicalHistory}">Medical History</span><span class="info-value" th:text="${patient.medicalHistory != null ? patient.medicalHistory : '-'}">-</span></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{his.records}">Medical Records</span>
+                <span class="section-count" th:text="${#lists.size(records)}">0</span>
+            </h2>
+            <details class="inline-add" sec:authorize="hasAuthority('PERM_CREATE_RECORD')">
+                <summary th:text="#{his.addRecord}">+ Add Record</summary>
+                <form th:action="@{/patients/{id}/record(id=${patient.id})}" th:object="${recordDto}" method="post" class="inline-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label th:text="#{his.doctor}">Doctor</label>
+                            <select th:field="*{doctorId}">
+                                <option value="" th:text="#{med.doctorSelect}">Select doctor</option>
+                                <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.fullName}">Dr. Smith</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{med.date}">Record Date</label>
+                            <input type="date" th:field="*{recordDate}">
+                        </div>
+                        <div class="form-group full-width">
+                            <label th:text="#{med.diagnosis}">Diagnosis</label>
+                            <textarea th:field="*{diagnosis}" rows="2"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label th:text="#{med.prescription}">Prescription</label>
+                            <textarea th:field="*{prescription}" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:text="#{his.saveRecord}">Save Record</button>
+                </form>
+            </details>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{med.table.date}">Date</th>
+                        <th th:text="#{med.table.doctor}">Doctor</th>
+                        <th th:text="#{med.table.diagnosis}">Diagnosis</th>
+                        <th th:text="#{med.table.prescription}">Prescription</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${records}">
+                        <td th:text="${#temporals.format(r.recordDate, 'dd MMM yyyy')}">08 Aug 2026</td>
+                        <td th:text="${r.doctor != null ? r.doctor.fullName : '-'}">Dr. Smith</td>
+                        <td><div class="cell-truncate" th:title="${r.diagnosis}" th:text="${r.diagnosis}">Flu</div></td>
+                        <td><div class="cell-truncate" th:title="${r.prescription}" th:text="${r.prescription}">Paracetamol</div></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(records)}">
+                        <td colspan="4"><div class="empty-state slim" th:text="#{his.noRecords}">No medical records</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{his.labs}">Lab Results</span>
+                <span class="section-count" th:text="${#lists.size(labs)}">0</span>
+            </h2>
+            <details class="inline-add" sec:authorize="hasAuthority('PERM_CREATE_LAB')">
+                <summary th:text="#{his.addLab}">+ Add Lab Result</summary>
+                <form th:action="@{/patients/{id}/lab(id=${patient.id})}" th:object="${labDto}" method="post" class="inline-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label th:text="#{lab.testName}">Test Name *</label>
+                            <input type="text" th:field="*{testName}" required>
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{lab.category}">Category</label>
+                            <input type="text" th:field="*{category}">
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{lab.result}">Result</label>
+                            <input type="text" th:field="*{result}">
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{lab.normalRange}">Normal Range</label>
+                            <input type="text" th:field="*{normalRange}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:text="#{his.saveLab}">Save Lab Result</button>
+                </form>
+            </details>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{lab.table.test}">Test</th>
+                        <th th:text="#{lab.table.result}">Result</th>
+                        <th th:text="#{lab.table.range}">Normal Range</th>
+                        <th th:text="#{lab.table.status}">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="l : ${labs}">
+                        <td th:text="${l.testName}">Blood Count</td>
+                        <td th:text="${l.result != null ? l.result + (l.unit != null ? ' ' + l.unit : '') : '-'}">5.2</td>
+                        <td th:text="${l.normalRange != null ? l.normalRange : '-'}">4 - 11</td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${l.status == 'PENDING' ? 'badge-warning' : l.status == 'COMPLETED' ? 'badge-success' : l.status == 'ABNORMAL' ? 'badge-danger' : 'badge-secondary'}"
+                                  th:text="#{'lab.status.' + ${l.status}}">Pending</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(labs)}">
+                        <td colspan="4"><div class="empty-state slim" th:text="#{his.noLabs}">No lab results</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{his.immunizations}">Immunizations</span>
+                <span class="section-count" th:text="${#lists.size(immunizations)}">0</span>
+            </h2>
+            <details class="inline-add" sec:authorize="hasAuthority('PERM_CREATE_IMMUNIZATION')">
+                <summary th:text="#{his.addImmunization}">+ Add Immunization</summary>
+                <form th:action="@{/patients/{id}/immunization(id=${patient.id})}" th:object="${immunizationDto}" method="post" class="inline-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label th:text="#{imm.vaccine}">Vaccine *</label>
+                            <input type="text" th:field="*{vaccine}" required>
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{imm.dose}">Dose</label>
+                            <input type="number" th:field="*{doseNumber}" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{imm.date}">Administered Date</label>
+                            <input type="date" th:field="*{administeredDate}">
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{imm.due}">Next Due Date</label>
+                            <input type="date" th:field="*{nextDueDate}">
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{his.doctor}">Administered By</label>
+                            <select th:field="*{administeredById}">
+                                <option value="" th:text="#{med.doctorSelect}">Select doctor</option>
+                                <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.fullName}">Dr. Smith</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{imm.batch}">Batch Number</label>
+                            <input type="text" th:field="*{batchNumber}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:text="#{his.saveImmunization}">Save Immunization</button>
+                </form>
+            </details>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{imm.vaccine}">Vaccine</th>
+                        <th th:text="#{imm.dose}">Dose</th>
+                        <th th:text="#{imm.date}">Date</th>
+                        <th th:text="#{imm.due}">Next Due</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="i : ${immunizations}">
+                        <td th:text="${i.vaccine}">BCG</td>
+                        <td th:text="${i.doseNumber}">1</td>
+                        <td th:text="${#temporals.format(i.administeredDate, 'dd MMM yyyy')}">01 Jan 2026</td>
+                        <td th:text="${i.nextDueDate != null ? #temporals.format(i.nextDueDate, 'dd MMM yyyy') : '-'}">-</td>
+                        <td>
+                            <a th:href="@{/patients/{id}/immunization/{iid}/delete(id=${patient.id}, iid=${i.id})}"
+                               class="action-icon delete confirm-delete" th:title="#{common.delete}"
+                               th:attr="data-confirm=#{imm.deleteConfirm}" sec:authorize="hasAuthority('PERM_CREATE_IMMUNIZATION')">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(immunizations)}">
+                        <td colspan="5"><div class="empty-state slim" th:text="#{his.noImmunizations}">No immunizations</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{his.appointments}">Appointments</span>
+                <span class="section-count" th:text="${#lists.size(appointments)}">0</span>
+            </h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{appt.table.date}">Date</th>
+                        <th th:text="#{appt.table.time}">Time</th>
+                        <th th:text="#{his.doctor}">Doctor</th>
+                        <th th:text="#{appt.table.status}">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${appointments}">
+                        <td th:text="${a.appointmentDate}">08 Aug 2026</td>
+                        <td th:text="${a.appointmentTime}">09:00</td>
+                        <td th:text="${a.doctor.fullName}">Dr. Smith</td>
+                        <td>
+                            <span class="badge badge-info" th:if="${a.status.name() == 'SCHEDULED'}" th:text="#{status.scheduled}">Scheduled</span>
+                            <span class="badge badge-confirmed" th:if="${a.status.name() == 'CONFIRMED'}" th:text="#{status.confirmed}">Confirmed</span>
+                            <span class="badge badge-success" th:if="${a.status.name() == 'COMPLETED'}" th:text="#{status.completed}">Completed</span>
+                            <span class="badge badge-warning" th:if="${a.status.name() == 'IN_PROGRESS'}" th:text="#{status.inProgress}">In Progress</span>
+                            <span class="badge badge-danger" th:if="${a.status.name() == 'CANCELLED'}" th:text="#{status.cancelled}">Cancelled</span>
+                            <span class="badge badge-secondary" th:if="${a.status.name() == 'NO_SHOW'}" th:text="#{status.noShow}">No Show</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(appointments)}">
+                        <td colspan="4"><div class="empty-state slim" th:text="#{his.noAppointments}">No appointments</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

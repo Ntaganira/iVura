@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{lab.title}, ~{::content})}">
+<head><title>Laboratory - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{lab.title}">Laboratory</h1>
+            <div class="subtitle" th:text="#{lab.subtitle}">Lab test requests and results</div>
+        </div>
+        <a href="/laboratory/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_LAB')">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span th:text="#{lab.add}">Add Lab Result</span>
+        </a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${#lists.size(labs)}">0</div>
+            <div class="label" th:text="#{lab.stat.total}">Total Tests</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${counts.get('PENDING')}">0</div>
+            <div class="label" th:text="#{lab.stat.pending}">Pending</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${counts.get('COMPLETED')}">0</div>
+            <div class="label" th:text="#{lab.stat.completed}">Completed</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${counts.get('ABNORMAL')}">0</div>
+            <div class="label" th:text="#{lab.stat.abnormal}">Abnormal</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{lab.sectionTitle}">Lab Results</span>
+                <span class="section-count" th:text="${#lists.size(labs)}">0</span>
+            </h2>
+            <form th:action="@{/laboratory}" method="get" class="table-toolbar">
+                <select name="status" class="toolbar-filter">
+                    <option value="" th:text="#{common.allStatus}">All Status</option>
+                    <option th:each="s : ${statuses}" th:value="${s}"
+                            th:text="#{'lab.status.' + ${s}}"
+                            th:selected="${s == status}">PENDING</option>
+                </select>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{lab.table.patient}">Patient</th>
+                        <th th:text="#{lab.table.test}">Test</th>
+                        <th th:text="#{lab.table.result}">Result</th>
+                        <th th:text="#{lab.table.range}">Normal Range</th>
+                        <th th:text="#{lab.table.performed}">Performed</th>
+                        <th th:text="#{lab.table.status}">Status</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="l : ${labs}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar purple" th:text="${#strings.substring(l.patient.fullName, 0, 1)}">J</div>
+                                <div class="info">
+                                    <div class="name" th:text="${l.patient.fullName}">John Doe</div>
+                                    <div class="hint" th:text="${l.category}">Hematology</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${l.testName}">Blood Count</td>
+                        <td>
+                            <div class="cell-truncate" th:title="${l.result}" th:text="${l.result != null ? l.result + (l.unit != null ? ' ' + l.unit : '') : '-'}">5.2</div>
+                        </td>
+                        <td th:text="${l.normalRange != null ? l.normalRange : '-'}">4.0 - 11.0</td>
+                        <td th:if="${l.performedAt != null}" th:text="${#temporals.format(l.performedAt, 'dd MMM HH:mm')}">08 Aug 09:00</td>
+                        <td th:if="${l.performedAt == null}" th:text="#{common.na}">N/A</td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${l.status == 'PENDING' ? 'badge-warning' : l.status == 'COMPLETED' ? 'badge-success' : l.status == 'ABNORMAL' ? 'badge-danger' : 'badge-secondary'}"
+                                  th:text="#{'lab.status.' + ${l.status}}">Pending</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <span th:if="${l.status != 'COMPLETED' and l.status != 'ABNORMAL'}"
+                                      sec:authorize="hasAuthority('PERM_EDIT_LAB')">
+                                    <a th:href="@{/laboratory/status/{id}/{status}(id=${l.id}, status='COMPLETED')}"
+                                       class="action-icon pay" th:title="#{lab.markComplete}">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    </a>
+                                </span>
+                                <a th:href="@{/laboratory/edit/{id}(id=${l.id})}" class="action-icon edit"
+                                   th:title="#{common.edit}" sec:authorize="hasAuthority('PERM_EDIT_LAB')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/laboratory/delete/{id}(id=${l.id})}" class="action-icon delete confirm-delete"
+                                   th:title="#{common.delete}" th:attr="data-confirm=#{lab.deleteConfirm}"
+                                   sec:authorize="hasAuthority('PERM_EDIT_LAB')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(labs)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 2v6.5L5.5 18a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 8.5V2"></path>
+                                        <path d="M8.5 2h7"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{lab.empty.title}">No lab results yet</h3>
+                                <p th:text="#{lab.empty.subtitle}">Add the first lab test for a patient</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

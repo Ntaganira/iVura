@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{att.title}, ~{::content})}">
+<head><title>Attendance - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{att.title}">Attendance</h1>
+            <div class="subtitle" th:text="#{att.subtitle}">Daily doctor check-in and attendance</div>
+        </div>
+        <div class="tab-nav" sec:authorize="hasAuthority('PERM_MANAGE_SHIFT')">
+            <a href="/attendance" th:classappend="${requestURI == '/attendance'} ? 'active' : ''" th:text="#{att.tabDaily}">Daily</a>
+            <a href="/attendance/shifts" th:classappend="${requestURI == '/attendance/shifts'} ? 'active' : ''" th:text="#{att.tabShifts}">Shifts</a>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{att.daily}">Daily Attendance</span>
+                <span class="section-count" th:text="${#temporals.format(date, 'EEE dd MMM yyyy')}">Sat 08 Aug 2026</span>
+            </h2>
+            <form th:action="@{/attendance}" method="get" class="table-toolbar">
+                <input type="date" name="date" th:value="${date}" class="toolbar-filter">
+                <button type="submit" class="btn btn-outline" th:text="#{report.apply}">Apply</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{att.doctor}">Doctor</th>
+                        <th th:text="#{att.shift}">Shift</th>
+                        <th th:text="#{att.in}">Clock In</th>
+                        <th th:text="#{att.out}">Clock Out</th>
+                        <th th:text="#{att.status}">Status</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="d : ${doctors}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar teal" th:text="${#strings.substring(d.fullName, 0, 1)}">D</div>
+                                <div class="info">
+                                    <div class="name" th:text="${d.fullName}">Dr. Smith</div>
+                                    <div class="hint" th:text="${d.department != null ? d.department.name : ''}">Cardiology</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:with="shift=${shiftMap.get(d.id)}">
+                            <span th:if="${shift != null}" th:text="${shift.startTime} + ' - ' + ${shift.endTime}">09:00 - 17:00</span>
+                            <span th:if="${shift == null}" th:text="#{common.na}">N/A</span>
+                        </td>
+                        <td th:with="att=${attendanceMap.get(d.id)}">
+                            <span th:if="${att != null and att.clockIn != null}" th:text="${att.clockIn}">09:00</span>
+                            <span th:if="${att == null or att.clockIn == null}" th:text="—">—</span>
+                        </td>
+                        <td th:with="att=${attendanceMap.get(d.id)}">
+                            <span th:if="${att != null and att.clockOut != null}" th:text="${att.clockOut}">17:00</span>
+                            <span th:if="${att == null or att.clockOut == null}" th:text="—">—</span>
+                        </td>
+                        <td th:with="att=${attendanceMap.get(d.id)}">
+                            <span th:if="${att == null}" class="badge badge-secondary" th:text="#{att.none}">No record</span>
+                            <span th:if="${att != null}"
+                                  th:classappend="${att.status == 'PRESENT' ? 'badge-success' : att.status == 'ABSENT' ? 'badge-danger' : att.status == 'ON_LEAVE' ? 'badge-warning' : 'badge-info'}"
+                                  class="badge" th:text="#{'att.status.' + ${att.status}}">Present</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <form th:action="@{/attendance/checkin}" method="post" class="inline-action">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <input type="hidden" name="doctorId" th:value="${d.id}">
+                                    <input type="hidden" name="date" th:value="${date}">
+                                    <button type="submit" class="btn btn-success btn-sm" th:title="#{att.checkIn}"
+                                            sec:authorize="hasAuthority('PERM_CREATE_ATTENDANCE')" th:text="#{att.checkIn}">Check In</button>
+                                </form>
+                                <form th:action="@{/attendance/checkout}" method="post" class="inline-action">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <input type="hidden" name="doctorId" th:value="${d.id}">
+                                    <input type="hidden" name="date" th:value="${date}">
+                                    <button type="submit" class="btn btn-outline btn-sm" th:title="#{att.checkOut}"
+                                            sec:authorize="hasAuthority('PERM_CREATE_ATTENDANCE')" th:text="#{att.checkOut}">Check Out</button>
+                                </form>
+                                <form th:action="@{/attendance/status}" method="post" class="inline-action">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <input type="hidden" name="doctorId" th:value="${d.id}">
+                                    <input type="hidden" name="date" th:value="${date}">
+                                    <input type="hidden" name="status" value="ABSENT">
+                                    <button type="submit" class="btn btn-outline btn-sm danger-text" th:title="#{att.absent}"
+                                            sec:authorize="hasAuthority('PERM_EDIT_ATTENDANCE')" th:text="#{att.absent}">Absent</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(doctors)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{att.empty.title}">No doctors</h3>
+                                <p th:text="#{att.empty.subtitle}">Register doctors to track attendance</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(${billingDto.id == null} ? #{bill.addTitle} : #{bill.editTitle}, ~{::content})}">
+<head><title>Bill - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${billingDto.id == null} ? #{bill.addTitle} : #{bill.editTitle}">Bill</h1>
+            <div class="subtitle" th:text="${billingDto.id == null} ? #{bill.addSubtitle} : #{bill.editSubtitle}">Invoice details</div>
+        </div>
+        <a href="/billings" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="${billingDto.id == null} ? @{/billings/add} : @{/billings/edit/{id}(id=${billingDto.id})}"
+              th:object="${billingDto}" method="post" class="form-container">
+            <div th:replace="~{layout/errors :: error-summary}"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="invoiceNumber" th:text="#{bill.invoice}">Invoice Number</label>
+                    <input type="text" id="invoiceNumber" th:field="*{invoiceNumber}" readonly
+                           th:placeholder="#{bill.invoiceAuto}" th:value="${billingDto.invoiceNumber}">
+                    <span class="hint" th:if="${billingDto.id == null}" th:text="#{bill.invoiceAuto}">Auto-generated on save</span>
+                </div>
+                <div class="form-group">
+                    <label for="patientId" th:text="#{bill.patient}">Patient *</label>
+                    <select id="patientId" th:field="*{patientId}" required>
+                        <option value="" th:text="#{bill.patientSelect}">Select patient</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName}">John Doe</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('patientId')}" th:errors="*{patientId}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="appointmentId" th:text="#{bill.appointment}">Appointment</label>
+                    <select id="appointmentId" th:field="*{appointmentId}">
+                        <option value="" th:text="#{bill.appointmentSelect}">Select appointment (optional)</option>
+                        <option th:each="a : ${appointments}" th:value="${a.id}"
+                                th:text="${a.appointmentDate} + ' ' + ${a.appointmentTime} + ' - ' + ${a.patient.fullName}">2026-08-07 09:00 - John Doe</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount" th:text="#{bill.amount}">Amount (RWF) *</label>
+                    <input type="number" id="amount" th:field="*{amount}" step="0.01" min="0" required>
+                    <span th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="tax" th:text="#{bill.tax}">Tax (RWF)</label>
+                    <input type="number" id="tax" th:field="*{tax}" step="0.01" min="0">
+                    <span th:if="${#fields.hasErrors('tax')}" th:errors="*{tax}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="discount" th:text="#{bill.discount}">Discount (RWF)</label>
+                    <input type="number" id="discount" th:field="*{discount}" step="0.01" min="0">
+                    <span th:if="${#fields.hasErrors('discount')}" th:errors="*{discount}" style="color:var(--danger);font-size:12px;"></span>
+                </div>
+                <div class="form-group">
+                    <label for="status" th:text="#{common.status}">Status</label>
+                    <select id="status" th:field="*{status}">
+                        <option th:each="s : ${billStatuses}"
+                                th:value="${s}" th:text="#{'bill.status.' + ${s}}">PENDING</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="paymentMethod" th:text="#{bill.method}">Payment Method</label>
+                    <select id="paymentMethod" th:field="*{paymentMethod}">
+                        <option value="" th:text="#{bill.methodSelect}">Select method (optional)</option>
+                        <option value="CASH" th:text="#{bill.method.cash}">Cash</option>
+                        <option value="CARD" th:text="#{bill.method.card}">Card</option>
+                        <option value="MOBILE_MONEY" th:text="#{bill.method.mobile}">Mobile Money</option>
+                        <option value="BANK_TRANSFER" th:text="#{bill.method.bank}">Bank Transfer</option>
+                        <option value="INSURANCE" th:text="#{bill.method.insurance}">Insurance</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="notes" th:text="#{bill.notes}">Notes</label>
+                    <textarea id="notes" th:field="*{notes}" th:placeholder="#{bill.notesPh}"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${billingDto.id == null} ? #{bill.save} : #{bill.update}">Save Bill</button>
+                <a href="/billings" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

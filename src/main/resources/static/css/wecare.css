@@ -1479,6 +1479,9 @@ table tbody td .patient-cell .info .email {
 .action-icon.edit:hover { background: var(--primary); color: white; }
 .action-icon.delete { background: #fee2e2; color: var(--danger); }
 .action-icon.delete:hover { background: var(--danger); color: white; }
+.action-icon.pay { background: #d1fae5; color: #065f46; }
+.action-icon.pay:hover { background: #10b981; color: white; }
+.action-icon.disabled { opacity: .4; pointer-events: none; }
 
 /* Page header with actions */
 .page-header {
@@ -1555,6 +1558,8 @@ table tbody td .patient-cell .info .email {
 
 [data-theme="dark"] .action-icon.edit { background: var(--primary-light); color: var(--primary-soft); }
 [data-theme="dark"] .action-icon.delete { background: #3d2226; color: #fca5a5; }
+[data-theme="dark"] .action-icon.pay { background: #1f3d33; color: #6ee7b7; }
+[data-theme="dark"] .action-icon.pay:hover { background: #10b981; color: white; }
 
 [data-theme="dark"] .confirm-modal .confirm-icon { background: #3d3320; }
 [data-theme="dark"] .modal-overlay[data-danger="true"] .confirm-icon { background: #3d2226; }

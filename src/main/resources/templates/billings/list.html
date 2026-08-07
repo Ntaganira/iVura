@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{bill.title}, ~{::content})}">
+<head><title>Billing - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{bill.title}">Billing</h1>
+            <div class="subtitle" th:text="#{bill.subtitle}">Invoices linked to patients and services</div>
+        </div>
+        <a href="/billings/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_BILL')">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span th:text="#{bill.add}">Add Bill</span>
+        </a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${bills.totalElements}">6</div>
+            <div class="label" th:text="#{bill.stat.total}">Total Bills</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${statusCounts.get('PENDING')}">0</div>
+            <div class="label" th:text="#{bill.stat.pending}">Pending</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${statusCounts.get('PAID')}">0</div>
+            <div class="label" th:text="#{bill.stat.paid}">Paid</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${totalRevenue} + ' RWF'">0 RWF</div>
+            <div class="label" th:text="#{bill.stat.revenue}">Revenue</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2>
+                <span th:text="#{bill.sectionTitle}">Bill List</span>
+                <span class="section-count" th:text="${bills.totalElements}">0</span>
+            </h2>
+            <form th:action="@{/billings}" method="get" class="table-toolbar">
+                <select name="status" class="toolbar-filter">
+                    <option value="" th:text="#{common.allStatus}">All Status</option>
+                    <option th:each="s : ${statusCounts.keySet()}" th:value="${s}"
+                            th:text="#{'bill.status.' + ${s}}"
+                            th:selected="${s == selectedStatus}">PENDING</option>
+                </select>
+                <div class="toolbar-search">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="search" th:value="${search}" th:placeholder="#{common.search}">
+                </div>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{bill.table.invoice}">Invoice</th>
+                        <th th:text="#{bill.table.patient}">Patient</th>
+                        <th th:text="#{bill.table.date}">Date</th>
+                        <th th:text="#{bill.table.amount}">Amount</th>
+                        <th th:text="#{bill.table.total}">Total</th>
+                        <th th:text="#{bill.table.status}">Status</th>
+                        <th th:text="#{bill.table.method}">Method</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="b : ${bills.content}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar blue" th:text="${#strings.substring(b.invoiceNumber, 0, 3)}">INV</div>
+                                <div class="info">
+                                    <div class="name" th:text="${b.invoiceNumber}">INV-2026-000001</div>
+                                    <div class="hint" th:if="${b.appointment != null}"
+                                         th:text="#{bill.relatedAppointment}">Appointment</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${b.patient != null ? b.patient.fullName : ''}">John Doe</td>
+                        <td th:text="${#temporals.format(b.createdAt, 'dd MMM yyyy')}">07 Aug 2026</td>
+                        <td th:text="${b.amount} + ' RWF'">20000 RWF</td>
+                        <td><span class="badge badge-info" th:text="${b.totalAmount} + ' RWF'">20000 RWF</span></td>
+                        <td>
+                            <span class="badge" th:switch="${b.status}"
+                                  th:classappend="${b.status == 'PENDING' ? 'badge-warning' : b.status == 'PAID' ? 'badge-success' : b.status == 'PARTIALLY_PAID' ? 'badge-info' : b.status == 'CANCELLED' ? 'badge-danger' : 'badge-secondary'}"
+                                  th:text="#{'bill.status.' + ${b.status}}">Pending</span>
+                        </td>
+                        <td>
+                            <span th:if="${b.paymentMethod}" th:text="${b.paymentMethod}">CASH</span>
+                            <span th:unless="${b.paymentMethod}" th:text="#{common.na}">N/A</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/billings/pay/{id}(id=${b.id})}" class="action-icon pay" th:title="#{bill.markPaid}" sec:authorize="hasAuthority('PERM_APPROVE_PAYMENT')"
+                                   th:classappend="${b.status == 'PAID' or b.status == 'CANCELLED' or b.status == 'REFUNDED' ? 'disabled' : ''}">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/billings/edit/{id}(id=${b.id})}" class="action-icon edit" th:title="#{common.edit}" sec:authorize="hasAuthority('PERM_EDIT_BILL')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                    </svg>
+                                </a>
+                                <a th:href="@{/billings/delete/{id}(id=${b.id})}" class="action-icon delete confirm-delete" th:title="#{common.delete}" th:attr="data-confirm=#{bill.deleteConfirm}" sec:authorize="hasAuthority('PERM_DELETE_BILL')">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(bills.content)}">
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{bill.empty.title}">No bills yet</h3>
+                                <p th:text="#{bill.empty.subtitle}">Add your first bill to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <th:block th:replace="~{layout/pagination :: pager(${bills}, '/billings', ${paginationQuery})}"></th:block>
+    </div>
+</div>
+</body>
+</html>

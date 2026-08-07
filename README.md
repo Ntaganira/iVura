@@ -4,12 +4,13 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 
 ## Features
 
-- **Dashboard** with overview statistics
+- **Dashboard** — overview statistics and charts
 - **Patients** — registration and management
-- **Doctors** — profiles linked to departments and services
+- **Doctors** — profiles linked to departments, specializations, and services (multi-select via Choices.js)
+- **Specializations** — medical expertise areas assigned to doctors
 - **Departments** — organization units with doctor counts
 - **Services** — medical services offered by the hospital, each with a price (RWF)
-- **Appointments** — scheduling between patients and doctors
+- **Appointments** — scheduling between patients and doctors with a calendar view (FullCalendar)
 - **Billing** — invoices linked to patients and services
 - **Users, Roles & Permissions** — role-based access control (RBAC) with fine-grained page/action permissions
 - **Activity Logs** — audit trail of every system action (success/failure)
@@ -23,7 +24,7 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 |-----------|---------------------------------------------------------|
 | Backend   | Java 17, Spring Boot 3.4, Spring MVC, Spring Security   |
 | Persistence | Spring Data JPA (Hibernate), Flyway migrations        |
-| Frontend  | Thymeleaf, Thymeleaf Spring Security extras, custom CSS |
+| Frontend  | Thymeleaf, Thymeleaf Spring Security extras, custom CSS, Choices.js, Chart.js, FullCalendar (all vendored locally, no CDN) |
 | Database  | PostgreSQL 16                                           |
 | Storage   | MinIO (object storage)                                  |
 | Build     | Maven, Lombok                                           |
@@ -108,6 +109,7 @@ Schema is managed by **Flyway**. Migrations live in `src/main/resources/db/migra
 | `V5`    | Departments + service lookup + grants         |
 | `V6`    | Service pricing                              |
 | `V7`    | Rename specialization → services             |
+| `V8`    | Separate specializations and services        |
 
 ## Project Structure
 
@@ -127,9 +129,11 @@ src/main/resources/
 ├── templates/             # Thymeleaf views
 │   ├── layout/            # Sidebar, pagination, errors fragments
 │   ├── patients/ doctors/ appointments/ billings/
-│   ├── departments/ services/ users/ roles/ permissions/
+│   ├── departments/ services/ specializations/ users/ roles/ permissions/
 │   └── activity/ profile/ auth/
 ├── static/css/            # Stylesheets
+├── static/js/             # Application scripts (wecare.js)
+├── static/vendor/         # Vendored libs: Choices.js, Chart.js, FullCalendar (no CDN)
 └── messages*.properties   # i18n (EN, FR, RW)
 ```
 

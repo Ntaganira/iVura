@@ -1,5 +1,6 @@
 package com.ntaganira.heritier.iVura.service;
 
+import com.ntaganira.heritier.iVura.dto.RadiologyHistoryDto;
 import com.ntaganira.heritier.iVura.entity.*;
 import com.ntaganira.heritier.iVura.repository.*;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <pre>
@@ -26,17 +28,20 @@ public class RadiologyOrderService {
     private final RadiologyOrderRepository orderRepo;
     private final RadiologyOrderItemRepository itemRepo;
     private final RadiologyExamRepository examRepo;
+    private final RadiologyReportRepository reportRepo;
     private final PatientRepository patientRepo;
     private final DoctorRepository doctorRepo;
 
     public RadiologyOrderService(RadiologyOrderRepository orderRepo,
                                  RadiologyOrderItemRepository itemRepo,
                                  RadiologyExamRepository examRepo,
+                                 RadiologyReportRepository reportRepo,
                                  PatientRepository patientRepo,
                                  DoctorRepository doctorRepo) {
         this.orderRepo = orderRepo;
         this.itemRepo = itemRepo;
         this.examRepo = examRepo;
+        this.reportRepo = reportRepo;
         this.patientRepo = patientRepo;
         this.doctorRepo = doctorRepo;
     }
@@ -58,6 +63,27 @@ public class RadiologyOrderService {
     public Map<Long, Long> itemCounts(List<RadiologyOrder> orders) {
         return orders.stream().collect(java.util.stream.Collectors.toMap(
                 RadiologyOrder::getId, o -> itemRepo.countByOrderId(o.getId()), (a, b) -> a));
+    }
+
+    public List<RadiologyOrder> findByPatientId(Long patientId) {
+        return orderRepo.findByPatientIdOrderByRequestedAtDesc(patientId);
+    }
+
+    public List<RadiologyHistoryDto> historyForPatient(Long patientId) {
+        return orderRepo.findByPatientIdOrderByRequestedAtDesc(patientId).stream()
+                .map(order -> {
+                    List<RadiologyOrderItem> items = itemsOf(order);
+                    RadiologyHistoryDto dto = new RadiologyHistoryDto();
+                    dto.setOrder(order);
+                    dto.setItems(items.stream()
+                            .map(item -> {
+                                RadiologyReport report = reportRepo.findByOrderItemId(item.getId()).orElse(null);
+                                return new RadiologyHistoryDto.Item(item, report);
+                            })
+                            .collect(Collectors.toList()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     public long performedCount(RadiologyOrder order) {

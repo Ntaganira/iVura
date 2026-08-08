@@ -56,11 +56,8 @@
                         </td>
                         <td th:text="${itemCounts != null ? itemCounts.get(o.id) : ''}">3</td>
                         <td>
-                            <span th:text="#{'order.status.' + ${o.status}}" th:classappend="
-                                ${o.status == 'ORDERED'} ? 'badge badge-secondary' :
-                                ${o.status == 'SPECIMEN_RECEIVED'} ? 'badge badge-info' :
-                                ${o.status == 'IN_PROGRESS'} ? 'badge badge-warning' :
-                                ${o.status == 'COMPLETED'} ? 'badge badge-success' : 'badge badge-danger'"
+                            <span th:text="#{'order.status.' + ${o.status}}"
+                                  th:classappend="${o.status == 'ORDERED'} ? 'badge badge-secondary' : (${o.status == 'SPECIMEN_RECEIVED'} ? 'badge badge-info' : (${o.status == 'IN_PROGRESS'} ? 'badge badge-warning' : (${o.status == 'COMPLETED'} ? 'badge badge-success' : 'badge badge-danger')))"
                                   class="badge">ORDERED</span>
                         </td>
                         <td th:text="${#temporals.format(o.requestedAt, 'dd MMM yyyy HH:mm')}">08 Aug 2026 09:00</td>

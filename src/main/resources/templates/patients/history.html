@@ -29,6 +29,12 @@
             <div class="value" th:text="${#lists.size(appointments)}">0</div>
             <div class="label" th:text="#{his.stat.appointments}">Appointments</div>
         </div>
+        <div class="summary-card">
+            <div class="value" th:text="${radiologyCount}">0</div>
+            <div class="label">
+                <a th:href="@{/patients/{id}/radiology(id=${patient.id})}" th:text="#{radhist.stat.orders}">Imaging</a>
+            </div>
+        </div>
     </div>
 
     <div class="section">

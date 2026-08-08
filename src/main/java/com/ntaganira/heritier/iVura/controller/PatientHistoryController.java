@@ -15,6 +15,7 @@ import com.ntaganira.heritier.iVura.service.ImmunizationService;
 import com.ntaganira.heritier.iVura.service.LabResultService;
 import com.ntaganira.heritier.iVura.service.MedicalRecordService;
 import com.ntaganira.heritier.iVura.service.PatientService;
+import com.ntaganira.heritier.iVura.service.RadiologyOrderService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,6 +42,7 @@ public class PatientHistoryController {
     private final ImmunizationService immunizationService;
     private final DoctorRepository doctorRepo;
     private final AppointmentRepository appointmentRepo;
+    private final RadiologyOrderService radiologyService;
     private final ActivityLogService activityLogService;
 
     public PatientHistoryController(PatientService patientService,
@@ -49,6 +51,7 @@ public class PatientHistoryController {
                                     ImmunizationService immunizationService,
                                     DoctorRepository doctorRepo,
                                     AppointmentRepository appointmentRepo,
+                                    RadiologyOrderService radiologyService,
                                     ActivityLogService activityLogService) {
         this.patientService = patientService;
         this.recordService = recordService;
@@ -56,6 +59,7 @@ public class PatientHistoryController {
         this.immunizationService = immunizationService;
         this.doctorRepo = doctorRepo;
         this.appointmentRepo = appointmentRepo;
+        this.radiologyService = radiologyService;
         this.activityLogService = activityLogService;
     }
 
@@ -73,7 +77,17 @@ public class PatientHistoryController {
         model.addAttribute("immunizationDto", new ImmunizationDto());
         model.addAttribute("doctors", doctorRepo.findByIsActiveTrue());
         model.addAttribute("statuses", LabResultService.STATUSES);
+        model.addAttribute("radiologyCount", radiologyService.findByPatientId(id).size());
         return "patients/history";
+    }
+
+    @GetMapping("/radiology")
+    @PreAuthorize("hasAnyAuthority('PERM_VIEW_RECORD', 'PERM_VIEW_RAD_ORDER')")
+    public String radiologyHistory(@PathVariable Long id, Model model) {
+        Patient patient = patientService.findById(id);
+        model.addAttribute("patient", patient);
+        model.addAttribute("orders", radiologyService.historyForPatient(id));
+        return "patients/radiology";
     }
 
     @PostMapping("/record")

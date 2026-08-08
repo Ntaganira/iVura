@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="#{radpdf.title}">iVura Radiology Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.8cm 1.5cm 2.2cm 1.5cm;
+            @bottom-center {
+                content: "iVura - " counter(page) " / " counter(pages);
+                font-size: 9px;
+                color: #64748b;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .report-header {
+            border-bottom: 3px solid #268071;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+        .report-header h1 {
+            font-size: 22px;
+            margin: 0 0 4px 0;
+            color: #0f766e;
+        }
+        .report-header .sub {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+        }
+        .meta-table td {
+            border: 1px solid #cbd5e1;
+            padding: 7px 9px;
+            font-size: 11px;
+            vertical-align: top;
+        }
+        .meta-table .lbl {
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .meta-table .val {
+            color: #1e293b;
+            font-weight: bold;
+        }
+        h2 {
+            font-size: 14px;
+            color: #0f766e;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 4px;
+            margin: 16px 0 8px 0;
+        }
+        .content-block {
+            border: 1px solid #cbd5e1;
+            border-radius: 3px;
+            padding: 10px 12px;
+            font-size: 12px;
+            white-space: pre-wrap;
+            min-height: 40px;
+        }
+        .signatures {
+            margin-top: 28px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .signatures td {
+            width: 50%;
+            padding: 6px;
+            font-size: 11px;
+            color: #334155;
+            vertical-align: top;
+        }
+        .signature-line {
+            border-top: 1px solid #94a3b8;
+            margin-top: 34px;
+            padding-top: 5px;
+            font-size: 11px;
+            color: #1e293b;
+        }
+        .footer-note {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #94a3b8;
+            text-align: center;
+        }
+        .status-verified {
+            color: #15803d;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="report-header">
+    <h1 th:text="#{app.name}">iVura Hospital</h1>
+    <div class="sub">
+        <span th:text="#{radpdf.title}">Radiology Report</span> —
+        <span th:text="#{radpdf.generated}">Generated</span>: <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMM yyyy HH:mm')}"></span>
+    </div>
+</div>
+
+<table class="meta-table">
+    <tr>
+        <td style="width: 50%;">
+            <div class="lbl" th:text="#{radpdf.patient}">Patient</div>
+            <div class="val" th:text="${report.orderItem.order.patient.fullName}">Alice Niyonkuru</div>
+            <div class="val" style="font-weight: normal;" th:text="${'DOB: ' + #temporals.format(report.orderItem.order.patient.dateOfBirth, 'dd MMM yyyy')}">DOB: 01 Jan 1990</div>
+        </td>
+        <td>
+            <div class="lbl" th:text="#{radpdf.accession}">Accession #</div>
+            <div class="val" th:text="${report.orderItem.order.accessionNumber}">IMAG-2026-000001</div>
+            <div class="val" style="font-weight: normal;" th:text="${'Requested: ' + #temporals.format(report.orderItem.order.requestedAt, 'dd MMM yyyy HH:mm')}">Requested: 08 Aug 2026</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="lbl" th:text="#{radpdf.exam}">Exam</div>
+            <div class="val" th:text="${report.orderItem.examName}">Chest X-Ray</div>
+        </td>
+        <td>
+            <div class="lbl" th:text="#{radpdf.requestingDoctor}">Requesting Doctor</div>
+            <div class="val" th:text="${report.orderItem.order.doctor != null ? report.orderItem.order.doctor.fullName : '-'}">Dr. Smith</div>
+        </td>
+    </tr>
+</table>
+
+<h2 th:text="#{radpdf.clinicalHistory}">Clinical History</h2>
+<div class="content-block">
+    <span th:text="${report.clinicalHistory != null and !#strings.isEmpty(report.clinicalHistory) ? report.clinicalHistory : '-'}">Cough for 2 weeks</span>
+</div>
+
+<h2 th:text="#{radpdf.findings}">Findings</h2>
+<div class="content-block">
+    <span th:text="${report.findings != null ? report.findings : '-'}">Clear lung fields</span>
+</div>
+
+<h2 th:text="#{radpdf.impression}">Impression</h2>
+<div class="content-block">
+    <span th:text="${report.impression != null ? report.impression : '-'}">No active disease</span>
+</div>
+
+<table class="signatures">
+    <tr>
+        <td>
+            <div class="lbl" th:text="#{radpdf.reported}">Reported By</div>
+            <div class="signature-line"
+                 th:text="${report.reportedBy != null ? report.reportedBy.fullName : '-'}">Dr. Reporter</div>
+        </td>
+        <td>
+            <div class="lbl" th:text="#{radpdf.verified}">Verified By</div>
+            <div class="signature-line"
+                 th:text="${report.verifiedBy != null ? report.verifiedBy.fullName : '-'}">Dr. Verifier</div>
+        </td>
+    </tr>
+</table>
+
+<div class="footer-note">
+    <span th:if="${report.status == 'VERIFIED'}" class="status-verified" th:text="#{radpdf.verifiedStamp}">Verified and signed off</span>
+    <span th:if="${report.status != 'VERIFIED'}" class="status-pending" th:text="#{radpdf.notVerifiedStamp}">Not yet verified</span>
+    · <span th:text="#{app.name} + ' · ' + #{radpdf.title}">iVura · Radiology Report</span>
+</div>
+</body>
+</html>

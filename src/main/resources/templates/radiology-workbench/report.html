@@ -10,6 +10,8 @@
             <div class="subtitle" th:text="${item.examName} + ' - ' + ${item.order.patient.fullName}">Chest X-Ray - Alice</div>
         </div>
         <a href="/radiology-workbench" class="btn btn-outline" th:text="#{verify.back}">Back to workbench</a>
+        <a th:if="${report != null}" th:href="@{/radiology-workbench/print/{id}(id=${report.id})}" target="_blank" rel="noopener"
+           class="btn btn-primary" sec:authorize="hasAuthority('PERM_PRINT_RAD_REPORT')" th:text="#{radwb.print}">Print PDF</a>
     </div>
 
     <div class="section">

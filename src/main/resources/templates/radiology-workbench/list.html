@@ -102,6 +102,9 @@
                                     <button type="submit" class="btn btn-outline btn-sm" sec:authorize="hasAuthority('PERM_VERIFY_RAD_REPORT')"
                                             th:text="#{radwb.reopen}">Reopen</button>
                                 </form>
+                                <a th:href="@{/radiology-workbench/print/{id}(id=${r.id})}" target="_blank" rel="noopener"
+                                   class="btn btn-outline btn-sm" sec:authorize="hasAuthority('PERM_PRINT_RAD_REPORT')"
+                                   th:text="#{radwb.print}">Print</a>
                             </div>
                         </td>
                     </tr>

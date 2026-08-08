@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{radhist.title}, ~{::content})}">
+<head><title>Imaging History - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{radhist.title}">Imaging History</h1>
+            <div class="subtitle" th:text="#{radhist.subtitle} + ' ' + ${patient.fullName}">Imaging history for Patient</div>
+        </div>
+        <a th:href="@{/patients/{id}/history(id=${patient.id})}" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="value" th:text="${#lists.size(orders)}">0</div>
+            <div class="label" th:text="#{radhist.stat.orders}">Imaging Orders</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${patient.gender != null ? patient.gender : '-'}">Female</div>
+            <div class="label" th:text="#{his.gender}">Gender</div>
+        </div>
+        <div class="summary-card">
+            <div class="value" th:text="${patient.dateOfBirth != null ? #temporals.format(patient.dateOfBirth, 'dd MMM yyyy') : '-'}">01 Jan 1990</div>
+            <div class="label" th:text="#{his.dob}">Date of Birth</div>
+        </div>
+    </div>
+
+    <div class="section" th:each="entry : ${orders}">
+        <div class="section-header">
+            <h2>
+                <span th:text="${entry.order.accessionNumber}">IMAG-2026-000001</span>
+                <span class="section-count" th:text="${#temporals.format(entry.order.requestedAt, 'dd MMM yyyy')}">08 Aug 2026</span>
+            </h2>
+            <div class="btn-group">
+                <span th:text="#{'rad.status.' + ${entry.order.status}}"
+                      th:classappend="${entry.order.status == 'ORDERED'} ? 'badge badge-secondary' : (${entry.order.status == 'IN_PROGRESS'} ? 'badge badge-warning' : (${entry.order.status == 'COMPLETED'} ? 'badge badge-success' : 'badge badge-danger'))"
+                      class="badge">COMPLETED</span>
+                <span th:if="${entry.order.priority == 'URGENT'}" class="badge badge-warning" th:text="#{rad.priority.URGENT}">Urgent</span>
+                <span th:if="${entry.order.priority == 'STAT'}" class="badge badge-danger" th:text="#{rad.priority.STAT}">STAT</span>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{radhist.table.exam}">Exam</th>
+                        <th th:text="#{radhist.table.requestingDoctor}">Requesting Doctor</th>
+                        <th th:text="#{radhist.table.itemStatus}">Exam Status</th>
+                        <th th:text="#{radhist.table.reportStatus}">Report</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row : ${entry.items}">
+                        <td>
+                            <div class="name" th:text="${row.item.examName}">Chest X-Ray</div>
+                        </td>
+                        <td th:text="${entry.order.doctor != null ? entry.order.doctor.fullName : '-'}">Dr. Smith</td>
+                        <td>
+                            <span th:text="#{'radhist.item.' + ${row.item.status}}"
+                                  th:classappend="${row.item.status == 'ORDERED'} ? 'badge badge-secondary' : (${row.item.status == 'IMAGED'} ? 'badge badge-info' : (${row.item.status == 'REPORTED'} ? 'badge badge-warning' : 'badge badge-success'))"
+                                  class="badge">VERIFIED</span>
+                        </td>
+                        <td>
+                            <span th:if="${row.report == null}" class="text-muted" th:text="#{radhist.report.none}">No report</span>
+                            <span th:if="${row.report != null}" th:text="#{'radhist.report.' + ${row.report.status}}"
+                                  th:classappend="${row.report.status == 'DRAFT'} ? 'badge badge-secondary' : (${row.report.status == 'FINAL'} ? 'badge badge-warning' : 'badge badge-success')"
+                                  class="badge">VERIFIED</span>
+                        </td>
+                        <td>
+                            <a th:if="${row.report != null and row.report.status == 'VERIFIED'}"
+                               th:href="@{/radiology-workbench/print/{id}(id=${row.report.id})}" target="_blank" rel="noopener"
+                               class="btn btn-outline btn-sm" sec:authorize="hasAuthority('PERM_PRINT_RAD_REPORT')"
+                               th:text="#{radhist.print}">View PDF</a>
+                            <span th:if="${row.report == null or row.report.status != 'VERIFIED'}" class="text-muted">—</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(entry.items)}">
+                        <td colspan="5"><div class="empty-state slim" th:text="#{radhist.noItems}">No exams on this order</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(orders)}" class="section">
+        <div class="empty-state">
+            <div class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"></path>
+                    <line x1="9" y1="4" x2="9" y2="17"></line>
+                    <line x1="15" y1="7" x2="15" y2="20"></line>
+                </svg>
+            </div>
+            <h3 th:text="#{radhist.empty}">No imaging history</h3>
+            <p th:text="#{radhist.emptySub}">This patient has no radiology orders yet</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

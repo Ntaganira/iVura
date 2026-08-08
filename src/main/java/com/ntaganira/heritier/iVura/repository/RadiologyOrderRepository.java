@@ -19,6 +19,7 @@ import java.util.Optional;
 public interface RadiologyOrderRepository extends JpaRepository<RadiologyOrder, Long> {
     List<RadiologyOrder> findAllByOrderByRequestedAtDesc();
     List<RadiologyOrder> findByStatusOrderByRequestedAtDesc(String status);
+    List<RadiologyOrder> findByPatientIdOrderByRequestedAtDesc(Long patientId);
     Optional<RadiologyOrder> findByAccessionNumber(String accessionNumber);
     long countByStatus(String status);
 }

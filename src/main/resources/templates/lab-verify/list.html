@@ -38,10 +38,7 @@
                         <td th:text="${r.result}">5.2</td>
                         <td>
                             <span th:if="${r.flag != null}"
-                                  th:classappend="
-                                    ${r.flag == 'NORMAL'} ? 'badge-success' :
-                                    ${r.flag == 'HIGH' or r.flag == 'LOW'} ? 'badge-warning' :
-                                    ${r.flag == 'ABNORMAL'} ? 'badge-info' : 'badge-danger'"
+                                  th:classappend="${r.flag == 'NORMAL'} ? 'badge-success' : (${r.flag == 'HIGH' or r.flag == 'LOW'} ? 'badge-warning' : (${r.flag == 'ABNORMAL'} ? 'badge-info' : 'badge-danger'))"
                                   class="badge" th:text="#{'verify.flag.' + ${r.flag}}">Normal</span>
                             <span th:if="${r.flag == null}" class="badge badge-secondary" th:text="#{common.na}">N/A</span>
                         </td>

@@ -57,12 +57,7 @@
                         </td>
                         <td th:text="${m.accessionNumber != null ? m.accessionNumber : ''}">ACC-2026-000001</td>
                         <td>
-                            <span th:classappend="
-                                ${m.status == 'ACCEPTED'} ? 'badge-success' :
-                                ${m.status == 'INCOMPLETE'} ? 'badge-warning' :
-                                ${m.status == 'UNMATCHED'} ? 'badge-danger' :
-                                ${m.status == 'DUPLICATE'} ? 'badge-secondary' :
-                                ${m.status == 'ERROR'} ? 'badge-danger' : 'badge-info'"
+                            <span th:classappend="${m.status == 'ACCEPTED'} ? 'badge-success' : (${m.status == 'INCOMPLETE'} ? 'badge-warning' : (${m.status == 'UNMATCHED'} ? 'badge-danger' : (${m.status == 'DUPLICATE'} ? 'badge-secondary' : (${m.status == 'ERROR'} ? 'badge-danger' : 'badge-info'))))"
                                   class="badge" th:text="#{'integ.status.' + ${m.status}}">RECEIVED</span>
                         </td>
                         <td th:text="${#temporals.format(m.createdAt, 'dd MMM yyyy HH:mm')}">08 Aug 2026 10:00</td>

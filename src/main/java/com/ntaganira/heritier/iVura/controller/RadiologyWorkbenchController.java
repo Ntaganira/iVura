@@ -3,8 +3,14 @@ package com.ntaganira.heritier.iVura.controller;
 import com.ntaganira.heritier.iVura.entity.RadiologyOrderItem;
 import com.ntaganira.heritier.iVura.entity.RadiologyReport;
 import com.ntaganira.heritier.iVura.entity.User;
+import com.ntaganira.heritier.iVura.enums.ActivityStatus;
 import com.ntaganira.heritier.iVura.repository.UserRepository;
+import com.ntaganira.heritier.iVura.service.ActivityLogService;
+import com.ntaganira.heritier.iVura.service.PdfService;
 import com.ntaganira.heritier.iVura.service.RadiologyReportService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +18,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <pre>
@@ -29,11 +38,17 @@ public class RadiologyWorkbenchController {
 
     private final RadiologyReportService reportService;
     private final UserRepository userRepo;
+    private final PdfService pdfService;
+    private final ActivityLogService activityLogService;
 
     public RadiologyWorkbenchController(RadiologyReportService reportService,
-                                        UserRepository userRepo) {
+                                        UserRepository userRepo,
+                                        PdfService pdfService,
+                                        ActivityLogService activityLogService) {
         this.reportService = reportService;
         this.userRepo = userRepo;
+        this.pdfService = pdfService;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping
@@ -103,6 +118,30 @@ public class RadiologyWorkbenchController {
         RadiologyReport report = reportService.reopen(id, currentUser());
         ra.addFlashAttribute("flashSuccess", "Report reopened for revision");
         return "redirect:/radiology-workbench";
+    }
+
+    @GetMapping("/print/{id}")
+    @PreAuthorize("hasAuthority('PERM_PRINT_RAD_REPORT')")
+    public ResponseEntity<byte[]> print(@PathVariable Long id) {
+        RadiologyReport report = reportService.findById(id);
+        if (report == null) {
+            return ResponseEntity.notFound().build();
+        }
+        Map<String, Object> model = new HashMap<>();
+        model.put("report", report);
+        byte[] pdf = pdfService.renderPdf("radiology-workbench/report-pdf", model);
+
+        String patientName = report.getOrderItem().getOrder().getPatient().getFullName();
+        String accession = report.getOrderItem().getOrder().getAccessionNumber();
+        activityLogService.record("Radiology", "PRINT_RAD_REPORT",
+                "Printed " + report.getOrderItem().getExamName() + " report for " + patientName,
+                ActivityStatus.SUCCESS);
+
+        String filename = "radiology-report-" + accession + ".pdf";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     private User currentUser() {

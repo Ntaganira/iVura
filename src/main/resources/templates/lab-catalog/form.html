@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{cat.addTitle}, ~{::content})}">
+<head><title>Lab Catalog - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${catalog.id != null} ? #{cat.editTitle} : #{cat.addTitle}">New Test</h1>
+            <div class="subtitle" th:text="#{cat.subtitle}">Canonical test definitions with reference ranges</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <form th:action="${catalog.id != null} ? @{/lab-catalog/edit/{id}(id=${catalog.id})} : @{/lab-catalog/add}"
+              th:object="${catalog}" method="post" class="form-container">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="code" th:text="#{cat.code}">Code *</label>
+                    <input type="text" id="code" th:field="*{code}" placeholder="CBC" required>
+                </div>
+                <div class="form-group">
+                    <label for="name" th:text="#{cat.name}">Name *</label>
+                    <input type="text" id="name" th:field="*{name}" th:placeholder="#{cat.namePh}" required>
+                </div>
+                <div class="form-group">
+                    <label for="category" th:text="#{cat.category}">Category</label>
+                    <input type="text" id="category" th:field="*{category}" placeholder="Hematology">
+                </div>
+                <div class="form-group">
+                    <label for="specimenType" th:text="#{cat.specimenType}">Specimen</label>
+                    <input type="text" id="specimenType" th:field="*{specimenType}" placeholder="Whole Blood">
+                </div>
+                <div class="form-group">
+                    <label for="unit" th:text="#{cat.unit}">Unit</label>
+                    <input type="text" id="unit" th:field="*{unit}" placeholder="x10^9/L">
+                </div>
+                <div class="form-group">
+                    <label for="normalRange" th:text="#{cat.normalRange}">Normal Range</label>
+                    <input type="text" id="normalRange" th:field="*{normalRange}" placeholder="4.5 - 11">
+                </div>
+                <div class="form-group">
+                    <label for="refLow" th:text="#{cat.refLow}">Ref Low</label>
+                    <input type="number" step="any" id="refLow" th:field="*{refLow}">
+                </div>
+                <div class="form-group">
+                    <label for="refHigh" th:text="#{cat.refHigh}">Ref High</label>
+                    <input type="number" step="any" id="refHigh" th:field="*{refHigh}">
+                </div>
+                <div class="form-group">
+                    <label for="criticalLow" th:text="#{cat.criticalLow}">Critical Low</label>
+                    <input type="number" step="any" id="criticalLow" th:field="*{criticalLow}">
+                </div>
+                <div class="form-group">
+                    <label for="criticalHigh" th:text="#{cat.criticalHigh}">Critical High</label>
+                    <input type="number" step="any" id="criticalHigh" th:field="*{criticalHigh}">
+                </div>
+                <div class="form-group">
+                    <label for="deltaThreshold" th:text="#{cat.delta}">Delta Threshold</label>
+                    <input type="number" step="any" id="deltaThreshold" th:field="*{deltaThreshold}">
+                </div>
+                <div class="form-group">
+                    <label for="autoVerifyEligible" th:text="#{cat.autoVerify}">Auto Verify</label>
+                    <select id="autoVerifyEligible" th:field="*{autoVerifyEligible}">
+                        <option value="false" th:text="#{common.no}">No</option>
+                        <option value="true" th:text="#{common.yes}">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"
+                        th:text="${catalog.id != null} ? #{common.update} : #{cat.save}">Save Test</button>
+                <a href="/lab-catalog" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

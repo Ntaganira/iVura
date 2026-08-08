@@ -21,4 +21,7 @@ public interface LabResultRepository extends JpaRepository<LabResult, Long> {
     List<LabResult> findByStatusOrderByPerformedAtDesc(String status);
     List<LabResult> findAllByOrderByPerformedAtDesc();
     long countByStatus(String status);
+    List<LabResult> findBySourceAndStatusInAndPublishedAtIsNullOrderByPerformedAtAsc(String source, java.util.List<String> statuses);
+    List<LabResult> findByAccessionNumberOrderByIdAsc(String accessionNumber);
+    long countBySourceAndPublishedAtIsNull(String source);
 }

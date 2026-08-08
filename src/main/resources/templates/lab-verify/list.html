@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{verify.title}, ~{::content})}">
+<head><title>Lab Verify - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{verify.title}">Lab Verify</h1>
+            <div class="subtitle" th:text="#{verify.subtitle}">Review and sign off analyzer results before publishing</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{verify.sectionTitle}">Verification Queue</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{verify.table.patient}">Patient</th>
+                        <th th:text="#{verify.table.test}">Test</th>
+                        <th th:text="#{verify.table.value}">Value</th>
+                        <th th:text="#{verify.table.flag}">Flag</th>
+                        <th th:text="#{verify.table.accession}">Accession</th>
+                        <th th:text="#{verify.table.time}">Performed</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${results}">
+                        <td th:text="${r.patient.fullName}">Alice Niyonkuru</td>
+                        <td>
+                            <div class="name" th:text="${r.testName}">CBC</div>
+                            <div class="hint" th:text="#{'source.' + ${r.source}}">Auto</div>
+                        </td>
+                        <td th:text="${r.result}">5.2</td>
+                        <td>
+                            <span th:if="${r.flag != null}"
+                                  th:classappend="
+                                    ${r.flag == 'NORMAL'} ? 'badge-success' :
+                                    ${r.flag == 'HIGH' or r.flag == 'LOW'} ? 'badge-warning' :
+                                    ${r.flag == 'ABNORMAL'} ? 'badge-info' : 'badge-danger'"
+                                  class="badge" th:text="#{'verify.flag.' + ${r.flag}}">Normal</span>
+                            <span th:if="${r.flag == null}" class="badge badge-secondary" th:text="#{common.na}">N/A</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-info" th:text="${r.accessionNumber}">ACC-2026-000001</span>
+                        </td>
+                        <td th:text="${#temporals.format(r.performedAt, 'dd MMM HH:mm')}">08 Aug 10:00</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/lab-verify/{id}(id=${r.id})}" class="btn btn-primary btn-sm"
+                                   th:text="#{verify.review}">Review</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(results)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 11l3 3L22 4"></path>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{verify.empty.title}">Queue is clear</h3>
+                                <p th:text="#{verify.empty.subtitle}">No analyzer results awaiting verification</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

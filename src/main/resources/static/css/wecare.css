@@ -2631,6 +2631,30 @@ html.sidebar-collapsed .page-skeleton { left: var(--sidebar-collapsed-width); }
   color: var(--gray-500, var(--gray-400));
 }
 
+.summary-card .icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-card .icon svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.summary-card .icon.blue { background: #e0f2fe; color: #0284c7; }
+.summary-card .icon.green { background: #d1fae5; color: #059669; }
+.summary-card .icon.yellow { background: #fef3c7; color: #d97706; }
+.summary-card .icon.teal { background: #ccfbf1; color: #0d9488; }
+.summary-card .icon.red { background: #fee2e2; color: var(--danger, #dc2626); }
+
 /* ---- Choices.js theming (multi-selects) ---- */
 .multiselect-choices {
   font-size: 14px;
@@ -2879,3 +2903,12 @@ html.sidebar-collapsed .page-skeleton { left: var(--sidebar-collapsed-width); }
 .signature-preview img {
   background: var(--surface);
 }
+/* === Lab integration / verification workbench === */
+.verify-actions { flex-wrap: wrap; margin-bottom: 18px; }
+.verify-forms { display: flex; gap: 18px; flex-wrap: wrap; }
+.verify-form { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1.5px solid var(--gray-200); border-radius: 10px; }
+.verify-form label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+.verify-form button { align-self: flex-start; }
+.checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px 16px; padding: 8px 0; }
+.checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-700); cursor: pointer; }
+.raw-payload { background: var(--gray-100); border-radius: 10px; padding: 14px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; white-space: pre-wrap; word-break: break-all; color: var(--gray-700); }

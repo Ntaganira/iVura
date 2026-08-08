@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{verify.detail}, ~{::content})}">
+<head><title>Verify Result - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{verify.detail}">Verify Result</h1>
+            <div class="subtitle" th:text="${result.testName} + ' - ' + ${result.patient.fullName}">CBC - Alice</div>
+        </div>
+        <a href="/lab-verify" class="btn btn-outline" th:text="#{verify.back}">Back to queue</a>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{verify.resultSummary}">Result Summary</h2>
+        </div>
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="icon blue">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="info">
+                    <div class="value" th:text="${result.result}">5.2</div>
+                    <div class="label" th:text="${result.unit}">x10^9/L</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="icon" th:classappend="${result.flag != null and result.flag.startsWith('CRITICAL')} ? 'red' : 'blue'">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9v4"></path><path d="M12 17h.01"></path>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    </svg>
+                </div>
+                <div class="info">
+                    <div class="value">
+                        <span th:if="${result.flag != null}" th:text="#{'verify.flag.' + ${result.flag}}">Normal</span>
+                        <span th:if="${result.flag == null}" th:text="#{common.na}">N/A</span>
+                    </div>
+                    <div class="label" th:text="#{verify.table.flag}">Flag</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="icon green">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    </svg>
+                </div>
+                <div class="info">
+                    <div class="value" th:text="#{'source.' + ${result.source}}">Auto</div>
+                    <div class="label" th:text="${result.accessionNumber}">ACC-2026-000001</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" sec:authorize="hasAuthority('PERM_VERIFY_LAB')" th:if="${result.publishedAt == null}">
+        <div class="section-header">
+            <h2 th:text="#{verify.actions}">Decision</h2>
+        </div>
+        <div class="form-container">
+            <div class="btn-group verify-actions">
+                <form th:action="@{/lab-verify/verify/{id}(id=${result.id})}" method="post" class="inline-action">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-primary" th:text="#{verify.verify}">Verify</button>
+                </form>
+                <form th:action="@{/lab-verify/publish/{id}(id=${result.id})}" method="post" class="inline-action">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-success" th:text="#{verify.publish}">Verify &amp; Publish</button>
+                </form>
+                <form th:action="@{/lab-verify/reject/{id}(id=${result.id})}" method="post" class="inline-action">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-outline danger-text" th:text="#{verify.reject}">Reject</button>
+                </form>
+            </div>
+
+            <div class="verify-forms">
+                <form th:action="@{/lab-verify/hold/{id}(id=${result.id})}" method="post" class="verify-form">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <label for="holdReason" th:text="#{verify.holdReason}">Hold reason</label>
+                    <input type="text" id="holdReason" name="reason">
+                    <button type="submit" class="btn btn-outline" th:text="#{verify.hold}">Hold</button>
+                </form>
+                <form th:action="@{/lab-verify/override/{id}(id=${result.id})}" method="post" class="verify-form">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <label for="overrideValue" th:text="#{verify.overrideValue}">Corrected value *</label>
+                    <input type="text" id="overrideValue" name="value" required>
+                    <label for="overrideReason" th:text="#{verify.overrideReason}">Override reason *</label>
+                    <input type="text" id="overrideReason" name="reason" required>
+                    <button type="submit" class="btn btn-outline" th:text="#{verify.override}">Edit &amp; Override</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{verify.details}">Result Details</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <tbody>
+                    <tr>
+                        <th th:text="#{verify.table.patient}">Patient</th>
+                        <td th:text="${result.patient.fullName}">Alice</td>
+                    </tr>
+                    <tr>
+                        <th th:text="#{verify.table.test}">Test</th>
+                        <td th:text="${result.testName}">CBC</td>
+                    </tr>
+                    <tr>
+                        <th th:text="#{verify.table.value}">Value</th>
+                        <td th:text="${result.unit != null ? result.result + ' ' + result.unit : result.result}">5.2</td>
+                    </tr>
+                    <tr>
+                        <th th:text="#{cat.normalRange}">Normal Range</th>
+                        <td th:text="${result.normalRange != null ? result.normalRange : ''}">4.5 - 11</td>
+                    </tr>
+                    <tr>
+                        <th th:text="#{verify.published}">Published</th>
+                        <td>
+                            <span th:if="${result.publishedAt != null}"
+                                  th:text="${#temporals.format(result.publishedAt, 'dd MMM yyyy HH:mm')}">08 Aug 2026</span>
+                            <span th:if="${result.publishedAt == null}" class="badge badge-warning"
+                                  th:text="#{verify.notPublished}">Not published</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${result.overrideReason != null}">
+                        <th th:text="#{verify.overrideReason}">Override reason</th>
+                        <td th:text="${result.overrideReason}">Manual correction</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{verify.signoffs}">Sign-off Trail</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{verify.table.action}">Action</th>
+                        <th th:text="#{verify.table.user}">User</th>
+                        <th th:text="#{verify.table.reason}">Reason</th>
+                        <th th:text="#{verify.table.when}">When</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s : ${signoffs}">
+                        <td>
+                            <span class="badge badge-info" th:text="${s.action}">VERIFY</span>
+                        </td>
+                        <td th:text="${s.signoffUser != null ? s.signoffUser.fullName : ''}">admin</td>
+                        <td th:text="${s.reason != null ? s.reason : ''}">Reviewed</td>
+                        <td th:text="${#temporals.format(s.createdAt, 'dd MMM yyyy HH:mm')}">08 Aug 2026</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(signoffs)}">
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <h3 th:text="#{verify.signoffsEmpty}">No sign-offs recorded yet</h3>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{order.title}, ~{::content})}">
+<head><title>Lab Orders - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{order.title}">Lab Orders</h1>
+            <div class="subtitle" th:text="#{order.subtitle}">Order tests, track specimens, dispatch to analyzers</div>
+        </div>
+        <a href="/lab-orders/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_ORDER')"
+           th:text="#{order.add}">New Order</a>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{order.sectionTitle}">Order List</h2>
+            <form th:action="@{/lab-orders}" method="get" class="table-toolbar">
+                <select name="status" class="toolbar-filter">
+                    <option value="" th:text="#{order.allStatuses}">All statuses</option>
+                    <option th:each="s : ${#lists.toList({'ORDERED','SPECIMEN_RECEIVED','IN_PROGRESS','COMPLETED','CANCELLED'})}"
+                            th:value="${s}" th:text="#{'order.status.' + ${s}}"
+                            th:selected="${status == s}">ORDERED</option>
+                </select>
+                <button type="submit" class="btn btn-outline" th:text="#{report.apply}">Apply</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{order.table.number}">Order</th>
+                        <th th:text="#{order.table.accession}">Accession</th>
+                        <th th:text="#{order.table.patient}">Patient</th>
+                        <th th:text="#{order.table.priority}">Priority</th>
+                        <th th:text="#{order.table.tests}">Tests</th>
+                        <th th:text="#{order.table.status}">Status</th>
+                        <th th:text="#{order.table.date}">Requested</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="o : ${orders}">
+                        <td>
+                            <div class="name" th:text="${o.orderNumber}">ORDER-2026-000001</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-info" th:text="${o.accessionNumber}">ACC-2026-000001</span>
+                        </td>
+                        <td th:text="${o.patient.fullName}">Alice Niyonkuru</td>
+                        <td>
+                            <span th:if="${o.priority == 'STAT'}" class="badge badge-danger" th:text="#{order.priority.STAT}">STAT</span>
+                            <span th:if="${o.priority == 'URGENT'}" class="badge badge-warning" th:text="#{order.priority.URGENT}">Urgent</span>
+                            <span th:if="${o.priority == 'ROUTINE' or o.priority == null}" class="badge badge-info" th:text="#{order.priority.ROUTINE}">Routine</span>
+                        </td>
+                        <td th:text="${itemCounts != null ? itemCounts.get(o.id) : ''}">3</td>
+                        <td>
+                            <span th:text="#{'order.status.' + ${o.status}}" th:classappend="
+                                ${o.status == 'ORDERED'} ? 'badge badge-secondary' :
+                                ${o.status == 'SPECIMEN_RECEIVED'} ? 'badge badge-info' :
+                                ${o.status == 'IN_PROGRESS'} ? 'badge badge-warning' :
+                                ${o.status == 'COMPLETED'} ? 'badge badge-success' : 'badge badge-danger'"
+                                  class="badge">ORDERED</span>
+                        </td>
+                        <td th:text="${#temporals.format(o.requestedAt, 'dd MMM yyyy HH:mm')}">08 Aug 2026 09:00</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:if="${o.status == 'ORDERED'}" th:href="@{/lab-orders/receive/{id}(id=${o.id})}"
+                                   class="btn btn-outline btn-sm" sec:authorize="hasAuthority('PERM_MANAGE_ORDER')"
+                                   th:text="#{order.receive}">Receive</a>
+                                <a th:if="${o.status == 'ORDERED' or o.status == 'SPECIMEN_RECEIVED'}"
+                                   th:href="@{/lab-orders/dispatch/{id}(id=${o.id})}"
+                                   class="btn btn-outline btn-sm" sec:authorize="hasAuthority('PERM_MANAGE_ORDER')"
+                                   th:text="#{order.dispatch}">Dispatch</a>
+                                <a th:if="${o.status != 'COMPLETED' and o.status != 'CANCELLED'}"
+                                   th:href="@{/lab-orders/cancel/{id}(id=${o.id})}"
+                                   class="btn btn-outline btn-sm danger-text"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_ORDER')" th:text="#{order.cancel}">Cancel</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(orders)}">
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{order.empty.title}">No orders yet</h3>
+                                <p th:text="#{order.empty.subtitle}">Place a laboratory order to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

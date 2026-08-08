@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{cat.title}, ~{::content})}">
+<head><title>Lab Catalog - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{cat.title}">Lab Catalog</h1>
+            <div class="subtitle" th:text="#{cat.subtitle}">Canonical test definitions with reference ranges</div>
+        </div>
+        <a href="/lab-catalog/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_MANAGE_CATALOG')"
+           th:text="#{cat.add}">New Test</a>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{cat.sectionTitle}">Test List</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{cat.table.code}">Code</th>
+                        <th th:text="#{cat.table.name}">Test</th>
+                        <th th:text="#{cat.table.category}">Category</th>
+                        <th th:text="#{cat.table.specimen}">Specimen</th>
+                        <th th:text="#{cat.table.unit}">Unit</th>
+                        <th th:text="#{cat.table.normalRange}">Normal Range</th>
+                        <th th:text="#{cat.table.autoVerify}">Auto Verify</th>
+                        <th th:text="#{cat.table.status}">Status</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${tests}">
+                        <td>
+                            <div class="name" th:text="${t.code}">CBC</div>
+                        </td>
+                        <td th:text="${t.name}">Complete Blood Count</td>
+                        <td th:text="${t.category != null ? t.category : ''}">Hematology</td>
+                        <td th:text="${t.specimenType != null ? t.specimenType : ''}">Whole Blood</td>
+                        <td th:text="${t.unit != null ? t.unit : ''}">x10^9/L</td>
+                        <td th:text="${t.normalRange != null ? t.normalRange : ''}">4.5 - 11</td>
+                        <td>
+                            <span th:if="${t.autoVerifyEligible}" class="badge badge-success">Yes</span>
+                            <span th:if="${!t.autoVerifyEligible}" class="badge badge-secondary">No</span>
+                        </td>
+                        <td>
+                            <span th:if="${t.isActive}" class="badge badge-success">Active</span>
+                            <span th:if="${!t.isActive}" class="badge badge-secondary">Inactive</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/lab-catalog/edit/{id}(id=${t.id})}" class="btn btn-outline btn-sm"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_CATALOG')" th:text="#{common.edit}">Edit</a>
+                                <a th:href="@{/lab-catalog/delete/{id}(id=${t.id})}" class="btn btn-outline btn-sm danger-text"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_CATALOG')" th:text="#{common.delete}">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(tests)}">
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 2v6.5L5.5 18a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 8.5V2"></path>
+                                        <path d="M8.5 2h7"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{cat.empty.title}">No tests defined</h3>
+                                <p th:text="#{cat.empty.subtitle}">Add catalog tests to start ordering lab work</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

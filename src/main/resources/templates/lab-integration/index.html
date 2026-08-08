@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{integ.title}, ~{::content})}">
+<head><title>Lab Integration - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{integ.title}">Lab Integration</h1>
+            <div class="subtitle" th:text="#{integ.subtitle}">Instrument messages, error console and analyzer devices</div>
+        </div>
+        <div class="btn-group">
+            <a href="/lab-integration/devices/add" class="btn btn-primary"
+               sec:authorize="hasAuthority('PERM_CONFIGURE_DEVICES')" th:text="#{integ.addDevice}">New Analyzer</a>
+            <form th:action="@{/lab-integration/import}" method="post" class="inline-action">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                <button type="submit" class="btn btn-success" th:text="#{integ.import}">Scan Inbox</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{integ.errorConsole}">Error Console</h2>
+            <form th:action="@{/lab-integration}" method="get" class="table-toolbar">
+                <select name="status" class="toolbar-filter">
+                    <option value="" th:text="#{integ.allStatuses}">All statuses</option>
+                    <option th:each="s : ${#lists.toList({'RECEIVED','ACCEPTED','INCOMPLETE','UNMATCHED','DUPLICATE','ERROR'})}"
+                            th:value="${s}" th:text="#{'integ.status.' + ${s}}"
+                            th:selected="${status == s}">RECEIVED</option>
+                </select>
+                <button type="submit" class="btn btn-outline" th:text="#{report.apply}">Apply</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{integ.table.message}">Message</th>
+                        <th th:text="#{integ.table.device}">Device</th>
+                        <th th:text="#{integ.table.direction}">Direction</th>
+                        <th th:text="#{integ.table.accession}">Accession</th>
+                        <th th:text="#{integ.table.status}">Status</th>
+                        <th th:text="#{integ.table.time}">Received</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${messages}">
+                        <td>
+                            <div class="name" th:text="${m.messageId}">INBOUND-1</div>
+                            <div class="hint" th:if="${m.errorCode != null}" th:text="${m.errorCode}">UNKNOWN_ACCESSION</div>
+                        </td>
+                        <td th:text="${m.device != null ? m.device.name : ''}">Hematology</td>
+                        <td>
+                            <span class="badge badge-info" th:text="#{'integ.direction.' + ${m.direction}}">Inbound</span>
+                        </td>
+                        <td th:text="${m.accessionNumber != null ? m.accessionNumber : ''}">ACC-2026-000001</td>
+                        <td>
+                            <span th:classappend="
+                                ${m.status == 'ACCEPTED'} ? 'badge-success' :
+                                ${m.status == 'INCOMPLETE'} ? 'badge-warning' :
+                                ${m.status == 'UNMATCHED'} ? 'badge-danger' :
+                                ${m.status == 'DUPLICATE'} ? 'badge-secondary' :
+                                ${m.status == 'ERROR'} ? 'badge-danger' : 'badge-info'"
+                                  class="badge" th:text="#{'integ.status.' + ${m.status}}">RECEIVED</span>
+                        </td>
+                        <td th:text="${#temporals.format(m.createdAt, 'dd MMM yyyy HH:mm')}">08 Aug 2026 10:00</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/lab-integration/message/{id}(id=${m.id})}" class="btn btn-outline btn-sm"
+                                   th:text="#{integ.detail}">Detail</a>
+                                <form th:if="${m.status == 'UNMATCHED' or m.status == 'INCOMPLETE' or m.status == 'ERROR'}"
+                                      th:action="@{/lab-integration/retry/{id}(id=${m.id})}" method="post" class="inline-action">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <button type="submit" class="btn btn-outline btn-sm" th:text="#{integ.retry}">Retry</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(messages)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{integ.empty.title}">No messages</h3>
+                                <p th:text="#{integ.empty.subtitle}">Messages from analyzers appear here after an inbox scan</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{integ.devices}">Analyzer Devices</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{integ.table.device}">Device</th>
+                        <th th:text="#{integ.code}">Code</th>
+                        <th th:text="#{integ.model}">Model</th>
+                        <th th:text="#{integ.interface}">Interface</th>
+                        <th th:text="#{integ.endpoint}">Endpoint</th>
+                        <th th:text="#{cat.table.status}">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="d : ${devices}">
+                        <td>
+                            <div class="name" th:text="${d.name}">Hematology Analyzer</div>
+                        </td>
+                        <td th:text="${d.code}">HEM01</td>
+                        <td th:text="${d.model != null ? d.model : ''}">Sysmex XN</td>
+                        <td th:text="${d.interfaceType}">CSV</td>
+                        <td th:text="${d.endpoint != null ? d.endpoint : ''}">C:/ivura-lab/inbox</td>
+                        <td>
+                            <span th:if="${d.isActive}" class="badge badge-success">Active</span>
+                            <span th:if="${!d.isActive}" class="badge badge-secondary">Inactive</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(devices)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <h3 th:text="#{integ.noDevices}">No analyzers registered yet</h3>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

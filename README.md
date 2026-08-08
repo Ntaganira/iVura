@@ -16,7 +16,7 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 - **Reports** — financial and activity analytics dashboard with charts and HTML-to-PDF export (OpenHTMLToPDF)
 - **Notifications** — per-user in-app notifications with header bell, auto-alerts on payments/bills/appointments, and admin broadcasts
 - **Medical Records (EHR)** — diagnoses, prescriptions and clinical notes per patient
-- **Laboratory** — lab test requests with a pending/completed/abnormal/cancelled workflow
+- **Laboratory** — end-to-end lab workflow: a test catalog with units, normal ranges and auto-verify eligibility; lab orders with accession numbers and specimen tracking; analyzer (instrument) integration that imports results from CSV files with a message console and error handling; and a verification workbench with flagging, critical-result signoff, and publishing
 - **Immunizations** — vaccine, dose, batch and next-due tracking on the patient history page
 - **Attendance & Shift Schedules** — daily doctor check-in/out/absent tracking and a weekly per-doctor shift editor
 - **Pharmacy** — medicine inventory with reorder alerts and patient dispensing
@@ -134,6 +134,8 @@ Schema is managed by **Flyway**. Migrations live in `src/main/resources/db/migra
 | `V17`   | Pharmacy module (medicines, dispensations, permissions) |
 | `V18`   | Admissions module (ward_rooms, room_stays, permissions) |
 | `V19`   | Nurses directory page access |
+| `V20`   | Lab catalog + lab orders (accession/specimen, permissions, pages) |
+| `V21`   | Instrument integration (analyzer devices, test maps, message console, result verification/signoff pipeline) |
 
 ## Project Structure
 
@@ -154,6 +156,7 @@ src/main/resources/
 │   ├── layout/            # Sidebar, pagination, errors fragments
 │   ├── patients/ doctors/ appointments/ billings/ payments/ notifications/
 │   ├── medical-records/ laboratory/ attendance/ pharmacy/ insurance/ admissions/
+│   ├── lab-catalog/ lab-orders/ lab-verify/ lab-integration/
 │   ├── reports/ departments/ services/ specializations/ users/ roles/ permissions/
 │   └── activity/ profile/ auth/
 ├── static/css/            # Stylesheets

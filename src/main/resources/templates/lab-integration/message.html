@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{integ.detail}, ~{::content})}">
+<head><title>Message Detail - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{integ.detail}">Message Detail</h1>
+            <div class="subtitle" th:text="${message != null ? message.messageId : ''}">Message ID</div>
+        </div>
+        <a href="/lab-integration" class="btn btn-outline" th:text="#{verify.back}">Back to console</a>
+    </div>
+
+    <div th:if="${message == null}" class="section">
+        <div class="empty-state">
+            <h3 th:text="#{integ.notFound}">Message not found</h3>
+        </div>
+    </div>
+
+    <div th:if="${message != null}">
+        <div class="section">
+            <div class="section-header">
+                <h2 th:text="#{integ.meta}">Meta</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th th:text="#{integ.table.direction}">Direction</th>
+                            <td th:text="#{'integ.direction.' + ${message.direction}}">Inbound</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{integ.table.status}">Status</th>
+                            <td>
+                                <span class="badge" th:text="${message.status}">RECEIVED</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{integ.table.accession}">Accession</th>
+                            <td th:text="${message.accessionNumber != null ? message.accessionNumber : ''}">ACC-2026-000001</td>
+                        </tr>
+                        <tr th:if="${message.errorCode != null}">
+                            <th th:text="#{integ.errorCode}">Error code</th>
+                            <td th:text="${message.errorCode}">UNKNOWN_ACCESSION</td>
+                        </tr>
+                        <tr th:if="${message.errorDetail != null}">
+                            <th th:text="#{integ.errorDetail}">Error detail</th>
+                            <td th:text="${message.errorDetail}">No lab order found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section" th:if="${message.payload != null}">
+            <div class="section-header">
+                <h2 th:text="#{integ.rawPayload}">Raw Payload</h2>
+            </div>
+            <pre class="raw-payload" th:text="${message.payload}">message_id,...</pre>
+        </div>
+    </div>
+</div>
+</body>
+</html>

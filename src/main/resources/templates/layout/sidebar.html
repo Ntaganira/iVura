@@ -167,6 +167,42 @@
                 </svg>
             </span> <span th:text="#{nav.payments}">Payments</span>
         </a>
+        <a sec:authorize="hasAuthority('PAGE_ADMISSIONS')" th:classappend="${#strings.contains(requestURI, '/admissions')} ? 'active' : ''" href="/admissions">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 11V7a4 4 0 0 0-8 0v4"></path>
+                    <rect x="2" y="11" width="20" height="9" rx="2"></rect>
+                    <path d="M9 14v2M15 14v2"></path>
+                </svg>
+            </span> <span th:text="#{nav.admissions}">Admissions</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_PHARMACY')" th:classappend="${#strings.contains(requestURI, '/pharmacy')} ? 'active' : ''" href="/pharmacy">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 3h5v5"></path>
+                    <path d="M8 3H3v5"></path>
+                    <path d="M21 3l-7 7v10h4V12h3V3z"></path>
+                    <path d="M3 21v-10h4v10H3z"></path>
+                </svg>
+            </span> <span th:text="#{nav.pharmacy}">Pharmacy</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_INSURANCE')" th:classappend="${#strings.contains(requestURI, '/insurance')} ? 'active' : ''" href="/insurance">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"></path>
+                    <path d="M9 12l2 2 4-4"></path>
+                </svg>
+            </span> <span th:text="#{nav.insurance}">Insurance</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_NURSES')" th:classappend="${#strings.contains(requestURI, '/nurses')} ? 'active' : ''" href="/nurses">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <polyline points="17 11 19 13 23 9"></polyline>
+                </svg>
+            </span> <span th:text="#{nav.nurses}">Nurses</span>
+        </a>
         <a sec:authorize="hasAuthority('PAGE_REPORTS')" th:classappend="${#strings.contains(requestURI, '/reports')} ? 'active' : ''" href="/reports">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

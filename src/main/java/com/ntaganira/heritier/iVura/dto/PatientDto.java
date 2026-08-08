@@ -52,4 +52,11 @@ public class PatientDto implements Serializable {
     private String emergencyContactPhone;
     private String medicalHistory;
     private String allergies;
+    private Boolean hasInsurance;
+    private String insuranceProvider;
+    private String insurancePolicyNumber;
+    private String insuranceMemberName;
+    private LocalDate insuranceExpiryDate;
+    private String signatureData;
+    private Boolean consentGiven;
 }

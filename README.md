@@ -10,11 +10,20 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 - **Specializations** — medical expertise areas assigned to doctors
 - **Departments** — organization units with doctor counts
 - **Services** — medical services offered by the hospital, each with a price (RWF)
-- **Appointments** — scheduling between patients and doctors with a calendar view (FullCalendar)
+- **Appointments** — scheduling between patients and doctors with a calendar view (FullCalendar) and a **conflict checker** that validates 30-minute slots against the doctor's availability and existing bookings
 - **Billing** — invoices linked to patients and services
 - **Payments** — payment collections against bills (cash, mobile money, card, bank, insurance) with automatic bill status reconciliation
 - **Reports** — financial and activity analytics dashboard with charts and HTML-to-PDF export (OpenHTMLToPDF)
 - **Notifications** — per-user in-app notifications with header bell, auto-alerts on payments/bills/appointments, and admin broadcasts
+- **Medical Records (EHR)** — diagnoses, prescriptions and clinical notes per patient
+- **Laboratory** — lab test requests with a pending/completed/abnormal/cancelled workflow
+- **Immunizations** — vaccine, dose, batch and next-due tracking on the patient history page
+- **Attendance & Shift Schedules** — daily doctor check-in/out/absent tracking and a weekly per-doctor shift editor
+- **Pharmacy** — medicine inventory with reorder alerts and patient dispensing
+- **Insurance** — patient insurance details and a claim submission/approval/rejection/paid workflow
+- **Admissions** — ward rooms with nightly rates, patient room stays, and automatic bill generation on discharge
+- **Nurses** — nursing staff directory (users with the NURSE role)
+- **Digital Consent** — canvas signature pad on the patient form, stored with the consent date
 - **Users, Roles & Permissions** — role-based access control (RBAC) with fine-grained page/action permissions
 - **Activity Logs** — audit trail of every system action (success/failure)
 - **Profile** — avatar upload, profile editing, and password change
@@ -116,6 +125,15 @@ Schema is managed by **Flyway**. Migrations live in `src/main/resources/db/migra
 | `V8`    | Separate specializations and services        |
 | `V9`    | Payments module (payments table, permissions, page) |
 | `V10`   | Notifications module (notifications table, permissions, page) |
+| `V11`   | EHR module (lab_results, immunizations, MEDICAL_RECORDS page, permissions) |
+| `V12`   | Make medical_records.doctor_id nullable |
+| `V13`   | Attendance module (doctor_shifts, attendances, ATTENDANCE page, permissions) |
+| `V14`   | Fix doctor_shifts.day_of_week to INTEGER |
+| `V15`   | Insurance module (patient insurance fields, insurance_claims, permissions) |
+| `V16`   | Digital consent signature (patient signature/consent fields) |
+| `V17`   | Pharmacy module (medicines, dispensations, permissions) |
+| `V18`   | Admissions module (ward_rooms, room_stays, permissions) |
+| `V19`   | Nurses directory page access |
 
 ## Project Structure
 
@@ -135,10 +153,11 @@ src/main/resources/
 ├── templates/             # Thymeleaf views
 │   ├── layout/            # Sidebar, pagination, errors fragments
 │   ├── patients/ doctors/ appointments/ billings/ payments/ notifications/
+│   ├── medical-records/ laboratory/ attendance/ pharmacy/ insurance/ admissions/
 │   ├── reports/ departments/ services/ specializations/ users/ roles/ permissions/
 │   └── activity/ profile/ auth/
 ├── static/css/            # Stylesheets
-├── static/js/             # Application scripts (wecare.js)
+├── static/js/             # Application scripts (wecare.js, signature-pad.js)
 ├── static/vendor/         # Vendored libs: Choices.js, Chart.js, FullCalendar (no CDN)
 └── messages*.properties   # i18n (EN, FR, RW)
 ```

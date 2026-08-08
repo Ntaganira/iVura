@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{adm.title}, ~{::content})}">
+<head><title>Admissions - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{adm.title}">Admissions</h1>
+            <div class="subtitle" th:text="#{adm.subtitle}">Patient admissions, room stays and discharges</div>
+        </div>
+        <div class="tab-nav">
+            <a href="/admissions" th:classappend="${requestURI == '/admissions'} ? 'active' : ''" th:text="#{adm.tabAdmitted}">Admitted</a>
+            <a href="/admissions/stays" th:classappend="${requestURI == '/admissions/stays'} ? 'active' : ''" th:text="#{adm.tabStays}">All Stays</a>
+            <a href="/admissions/rooms" th:classappend="${requestURI == '/admissions/rooms'} ? 'active' : ''" th:text="#{adm.tabRooms}">Rooms</a>
+        </div>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="icon blue">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 11V7a4 4 0 0 0-8 0v4"></path>
+                    <rect x="2" y="11" width="20" height="9" rx="2"></rect>
+                    <path d="M9 14v2M15 14v2"></path>
+                </svg>
+            </div>
+            <div class="info">
+                <div class="value" th:text="${admittedCount}">0</div>
+                <div class="label" th:text="#{adm.stat.admitted}">Currently Admitted</div>
+            </div>
+        </div>
+        <div class="summary-card">
+            <div class="icon green">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12l2 2 4-4"></path>
+                    <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"></path>
+                </svg>
+            </div>
+            <div class="info">
+                <div class="value" th:text="${dischargedCount}">0</div>
+                <div class="label" th:text="#{adm.stat.discharged}">Discharged</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" sec:authorize="hasAuthority('PERM_ADMIT_PATIENT')">
+        <div class="section-header">
+            <h2 th:text="#{adm.admitTitle}">Admit Patient</h2>
+        </div>
+        <form th:action="@{/admissions/admit}" method="post" class="form-container">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patientId" th:text="#{adm.patient}">Patient *</label>
+                    <select id="patientId" name="patientId" required>
+                        <option value="" th:text="#{adm.patientSelect}">Select patient</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName}">Jane Doe</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="roomId" th:text="#{adm.room}">Room *</label>
+                    <select id="roomId" name="roomId" required>
+                        <option value="" th:text="#{adm.roomSelect}">Select room</option>
+                        <option th:each="r : ${rooms}" th:value="${r.id}"
+                                th:text="${r.roomNumber} + ' — ' + ${r.roomType}">A-101</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="doctorId" th:text="#{adm.doctor}">Attending Doctor</label>
+                    <select id="doctorId" name="doctorId">
+                        <option value="" th:text="#{adm.doctorSelect}">No doctor</option>
+                        <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.fullName}">Dr. Smith</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="checkInDate" th:text="#{adm.checkIn}">Check-in Date</label>
+                    <input type="date" id="checkInDate" name="checkInDate">
+                </div>
+                <div class="form-group full-width">
+                    <label for="notes" th:text="#{adm.notes}">Notes</label>
+                    <textarea id="notes" name="notes" th:placeholder="#{adm.notesPh}"></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="#{adm.admitBtn}">Admit Patient</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{adm.admittedTitle}">Currently Admitted Patients</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{adm.table.patient}">Patient</th>
+                        <th th:text="#{adm.table.room}">Room</th>
+                        <th th:text="#{adm.table.type}">Type</th>
+                        <th th:text="#{adm.table.doctor}">Doctor</th>
+                        <th th:text="#{adm.table.checkIn}">Check-in</th>
+                        <th th:text="#{adm.table.rate}">Rate/Night</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s : ${admitted}">
+                        <td th:text="${s.patient.fullName}">Jane Doe</td>
+                        <td>
+                            <div class="name" th:text="${s.room.roomNumber}">A-101</div>
+                            <div class="hint" th:text="${s.room.wardName != null ? s.room.wardName : ''}">General</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-info" th:text="#{'adm.roomType.' + ${s.room.roomType}}">Ward</span>
+                        </td>
+                        <td th:text="${s.doctor != null ? s.doctor.fullName : ''}">Dr. Smith</td>
+                        <td th:text="${#temporals.format(s.checkInDate, 'dd MMM yyyy')}">01 Aug 2026</td>
+                        <td th:text="${#numbers.formatDecimal(s.dailyRate, 1, 2)}">15000</td>
+                        <td>
+                            <form th:action="@{/admissions/discharge/{id}(id=${s.id})}" method="post" class="inline-action"
+                                  sec:authorize="hasAuthority('PERM_DISCHARGE_PATIENT')">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-success btn-sm" th:text="#{adm.dischargeBtn}">Discharge</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(admitted)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 11V7a4 4 0 0 0-8 0v4"></path>
+                                        <rect x="2" y="11" width="20" height="9" rx="2"></rect>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{adm.empty.title}">No admissions yet</h3>
+                                <p th:text="#{adm.empty.subtitle}">Admit a patient to start a room stay</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

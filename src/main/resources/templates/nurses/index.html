@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/sidebar :: html(#{nurse.title}, ~{::content})}">
+<head><title>Nurses - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{nurse.title}">Nurses</h1>
+            <div class="subtitle" th:text="#{nurse.subtitle}">Nursing staff directory</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{nurse.sectionTitle}">Nursing Staff</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{nurse.table.name}">Name</th>
+                        <th th:text="#{nurse.table.username}">Username</th>
+                        <th th:text="#{nurse.table.email}">Email</th>
+                        <th th:text="#{nurse.table.phone}">Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="n : ${nurses}">
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar yellow" th:text="${#strings.substring(n.fullName, 0, 1)}">N</div>
+                                <div class="info">
+                                    <div class="name" th:text="${n.fullName}">Nurse Name</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${n.username}">nurse1</td>
+                        <td th:text="${n.email}">nurse@ivura.com</td>
+                        <td th:text="${n.phone != null ? n.phone : ''}">+250 700 000 000</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(nurses)}">
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="8.5" cy="7" r="4"></circle>
+                                        <polyline points="17 11 19 13 23 9"></polyline>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{nurse.empty.title}">No nurses yet</h3>
+                                <p th:text="#{nurse.empty.subtitle}">Assign the NURSE role to users to list them here</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

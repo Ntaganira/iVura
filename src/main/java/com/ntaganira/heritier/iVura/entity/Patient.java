@@ -77,6 +77,30 @@ public class Patient implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String allergies;
 
+    @Column(name = "insurance_provider", length = 100)
+    private String insuranceProvider;
+
+    @Column(name = "insurance_policy_number", length = 50)
+    private String insurancePolicyNumber;
+
+    @Column(name = "insurance_member_name", length = 100)
+    private String insuranceMemberName;
+
+    @Column(name = "insurance_expiry_date")
+    private LocalDate insuranceExpiryDate;
+
+    @Column(name = "has_insurance")
+    private Boolean hasInsurance = false;
+
+    @Column(name = "signature_data", columnDefinition = "TEXT")
+    private String signatureData;
+
+    @Column(name = "consent_date")
+    private LocalDateTime consentDate;
+
+    @Column(name = "consent_given")
+    private Boolean consentGiven = false;
+
     @Column(name = "is_active")
     private Boolean isActive = true;
 

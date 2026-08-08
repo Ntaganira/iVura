@@ -5,6 +5,7 @@ import com.ntaganira.heritier.iVura.entity.Patient;
 import com.ntaganira.heritier.iVura.repository.PatientRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -42,6 +43,14 @@ public class PatientService {
             .emergencyContactPhone(dto.getEmergencyContactPhone())
             .medicalHistory(dto.getMedicalHistory())
             .allergies(dto.getAllergies())
+            .hasInsurance(Boolean.TRUE.equals(dto.getHasInsurance()))
+            .insuranceProvider(dto.getInsuranceProvider())
+            .insurancePolicyNumber(dto.getInsurancePolicyNumber())
+            .insuranceMemberName(dto.getInsuranceMemberName())
+            .insuranceExpiryDate(dto.getInsuranceExpiryDate())
+            .signatureData(dto.getSignatureData())
+            .consentGiven(Boolean.TRUE.equals(dto.getConsentGiven()))
+            .consentDate(Boolean.TRUE.equals(dto.getConsentGiven()) ? LocalDateTime.now() : null)
             .isActive(true)
             .build();
         return patientRepo.save(patient);
@@ -64,6 +73,19 @@ public class PatientService {
         patient.setEmergencyContactPhone(dto.getEmergencyContactPhone());
         patient.setMedicalHistory(dto.getMedicalHistory());
         patient.setAllergies(dto.getAllergies());
+        patient.setHasInsurance(Boolean.TRUE.equals(dto.getHasInsurance()));
+        patient.setInsuranceProvider(dto.getInsuranceProvider());
+        patient.setInsurancePolicyNumber(dto.getInsurancePolicyNumber());
+        patient.setInsuranceMemberName(dto.getInsuranceMemberName());
+        patient.setInsuranceExpiryDate(dto.getInsuranceExpiryDate());
+        boolean consent = Boolean.TRUE.equals(dto.getConsentGiven());
+        if (consent && !Boolean.TRUE.equals(patient.getConsentGiven())) {
+            patient.setConsentDate(LocalDateTime.now());
+        }
+        patient.setConsentGiven(consent);
+        if (dto.getSignatureData() != null && !dto.getSignatureData().isBlank()) {
+            patient.setSignatureData(dto.getSignatureData());
+        }
         return patientRepo.save(patient);
     }
 

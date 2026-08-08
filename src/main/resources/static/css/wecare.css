@@ -2859,3 +2859,23 @@ html.sidebar-collapsed .page-skeleton { left: var(--sidebar-collapsed-width); }
   font-weight: 500;
   margin-left: 8px;
 }
+
+/* === Signature pad === */
+.signature-pad {
+  border: 2px dashed var(--gray-300);
+  border-radius: 10px;
+  background: var(--surface);
+  margin-bottom: 10px;
+  display: inline-block;
+}
+.signature-pad canvas {
+  display: block;
+  cursor: crosshair;
+  max-width: 100%;
+}
+.signature-preview {
+  margin-bottom: 8px;
+}
+.signature-preview img {
+  background: var(--surface);
+}

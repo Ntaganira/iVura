@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{ph.title}, ~{::content})}">
+<head><title>Pharmacy - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{ph.title}">Pharmacy</h1>
+            <div class="subtitle" th:text="#{ph.subtitle}">Medicine inventory and dispensing</div>
+        </div>
+        <a href="/pharmacy/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_MANAGE_MEDICINE')"
+           th:text="#{ph.add}">Add Medicine</a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="icon blue">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 3h5v5"></path>
+                    <path d="M8 3H3v5"></path>
+                    <path d="M21 3l-7 7v10h4V12h3V3z"></path>
+                    <path d="M3 21v-10h4v10H3z"></path>
+                </svg>
+            </div>
+            <div class="info">
+                <div class="value" th:text="${#lists.size(medicines)}">0</div>
+                <div class="label" th:text="#{ph.stat.total}">Medicines</div>
+            </div>
+        </div>
+        <div class="summary-card">
+            <div class="icon yellow">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <div class="info">
+                <div class="value" th:text="${#lists.size(lowStock)}">0</div>
+                <div class="label" th:text="#{ph.stat.lowStock}">Low Stock</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" th:if="${!#lists.isEmpty(lowStock)}">
+        <div class="section-header">
+            <h2 th:text="#{ph.lowStockTitle}">Low Stock Alerts</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{ph.table.name}">Medicine</th>
+                        <th th:text="#{ph.table.stock}">Stock</th>
+                        <th th:text="#{ph.table.reorder}">Reorder Level</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${lowStock}">
+                        <td th:text="${m.name}">Paracetamol</td>
+                        <td><span class="badge badge-danger" th:text="${m.stockQuantity}">4</span></td>
+                        <td th:text="${m.reorderLevel}">10</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/pharmacy/edit/{id}(id=${m.id})}" class="btn btn-outline btn-sm"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_MEDICINE')" th:text="#{ph.restock}">Restock</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{ph.sectionInventory}">Medicine Inventory</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{ph.table.name}">Medicine</th>
+                        <th th:text="#{ph.table.category}">Category</th>
+                        <th th:text="#{ph.table.batch}">Batch</th>
+                        <th th:text="#{ph.table.stock}">Stock</th>
+                        <th th:text="#{ph.table.price}">Price (RWF)</th>
+                        <th th:text="#{ph.table.expiry}">Expiry</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${medicines}">
+                        <td>
+                            <div class="name" th:text="${m.name}">Paracetamol</div>
+                            <div class="hint" th:text="${m.dosage}">500mg</div>
+                        </td>
+                        <td th:text="${m.category != null ? m.category : ''}">Analgesic</td>
+                        <td th:text="${m.batchNumber != null ? m.batchNumber : ''}">B-101</td>
+                        <td>
+                            <span th:classappend="${m.lowStock} ? 'badge-danger' : 'badge-secondary'"
+                                  class="badge" th:text="${m.stockQuantity}">10</span>
+                        </td>
+                        <td th:text="${#numbers.formatDecimal(m.unitPrice, 1, 2)}">500</td>
+                        <td th:text="${m.expiryDate != null ? #temporals.format(m.expiryDate, 'dd MMM yyyy') : ''}">-</td>
+                        <td>
+                            <div class="btn-group">
+                                <form th:action="@{/pharmacy/stock/{id}(id=${m.id})}" method="post" class="inline-action"
+                                      sec:authorize="hasAuthority('PERM_MANAGE_MEDICINE')">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <input type="hidden" name="adjustment" value="10">
+                                    <button type="submit" class="btn btn-outline btn-sm" th:title="#{ph.restock}">+10</button>
+                                </form>
+                                <a th:href="@{/pharmacy/edit/{id}(id=${m.id})}" class="btn btn-outline btn-sm"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_MEDICINE')" th:text="#{common.edit}">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(medicines)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 3h5v5"></path>
+                                        <path d="M8 3H3v5"></path>
+                                        <path d="M21 3l-7 7v10h4V12h3V3z"></path>
+                                        <path d="M3 21v-10h4v10H3z"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{ph.empty.title}">No medicines yet</h3>
+                                <p th:text="#{ph.empty.subtitle}">Add the first medicine to the inventory</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section" sec:authorize="hasAuthority('PERM_DISPENSE_MEDICINE')">
+        <div class="section-header">
+            <h2 th:text="#{ph.dispenseTitle}">Dispense Medicine</h2>
+        </div>
+        <form th:action="@{/pharmacy/dispense}" method="post" class="form-container">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patientId" th:text="#{ph.patient}">Patient *</label>
+                    <select id="patientId" name="patientId" required>
+                        <option value="" th:text="#{ph.patientSelect}">Select patient</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName}">Jane Doe</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="medicineId" th:text="#{ph.medicine}">Medicine *</label>
+                    <select id="medicineId" name="medicineId" required>
+                        <option value="" th:text="#{ph.medicineSelect}">Select medicine</option>
+                        <option th:each="m : ${medicines}" th:value="${m.id}"
+                                th:text="${m.name} + ' (' + ${m.stockQuantity} + ' in stock)'">Paracetamol</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantity" th:text="#{ph.quantity}">Quantity *</label>
+                    <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="note" th:text="#{ph.note}">Note</label>
+                    <input type="text" id="note" name="note" th:placeholder="#{ph.notePh}">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="#{ph.dispenseBtn}">Dispense</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{ph.recentDispense}">Recent Dispensations</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{ph.table.patient}">Patient</th>
+                        <th th:text="#{ph.table.medicine}">Medicine</th>
+                        <th th:text="#{ph.table.qty}">Qty</th>
+                        <th th:text="#{ph.table.total}">Total (RWF)</th>
+                        <th th:text="#{ph.table.when}">When</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="d : ${dispensations}">
+                        <td th:text="${d.patient.fullName}">Jane Doe</td>
+                        <td th:text="${d.medicine.name}">Paracetamol</td>
+                        <td th:text="${d.quantity}">2</td>
+                        <td th:text="${#numbers.formatDecimal(d.total, 1, 2)}">1000</td>
+                        <td th:text="${#temporals.format(d.dispensedAt, 'dd MMM HH:mm')}">08 Aug 10:00</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dispensations)}">
+                        <td colspan="5" style="text-align:center;color:var(--gray-400);padding:18px;"
+                            th:text="#{ph.noDispense}">No medicines dispensed yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

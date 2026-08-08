@@ -90,7 +90,50 @@
                     <label for="allergies" th:text="#{patient.allergies}">Allergies</label>
                     <textarea id="allergies" th:field="*{allergies}"></textarea>
                 </div>
+                <div class="form-group full-width" style="border-top:1px solid var(--gray-200);padding-top:16px;">
+                    <h3 style="margin:0 0 4px;font-size:15px;" th:text="#{patient.insuranceSection}">Insurance Details</h3>
+                    <label class="checkbox-line" style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                        <input type="checkbox" th:field="*{hasInsurance}">
+                        <span th:text="#{patient.hasInsurance}">Patient has insurance</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="insuranceProvider" th:text="#{patient.insuranceProvider}">Insurance Provider</label>
+                    <input type="text" id="insuranceProvider" th:field="*{insuranceProvider}">
+                </div>
+                <div class="form-group">
+                    <label for="insurancePolicyNumber" th:text="#{patient.insurancePolicy}">Policy Number</label>
+                    <input type="text" id="insurancePolicyNumber" th:field="*{insurancePolicyNumber}">
+                </div>
+                <div class="form-group">
+                    <label for="insuranceMemberName" th:text="#{patient.insuranceMember}">Member Name</label>
+                    <input type="text" id="insuranceMemberName" th:field="*{insuranceMemberName}">
+                </div>
+                <div class="form-group">
+                    <label for="insuranceExpiryDate" th:text="#{patient.insuranceExpiry}">Expiry Date</label>
+                    <input type="date" id="insuranceExpiryDate" th:field="*{insuranceExpiryDate}">
+                </div>
+                <div class="form-group full-width" style="border-top:1px solid var(--gray-200);padding-top:16px;">
+                    <h3 style="margin:0 0 4px;font-size:15px;" th:text="#{patient.consentSection}">Digital Consent Signature</h3>
+                    <div class="signature-preview" th:if="${patientDto.signatureData != null and !#strings.isEmpty(patientDto.signatureData)}">
+                        <img th:src="${patientDto.signatureData}" alt="Signature" style="max-height:90px;border:1px solid var(--gray-200);border-radius:8px;">
+                    </div>
+                    <label class="checkbox-line" style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+                        <input type="checkbox" id="consentGiven" th:field="*{consentGiven}">
+                        <span th:text="#{patient.consentGiven}">I consent to treatment</span>
+                    </label>
+                    <div class="signature-pad" id="signaturePad">
+                        <canvas id="sigCanvas" width="520" height="180"></canvas>
+                    </div>
+                    <input type="hidden" id="signatureData" th:field="*{signatureData}">
+                    <button type="button" class="btn btn-outline btn-sm" id="sigClear"
+                            th:text="#{patient.sigClear}">Clear Signature</button>
+                </div>
             </div>
+            <script th:inline="javascript" th:src="@{/js/signature-pad.js}"></script>
+            <script>
+                ivuraSignaturePad.init('sigCanvas', 'signatureData', 'sigClear');
+            </script>
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary" th:text="#{patient.update}">Update Patient</button>

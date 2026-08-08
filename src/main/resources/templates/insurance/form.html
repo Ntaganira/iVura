@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/sidebar :: html(#{ins.addTitle}, ~{::content})}">
+<head><title>New Claim - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{ins.addTitle}">New Insurance Claim</h1>
+            <div class="subtitle" th:text="#{ins.formSubtitle}">Submit a claim against a patient's policy</div>
+        </div>
+        <a href="/insurance" class="btn btn-outline" th:text="#{common.back}">← Back</a>
+    </div>
+
+    <div class="section">
+        <form th:action="@{/insurance/add}" th:object="${claimDto}" method="post" class="form-container">
+            <div th:replace="~{layout/errors :: error-summary}"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patientId" th:text="#{ins.patient}">Patient *</label>
+                    <select id="patientId" th:field="*{patientId}" required>
+                        <option value="" th:text="#{ins.patientSelect}">Select patient</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName}">Jane Doe</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="provider" th:text="#{ins.provider}">Provider *</label>
+                    <input type="text" id="provider" th:field="*{provider}" th:placeholder="#{ins.providerPh}" required>
+                </div>
+                <div class="form-group">
+                    <label for="policyNumber" th:text="#{ins.policy}">Policy Number</label>
+                    <input type="text" id="policyNumber" th:field="*{policyNumber}" th:placeholder="#{ins.policyPh}">
+                </div>
+                <div class="form-group">
+                    <label for="amount" th:text="#{ins.amount}">Amount (RWF) *</label>
+                    <input type="number" step="0.01" min="0" id="amount" th:field="*{amount}" th:placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="billingId" th:text="#{ins.billing}">Linked Bill</label>
+                    <select id="billingId" th:field="*{billingId}">
+                        <option value="" th:text="#{ins.billingSelect}">No linked bill</option>
+                        <option th:each="b : ${bills}" th:value="${b.id}"
+                                th:text="${b.invoiceNumber} + ' — ' + ${b.totalAmount} + ' RWF'">INV-2026-000001</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="remarks" th:text="#{ins.remarks}">Remarks</label>
+                    <textarea id="remarks" th:field="*{remarks}" th:placeholder="#{ins.remarksPh}"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="#{ins.submit}">Submit Claim</button>
+                <a href="/insurance" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

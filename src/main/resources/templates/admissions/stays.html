@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/sidebar :: html(#{adm.staysTitle}, ~{::content})}">
+<head><title>Room Stays - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{adm.staysTitle}">Room Stays</h1>
+            <div class="subtitle" th:text="#{adm.staysSubtitle}">History of all admissions and discharges</div>
+        </div>
+        <div class="tab-nav">
+            <a href="/admissions" th:text="#{adm.tabAdmitted}">Admitted</a>
+            <a href="/admissions/stays" class="active" th:text="#{adm.tabStays}">All Stays</a>
+            <a href="/admissions/rooms" th:text="#{adm.tabRooms}">Rooms</a>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{adm.table.patient}">Patient</th>
+                        <th th:text="#{adm.table.room}">Room</th>
+                        <th th:text="#{adm.table.checkIn}">Check-in</th>
+                        <th th:text="#{adm.table.checkOut}">Check-out</th>
+                        <th th:text="#{adm.table.nights}">Nights</th>
+                        <th th:text="#{adm.table.status}">Status</th>
+                        <th th:text="#{adm.table.bill}">Bill</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s : ${stays}">
+                        <td th:text="${s.patient.fullName}">Jane Doe</td>
+                        <td th:text="${s.room.roomNumber}">A-101</td>
+                        <td th:text="${#temporals.format(s.checkInDate, 'dd MMM yyyy')}">01 Aug 2026</td>
+                        <td th:text="${s.checkOutDate != null ? #temporals.format(s.checkOutDate, 'dd MMM yyyy') : ''}">-</td>
+                        <td th:text="${s.checkOutDate != null ? T(java.time.temporal.ChronoUnit).DAYS.between(s.checkInDate, s.checkOutDate) + 1 : ''}">-</td>
+                        <td>
+                            <span th:classappend="${s.status == 'ADMITTED' ? 'badge-success' : 'badge-secondary'}"
+                                  class="badge" th:text="#{'adm.status.' + ${s.status}}">Admitted</span>
+                        </td>
+                        <td>
+                            <a th:if="${s.billing != null}" th:href="@{/billings}"
+                               class="btn btn-outline btn-sm" th:text="${s.billing.invoiceNumber}">INV-2026-000012</a>
+                            <span th:if="${s.billing == null}" th:text="#{common.na}">N/A</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(stays)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 11V7a4 4 0 0 0-8 0v4"></path>
+                                        <rect x="2" y="11" width="20" height="9" rx="2"></rect>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{adm.empty.title}">No stays yet</h3>
+                                <p th:text="#{adm.empty.subtitle}">Admit a patient to start a room stay</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

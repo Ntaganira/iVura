@@ -55,11 +55,11 @@
                         </td>
                         <td th:with="att=${attendanceMap.get(d.id)}">
                             <span th:if="${att != null and att.clockIn != null}" th:text="${att.clockIn}">09:00</span>
-                            <span th:if="${att == null or att.clockIn == null}" th:text="—">—</span>
+                            <span th:if="${att == null or att.clockIn == null}">—</span>
                         </td>
                         <td th:with="att=${attendanceMap.get(d.id)}">
                             <span th:if="${att != null and att.clockOut != null}" th:text="${att.clockOut}">17:00</span>
-                            <span th:if="${att == null or att.clockOut == null}" th:text="—">—</span>
+                            <span th:if="${att == null or att.clockOut == null}">—</span>
                         </td>
                         <td th:with="att=${attendanceMap.get(d.id)}">
                             <span th:if="${att == null}" class="badge badge-secondary" th:text="#{att.none}">No record</span>

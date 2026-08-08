@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{ins.title}, ~{::content})}">
+<head><title>Insurance - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{ins.title}">Insurance Claims</h1>
+            <div class="subtitle" th:text="#{ins.subtitle}">Submit and process patient insurance claims</div>
+        </div>
+        <a href="/insurance/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_CLAIM')"
+           th:text="#{ins.add}">New Claim</a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="icon blue">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"></path>
+                    <path d="M9 12l2 2 4-4"></path>
+                </svg>
+            </div>
+            <div class="info">
+                <div class="value" th:text="${#numbers.formatDecimal(totalClaimed, 1, 2)}">0</div>
+                <div class="label" th:text="#{ins.totalClaimed}">Total Claimed (RWF)</div>
+            </div>
+        </div>
+        <div class="summary-card" th:each="s : ${statuses}">
+            <div class="icon" th:classappend="${s == 'APPROVED' ? 'green' : s == 'REJECTED' ? 'yellow' : s == 'PAID' ? 'teal' : 'blue'}">
+                <span style="font-size:16px;font-weight:700;" th:text="${statusCounts.get(s)}">0</span>
+            </div>
+            <div class="info">
+                <div class="label" th:text="#{'ins.status.' + ${s}}">Submitted</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{ins.sectionTitle}">Claim List</h2>
+            <form th:action="@{/insurance}" method="get" class="table-toolbar">
+                <input type="text" name="search" th:value="${param.search}" class="toolbar-filter" th:placeholder="#{ins.searchPh}">
+                <select name="status" class="toolbar-filter">
+                    <option value="" th:text="#{ins.allStatuses}">All statuses</option>
+                    <option th:each="s : ${statuses}" th:value="${s}"
+                            th:text="#{'ins.status.' + ${s}}"
+                            th:selected="${param.status != null and param.status == s}">Submitted</option>
+                </select>
+                <button type="submit" class="btn btn-outline" th:text="#{report.apply}">Apply</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{ins.table.claim}">Claim</th>
+                        <th th:text="#{ins.table.patient}">Patient</th>
+                        <th th:text="#{ins.table.provider}">Provider</th>
+                        <th th:text="#{ins.table.amount}">Amount (RWF)</th>
+                        <th th:text="#{ins.table.date}">Submitted</th>
+                        <th th:text="#{ins.table.status}">Status</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${claims.content}">
+                        <td>
+                            <div class="name" th:text="${c.claimNumber}">CLM-2026-000001</div>
+                            <div class="hint" th:text="${c.policyNumber != null ? c.policyNumber : ''}">POL-123</div>
+                        </td>
+                        <td th:text="${c.patient.fullName}">Jane Doe</td>
+                        <td th:text="${c.provider}">RSSB</td>
+                        <td th:text="${#numbers.formatDecimal(c.amount, 1, 2)}">50000</td>
+                        <td th:text="${#temporals.format(c.submittedDate, 'dd MMM yyyy')}">01 Aug 2026</td>
+                        <td>
+                            <span th:classappend="${c.status == 'APPROVED' ? 'badge-success' : c.status == 'REJECTED' ? 'badge-danger' : c.status == 'PAID' ? 'badge-info' : 'badge-warning'}"
+                                  class="badge" th:text="#{'ins.status.' + ${c.status}}">Submitted</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <form th:action="@{/insurance/status/{id}(id=${c.id})}" method="post" class="inline-action"
+                                      sec:authorize="hasAuthority('PERM_APPROVE_CLAIM')">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <input type="hidden" name="status" value="APPROVED">
+                                    <button type="submit" class="btn btn-success btn-sm" th:title="#{ins.approve}"
+                                            th:if="${c.status == 'SUBMITTED' or c.status == 'REJECTED'}" th:text="#{ins.approve}">Approve</button>
+                                </form>
+                                <form th:action="@{/insurance/status/{id}(id=${c.id})}" method="post" class="inline-action"
+                                      sec:authorize="hasAuthority('PERM_APPROVE_CLAIM')">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <input type="hidden" name="status" value="REJECTED">
+                                    <button type="submit" class="btn btn-outline btn-sm danger-text" th:title="#{ins.reject}"
+                                            th:if="${c.status == 'SUBMITTED' or c.status == 'APPROVED'}" th:text="#{ins.reject}">Reject</button>
+                                </form>
+                                <form th:action="@{/insurance/status/{id}(id=${c.id})}" method="post" class="inline-action"
+                                      sec:authorize="hasAuthority('PERM_APPROVE_CLAIM')">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <input type="hidden" name="status" value="PAID">
+                                    <button type="submit" class="btn btn-outline btn-sm" th:title="#{ins.markPaid}"
+                                            th:if="${c.status == 'APPROVED'}" th:text="#{ins.markPaid}">Paid</button>
+                                </form>
+                                <a th:href="@{/insurance/delete/{id}(id=${c.id})}" class="btn btn-outline btn-sm danger-text"
+                                   sec:authorize="hasAuthority('PERM_EDIT_CLAIM')" th:text="#{common.delete}"
+                                   onclick="return confirm(/*[[#{common.confirmDelete}]]*/ 'Delete this claim?');">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${claims.isEmpty()}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{ins.empty.title}">No claims yet</h3>
+                                <p th:text="#{ins.empty.subtitle}">Submit the first insurance claim</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:replace="~{layout/pagination :: pager(${claims}, '/insurance', ${paginationQuery})}"></div>
+    </div>
+</div>
+</body>
+</html>

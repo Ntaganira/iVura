@@ -47,7 +47,7 @@
                 <select name="method" class="toolbar-filter">
                     <option value="" th:text="#{payment.methodAll}">All Methods</option>
                     <option th:each="m : ${paymentMethods}" th:value="${m}"
-                            th:text="#{'bill.method.' + ${m}}"
+                            th:text="#{'bill.method.' + ${#strings.toLowerCase(m)}}"
                             th:selected="${m == selectedMethod}">CASH</option>
                 </select>
                 <input type="date" name="from" class="toolbar-filter" th:value="${from}"
@@ -92,7 +92,7 @@
                         <td th:text="${p.billing != null and p.billing.patient != null ? p.billing.patient.fullName : ''}">John Doe</td>
                         <td>
                             <span th:if="${p.paymentMethod}" class="badge badge-info"
-                                  th:text="#{'bill.method.' + ${p.paymentMethod}}">Cash</span>
+                                  th:text="#{'bill.method.' + ${#strings.toLowerCase(p.paymentMethod)}}">Cash</span>
                             <span th:unless="${p.paymentMethod}" th:text="#{common.na}">N/A</span>
                         </td>
                         <td><span class="badge badge-success" th:text="${p.amountPaid} + ' RWF'">20000 RWF</span></td>

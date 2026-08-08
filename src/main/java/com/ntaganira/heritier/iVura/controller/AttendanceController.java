@@ -49,11 +49,9 @@ public class AttendanceController {
         model.addAttribute("date", day);
         model.addAttribute("doctors", doctorRepo.findByIsActiveTrue());
         model.addAttribute("attendanceMap", attendanceService.attendanceByDoctor(day));
-        model.addAttribute("shiftMap", doctorRepo.findByIsActiveTrue().stream()
-                .collect(java.util.stream.Collectors.toMap(
-                        d -> d.getId(),
-                        d -> attendanceService.shiftFor(d, day),
-                        (a, b) -> a)));
+        java.util.Map<Long, com.ntaganira.heritier.iVura.entity.DoctorShift> shiftMap = new java.util.HashMap<>();
+        doctorRepo.findByIsActiveTrue().forEach(d -> shiftMap.put(d.getId(), attendanceService.shiftFor(d, day)));
+        model.addAttribute("shiftMap", shiftMap);
         model.addAttribute("presentCount", attendanceService.presentCount(day));
         return "attendance/index";
     }

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{adm.roomsTitle}, ~{::content})}">
+<head><title>Ward Rooms - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{adm.roomsTitle}">Ward Rooms</h1>
+            <div class="subtitle" th:text="#{adm.roomsSubtitle}">Manage rooms and nightly rates</div>
+        </div>
+        <div class="tab-nav">
+            <a href="/admissions" th:text="#{adm.tabAdmitted}">Admitted</a>
+            <a href="/admissions/stays" th:text="#{adm.tabStays}">All Stays</a>
+            <a href="/admissions/rooms" class="active" th:text="#{adm.tabRooms}">Rooms</a>
+        </div>
+    </div>
+
+    <div class="section" sec:authorize="hasAuthority('PERM_MANAGE_ROOM')">
+        <div class="section-header">
+            <h2 th:text="${room.id != null} ? #{adm.editRoomTitle} : #{adm.addRoomTitle}">Add Room</h2>
+        </div>
+        <form th:action="${room.id != null} ? @{/admissions/rooms/edit/{id}(id=${room.id})} : @{/admissions/rooms/add}"
+              th:object="${room}" method="post" class="form-container">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="roomNumber" th:text="#{adm.roomNumber}">Room Number *</label>
+                    <input type="text" id="roomNumber" th:field="*{roomNumber}" th:placeholder="#{adm.roomNumberPh}" required>
+                </div>
+                <div class="form-group">
+                    <label for="wardName" th:text="#{adm.ward}">Ward</label>
+                    <input type="text" id="wardName" th:field="*{wardName}" th:placeholder="#{adm.wardPh}">
+                </div>
+                <div class="form-group">
+                    <label for="roomType" th:text="#{adm.roomType}">Room Type</label>
+                    <select id="roomType" th:field="*{roomType}">
+                        <option value="WARD" th:text="#{adm.roomType.WARD}">Ward</option>
+                        <option value="SEMI_PRIVATE" th:text="#{adm.roomType.SEMI_PRIVATE}">Semi-Private</option>
+                        <option value="PRIVATE" th:text="#{adm.roomType.PRIVATE}">Private</option>
+                        <option value="ICU" th:text="#{adm.roomType.ICU}">ICU</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pricePerNight" th:text="#{adm.rate}">Price/Night (RWF)</label>
+                    <input type="number" step="0.01" min="0" id="pricePerNight" th:field="*{pricePerNight}" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="capacity" th:text="#{adm.capacity}">Capacity</label>
+                    <input type="number" id="capacity" th:field="*{capacity}" min="1" value="1">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"
+                        th:text="${room.id != null} ? #{common.update} : #{adm.addRoomBtn}">Add Room</button>
+                <a th:if="${room.id != null}" href="/admissions/rooms" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{adm.roomsListTitle}">Room List</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{adm.table.room}">Room</th>
+                        <th th:text="#{adm.table.ward}">Ward</th>
+                        <th th:text="#{adm.table.type}">Type</th>
+                        <th th:text="#{adm.table.rate}">Rate/Night</th>
+                        <th th:text="#{adm.table.capacity}">Capacity</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${rooms}">
+                        <td>
+                            <div class="name" th:text="${r.roomNumber}">A-101</div>
+                        </td>
+                        <td th:text="${r.wardName != null ? r.wardName : ''}">General</td>
+                        <td>
+                            <span class="badge badge-info" th:text="#{'adm.roomType.' + ${r.roomType}}">Ward</span>
+                        </td>
+                        <td th:text="${#numbers.formatDecimal(r.pricePerNight, 1, 2)}">15000</td>
+                        <td th:text="${r.capacity}">1</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/admissions/rooms/edit/{id}(id=${r.id})}" class="btn btn-outline btn-sm"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_ROOM')" th:text="#{common.edit}">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(rooms)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 11V7a4 4 0 0 0-8 0v4"></path>
+                                        <rect x="2" y="11" width="20" height="9" rx="2"></rect>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{adm.roomsEmpty.title}">No rooms yet</h3>
+                                <p th:text="#{adm.roomsEmpty.subtitle}">Add a ward room to start admitting patients</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

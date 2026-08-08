@@ -17,6 +17,7 @@ A full-featured hospital management system built with **Spring Boot 3**, **Thyme
 - **Notifications** — per-user in-app notifications with header bell, auto-alerts on payments/bills/appointments, and admin broadcasts
 - **Medical Records (EHR)** — diagnoses, prescriptions and clinical notes per patient
 - **Laboratory** — end-to-end lab workflow: a test catalog with units, normal ranges and auto-verify eligibility; lab orders with accession numbers and specimen tracking; analyzer (instrument) integration that imports results from CSV files with a message console and error handling; and a verification workbench with flagging, critical-result signoff, and publishing
+- **Radiology** — imaging workflow with an exam catalog (modality, body part, price), orders with accession numbers, and a reporting workbench where radiologists write findings/impression and reports are verified and signed off (orders complete once all exams are verified)
 - **Immunizations** — vaccine, dose, batch and next-due tracking on the patient history page
 - **Attendance & Shift Schedules** — daily doctor check-in/out/absent tracking and a weekly per-doctor shift editor
 - **Pharmacy** — medicine inventory with reorder alerts and patient dispensing
@@ -136,6 +137,7 @@ Schema is managed by **Flyway**. Migrations live in `src/main/resources/db/migra
 | `V19`   | Nurses directory page access |
 | `V20`   | Lab catalog + lab orders (accession/specimen, permissions, pages) |
 | `V21`   | Instrument integration (analyzer devices, test maps, message console, result verification/signoff pipeline) |
+| `V22`   | Radiology module (exam catalog, imaging orders with accession numbers, reports + workbench, permissions, pages) |
 
 ## Project Structure
 
@@ -157,6 +159,7 @@ src/main/resources/
 │   ├── patients/ doctors/ appointments/ billings/ payments/ notifications/
 │   ├── medical-records/ laboratory/ attendance/ pharmacy/ insurance/ admissions/
 │   ├── lab-catalog/ lab-orders/ lab-verify/ lab-integration/
+│   ├── radiology-catalog/ radiology-orders/ radiology-workbench/
 │   ├── reports/ departments/ services/ specializations/ users/ roles/ permissions/
 │   └── activity/ profile/ auth/
 ├── static/css/            # Stylesheets

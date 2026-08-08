@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{radcat.addTitle}, ~{::content})}">
+<head><title>Radiology Catalog - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="${exam.id != null} ? #{radcat.editTitle} : #{radcat.addTitle}">New Exam</h1>
+            <div class="subtitle" th:text="#{radcat.subtitle}">Exam definitions by modality and body part</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <form th:action="${exam.id != null} ? @{/radiology-catalog/edit/{id}(id=${exam.id})} : @{/radiology-catalog/add}"
+              th:object="${exam}" method="post" class="form-container">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="code" th:text="#{radcat.code}">Code *</label>
+                    <input type="text" id="code" th:field="*{code}" placeholder="CXR" required>
+                </div>
+                <div class="form-group">
+                    <label for="name" th:text="#{radcat.name}">Name *</label>
+                    <input type="text" id="name" th:field="*{name}" th:placeholder="#{radcat.namePh}" required>
+                </div>
+                <div class="form-group">
+                    <label for="modality" th:text="#{radcat.modality}">Modality</label>
+                    <select id="modality" th:field="*{modality}">
+                        <option value="" th:text="#{radcat.selectModality}">Select modality</option>
+                        <option value="X-RAY" th:text="#{radcat.modality.X_RAY}">X-Ray</option>
+                        <option value="CT" th:text="#{radcat.modality.CT}">CT Scan</option>
+                        <option value="MRI" th:text="#{radcat.modality.MRI}">MRI</option>
+                        <option value="ULTRASOUND" th:text="#{radcat.modality.ULTRASOUND}">Ultrasound</option>
+                        <option value="MAMMOGRAPHY" th:text="#{radcat.modality.MAMMOGRAPHY}">Mammography</option>
+                        <option value="FLUOROSCOPY" th:text="#{radcat.modality.FLUOROSCOPY}">Fluoroscopy</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bodyPart" th:text="#{radcat.bodyPart}">Body Part</label>
+                    <input type="text" id="bodyPart" th:field="*{bodyPart}" th:placeholder="#{radcat.bodyPartPh}">
+                </div>
+                <div class="form-group">
+                    <label for="price" th:text="#{radcat.price}">Price (RWF)</label>
+                    <input type="number" step="any" id="price" th:field="*{price}" th:placeholder="#{radcat.pricePh}">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"
+                        th:text="${exam.id != null} ? #{common.update} : #{radcat.save}">Save Exam</button>
+                <a href="/radiology-catalog" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

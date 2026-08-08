@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{rad.title}, ~{::content})}">
+<head><title>Radiology Orders - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{rad.title}">Radiology Orders</h1>
+            <div class="subtitle" th:text="#{rad.subtitle}">Order imaging studies, track exams through reporting</div>
+        </div>
+        <a href="/radiology-orders/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_CREATE_RAD_ORDER')"
+           th:text="#{rad.add}">New Order</a>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{rad.sectionTitle}">Order List</h2>
+            <form th:action="@{/radiology-orders}" method="get" class="table-toolbar">
+                <select name="status" class="toolbar-filter">
+                    <option value="" th:text="#{rad.allStatuses}">All statuses</option>
+                    <option th:each="s : ${#lists.toList({'ORDERED','IN_PROGRESS','COMPLETED','CANCELLED'})}"
+                            th:value="${s}" th:text="#{'rad.status.' + ${s}}"
+                            th:selected="${status == s}">ORDERED</option>
+                </select>
+                <button type="submit" class="btn btn-outline" th:text="#{report.apply}">Apply</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{rad.table.number}">Order</th>
+                        <th th:text="#{rad.table.accession}">Accession</th>
+                        <th th:text="#{rad.table.patient}">Patient</th>
+                        <th th:text="#{rad.table.priority}">Priority</th>
+                        <th th:text="#{rad.table.exams}">Exams</th>
+                        <th th:text="#{rad.table.status}">Status</th>
+                        <th th:text="#{rad.table.date}">Requested</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="o : ${orders}">
+                        <td>
+                            <div class="name" th:text="${o.orderNumber}">RAD-2026-000001</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-info" th:text="${o.accessionNumber}">IMAG-2026-000001</span>
+                        </td>
+                        <td th:text="${o.patient.fullName}">Alice Niyonkuru</td>
+                        <td>
+                            <span th:if="${o.priority == 'STAT'}" class="badge badge-danger" th:text="#{rad.priority.STAT}">STAT</span>
+                            <span th:if="${o.priority == 'URGENT'}" class="badge badge-warning" th:text="#{rad.priority.URGENT}">Urgent</span>
+                            <span th:if="${o.priority == 'ROUTINE' or o.priority == null}" class="badge badge-info" th:text="#{rad.priority.ROUTINE}">Routine</span>
+                        </td>
+                        <td th:text="${itemCounts != null ? itemCounts.get(o.id) : ''}">3</td>
+                        <td>
+                            <span th:text="#{'rad.status.' + ${o.status}}" th:classappend="
+                                ${o.status == 'ORDERED'} ? 'badge badge-secondary' :
+                                ${o.status == 'IN_PROGRESS'} ? 'badge badge-warning' :
+                                ${o.status == 'COMPLETED'} ? 'badge badge-success' : 'badge badge-danger'"
+                                  class="badge">ORDERED</span>
+                        </td>
+                        <td th:text="${#temporals.format(o.requestedAt, 'dd MMM yyyy HH:mm')}">08 Aug 2026 09:00</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:if="${o.status == 'ORDERED'}" th:href="@{/radiology-orders/perform/{id}(id=${o.id})}"
+                                   class="btn btn-outline btn-sm" sec:authorize="hasAuthority('PERM_PERFORM_RAD_EXAM')"
+                                   th:text="#{rad.perform}">Perform</a>
+                                <a th:if="${o.status != 'COMPLETED' and o.status != 'CANCELLED'}"
+                                   th:href="@{/radiology-orders/cancel/{id}(id=${o.id})}"
+                                   class="btn btn-outline btn-sm danger-text"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_RAD_ORDER')" th:text="#{rad.cancel}">Cancel</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(orders)}">
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"></path>
+                                        <line x1="9" y1="4" x2="9" y2="17"></line>
+                                        <line x1="15" y1="7" x2="15" y2="20"></line>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{rad.empty.title}">No orders yet</h3>
+                                <p th:text="#{rad.empty.subtitle}">Place a radiology order to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

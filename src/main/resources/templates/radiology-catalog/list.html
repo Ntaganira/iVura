@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{radcat.title}, ~{::content})}">
+<head><title>Radiology Catalog - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{radcat.title}">Radiology Catalog</h1>
+            <div class="subtitle" th:text="#{radcat.subtitle}">Exam definitions by modality and body part</div>
+        </div>
+        <a href="/radiology-catalog/add" class="btn btn-primary" sec:authorize="hasAuthority('PERM_MANAGE_RAD_CATALOG')"
+           th:text="#{radcat.add}">New Exam</a>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{radcat.sectionTitle}">Exam List</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{radcat.table.code}">Code</th>
+                        <th th:text="#{radcat.table.name}">Exam</th>
+                        <th th:text="#{radcat.table.modality}">Modality</th>
+                        <th th:text="#{radcat.table.bodyPart}">Body Part</th>
+                        <th th:text="#{radcat.table.price}">Price (RWF)</th>
+                        <th th:text="#{radcat.table.status}">Status</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e : ${exams}">
+                        <td>
+                            <div class="name" th:text="${e.code}">CXR</div>
+                        </td>
+                        <td th:text="${e.name}">Chest X-Ray</td>
+                        <td th:text="${e.modality != null ? e.modality : ''}">X-RAY</td>
+                        <td th:text="${e.bodyPart != null ? e.bodyPart : ''}">Chest</td>
+                        <td th:text="${e.price != null ? #numbers.formatDecimal(e.price, 1, 'COMMA', 0, 'POINT') : ''}">15,000</td>
+                        <td>
+                            <span th:if="${e.isActive}" class="badge badge-success" th:text="#{common.active}">Active</span>
+                            <span th:if="${!e.isActive}" class="badge badge-secondary" th:text="#{common.inactive}">Inactive</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/radiology-catalog/edit/{id}(id=${e.id})}" class="btn btn-outline btn-sm"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_RAD_CATALOG')" th:text="#{common.edit}">Edit</a>
+                                <a th:href="@{/radiology-catalog/delete/{id}(id=${e.id})}" class="btn btn-outline btn-sm danger-text"
+                                   sec:authorize="hasAuthority('PERM_MANAGE_RAD_CATALOG')" th:text="#{common.delete}">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(exams)}">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"></path>
+                                        <line x1="9" y1="4" x2="9" y2="17"></line>
+                                        <line x1="15" y1="7" x2="15" y2="20"></line>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{radcat.empty.title}">No exams defined</h3>
+                                <p th:text="#{radcat.empty.subtitle}">Add catalog exams to start ordering imaging studies</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

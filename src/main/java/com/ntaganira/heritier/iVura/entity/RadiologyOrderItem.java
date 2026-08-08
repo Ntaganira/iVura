@@ -10,25 +10,27 @@ import java.time.LocalDateTime;
  * <pre>
  * - Project   : iVura - Hospital Management System
  * - Package   : com.ntaganira.heritier.iVura.entity
- * - File      : LabOrderItem.java
+ * - File      : RadiologyOrderItem.java
  * - Date      : 2026. 08. 08.
  * - User      : Hntaganira
- * - Desc      : Laboratory Order Item Entity
+ * - Desc      : Radiology Order Item Entity
  * </pre>
  */
 @Entity
-@Table(name = "lab_order_items")
+@Table(name = "radiology_order_items")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LabOrderItem implements Serializable {
+public class RadiologyOrderItem implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     public static final String STATUS_ORDERED = "ORDERED";
-    public static final String STATUS_RESULT_RECEIVED = "RESULT_RECEIVED";
+    public static final String STATUS_IMAGED = "IMAGED";
+    public static final String STATUS_REPORTED = "REPORTED";
+    public static final String STATUS_VERIFIED = "VERIFIED";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,18 +38,14 @@ public class LabOrderItem implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private LabOrder order;
+    private RadiologyOrder order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "catalog_id")
-    private LabTestCatalog catalog;
+    @JoinColumn(name = "exam_id")
+    private RadiologyExam exam;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "result_id")
-    private LabResult result;
-
-    @Column(name = "test_name", nullable = false, length = 150)
-    private String testName;
+    @Column(name = "exam_name", nullable = false, length = 150)
+    private String examName;
 
     @Builder.Default
     @Column(nullable = false, length = 30)

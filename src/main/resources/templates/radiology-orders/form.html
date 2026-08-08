@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{rad.addTitle}, ~{::content})}">
+<head><title>New Radiology Order - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{rad.addTitle}">New Radiology Order</h1>
+            <div class="subtitle" th:text="#{rad.addSubtitle}">Select a patient and the exams to perform</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <form th:action="@{/radiology-orders/add}" method="post" class="form-container">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patientId" th:text="#{rad.patient}">Patient *</label>
+                    <select id="patientId" name="patientId" required>
+                        <option value="" th:text="#{rad.selectPatient}">Select patient</option>
+                        <option th:each="p : ${patients}" th:value="${p.id}"
+                                th:selected="${patientId != null and p.id == patientId}"
+                                th:text="${p.fullName}">Alice Niyonkuru</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="doctorId" th:text="#{rad.doctor}">Doctor</label>
+                    <select id="doctorId" name="doctorId">
+                        <option value="" th:text="#{rad.selectDoctor}">Select doctor</option>
+                        <option th:each="d : ${doctors}" th:value="${d.id}" th:text="${d.fullName}">Dr. Smith</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="priority" th:text="#{rad.priority}">Priority</label>
+                    <select id="priority" name="priority">
+                        <option value="ROUTINE" th:text="#{rad.priority.ROUTINE}">Routine</option>
+                        <option value="URGENT" th:text="#{rad.priority.URGENT}">Urgent</option>
+                        <option value="STAT" th:text="#{rad.priority.STAT}">STAT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes" th:text="#{rad.notes}">Notes</label>
+                    <textarea id="notes" name="notes" rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label th:text="#{rad.exams}">Exams *</label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item" th:each="e : ${exams}">
+                            <input type="checkbox" name="exams" th:value="${e.id}">
+                            <span th:text="${e.name + ' (' + e.code + ')'}">Chest X-Ray (CXR)</span>
+                        </label>
+                        <p th:if="${#lists.isEmpty(exams)}" class="hint" th:text="#{rad.noExams}">No catalog exams defined</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="#{rad.save}">Place Order</button>
+                <a href="/radiology-orders" class="btn btn-outline" th:text="#{common.cancel}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

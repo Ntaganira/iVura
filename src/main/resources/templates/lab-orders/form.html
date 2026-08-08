@@ -21,7 +21,7 @@
                         <option value="" th:text="#{order.selectPatient}">Select patient</option>
                         <option th:each="p : ${patients}" th:value="${p.id}"
                                 th:selected="${patientId != null and p.id == patientId}"
-                                th:text="${p.fullName + ' (' + p.patientNumber + ')'}">Alice (PAT-001)</option>
+                                th:text="${p.fullName}">Alice Niyonkuru</option>
                     </select>
                 </div>
                 <div class="form-group">

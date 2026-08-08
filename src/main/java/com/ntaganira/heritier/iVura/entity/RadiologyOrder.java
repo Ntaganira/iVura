@@ -10,25 +10,24 @@ import java.time.LocalDateTime;
  * <pre>
  * - Project   : iVura - Hospital Management System
  * - Package   : com.ntaganira.heritier.iVura.entity
- * - File      : LabOrder.java
+ * - File      : RadiologyOrder.java
  * - Date      : 2026. 08. 08.
  * - User      : Hntaganira
- * - Desc      : Laboratory Order Entity
+ * - Desc      : Radiology Order Entity
  * </pre>
  */
 @Entity
-@Table(name = "lab_orders")
+@Table(name = "radiology_orders")
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LabOrder implements Serializable {
+public class RadiologyOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     public static final String STATUS_ORDERED = "ORDERED";
-    public static final String STATUS_SPECIMEN_RECEIVED = "SPECIMEN_RECEIVED";
     public static final String STATUS_IN_PROGRESS = "IN_PROGRESS";
     public static final String STATUS_COMPLETED = "COMPLETED";
     public static final String STATUS_CANCELLED = "CANCELLED";
@@ -58,12 +57,6 @@ public class LabOrder implements Serializable {
     @Builder.Default
     @Column(nullable = false, length = 30)
     private String status = STATUS_ORDERED;
-
-    @Column(name = "specimen_type", length = 50)
-    private String specimenType;
-
-    @Column(name = "specimen_received_at")
-    private LocalDateTime specimenReceivedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ordered_by")

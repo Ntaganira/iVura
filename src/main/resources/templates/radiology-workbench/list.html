@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/sidebar :: html(#{radwb.title}, ~{::content})}">
+<head><title>Radiology Workbench - iVura</title></head>
+<body>
+<div th:fragment="content">
+    <div class="page-header">
+        <div>
+            <h1 th:text="#{radwb.title}">Radiology Reporting</h1>
+            <div class="subtitle" th:text="#{radwb.subtitle}">Write and verify imaging reports</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{radwb.toReport}">To Report</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{radwb.table.accession}">Accession</th>
+                        <th th:text="#{radwb.table.patient}">Patient</th>
+                        <th th:text="#{radwb.table.exam}">Exam</th>
+                        <th th:text="#{radwb.table.priority}">Priority</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="i : ${toReport}">
+                        <td>
+                            <span class="badge badge-info" th:text="${i.order.accessionNumber}">IMAG-2026-000001</span>
+                        </td>
+                        <td th:text="${i.order.patient.fullName}">Alice Niyonkuru</td>
+                        <td>
+                            <div class="name" th:text="${i.examName}">Chest X-Ray</div>
+                        </td>
+                        <td th:text="#{'rad.priority.' + ${i.order.priority}}">Routine</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/radiology-workbench/report/{id}(id=${i.id})}" class="btn btn-primary btn-sm"
+                                   sec:authorize="hasAuthority('PERM_WRITE_RAD_REPORT')"
+                                   th:text="#{radwb.report}">Report</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(toReport)}">
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 11l3 3L22 4"></path>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{radwb.toReportEmpty}">Nothing to report</h3>
+                                <p th:text="#{radwb.toReportEmptySub}">No performed exams awaiting a report</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <h2 th:text="#{radwb.toVerify}">To Verify</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th th:text="#{radwb.table.accession}">Accession</th>
+                        <th th:text="#{radwb.table.patient}">Patient</th>
+                        <th th:text="#{radwb.table.exam}">Exam</th>
+                        <th th:text="#{radwb.table.reportedBy}">Reported By</th>
+                        <th th:text="#{radwb.table.reportedAt}">Reported</th>
+                        <th th:text="#{common.actions}">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${toVerify}">
+                        <td>
+                            <span class="badge badge-info" th:text="${r.orderItem.order.accessionNumber}">IMAG-2026-000001</span>
+                        </td>
+                        <td th:text="${r.orderItem.order.patient.fullName}">Alice Niyonkuru</td>
+                        <td>
+                            <div class="name" th:text="${r.orderItem.examName}">Chest X-Ray</div>
+                        </td>
+                        <td th:text="${r.reportedBy != null ? r.reportedBy.fullName : ''}">Dr. Smith</td>
+                        <td th:text="${#temporals.format(r.reportedAt, 'dd MMM yyyy HH:mm')}">08 Aug 2026 14:00</td>
+                        <td>
+                            <div class="btn-group">
+                                <form th:action="@{/radiology-workbench/verify/{id}(id=${r.id})}" method="post" class="inline-action">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <button type="submit" class="btn btn-primary btn-sm" sec:authorize="hasAuthority('PERM_VERIFY_RAD_REPORT')"
+                                            th:text="#{radwb.verify}">Verify</button>
+                                </form>
+                                <form th:action="@{/radiology-workbench/reopen/{id}(id=${r.id})}" method="post" class="inline-action">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <button type="submit" class="btn btn-outline btn-sm" sec:authorize="hasAuthority('PERM_VERIFY_RAD_REPORT')"
+                                            th:text="#{radwb.reopen}">Reopen</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(toVerify)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 11l3 3L22 4"></path>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                                    </svg>
+                                </div>
+                                <h3 th:text="#{radwb.toVerifyEmpty}">Nothing to verify</h3>
+                                <p th:text="#{radwb.toVerifyEmptySub}">No final reports awaiting sign-off</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

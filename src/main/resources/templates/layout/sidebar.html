@@ -142,6 +142,33 @@
                 </svg>
             </span> <span th:text="#{nav.labIntegration}">Lab Integration</span>
         </a>
+        <a sec:authorize="hasAuthority('PAGE_RAD_ORDERS')" th:classappend="${#strings.contains(requestURI, '/radiology-orders')} ? 'active' : ''" href="/radiology-orders">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+            </span> <span th:text="#{nav.radiologyOrders}">Radiology Orders</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_RAD_WORKBENCH')" th:classappend="${#strings.contains(requestURI, '/radiology-workbench')} ? 'active' : ''" href="/radiology-workbench">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+            </span> <span th:text="#{nav.radiologyWorkbench}">Radiology Workbench</span>
+        </a>
+        <a sec:authorize="hasAuthority('PAGE_RAD_CATALOG')" th:classappend="${#strings.contains(requestURI, '/radiology-catalog')} ? 'active' : ''" href="/radiology-catalog">
+            <span class="icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"></path>
+                    <line x1="9" y1="4" x2="9" y2="17"></line>
+                    <line x1="15" y1="7" x2="15" y2="20"></line>
+                </svg>
+            </span> <span th:text="#{nav.radiologyCatalog}">Radiology Catalog</span>
+        </a>
         <a sec:authorize="hasAuthority('PAGE_NOTIFICATIONS')" th:classappend="${#strings.contains(requestURI, '/notifications')} ? 'active' : ''" href="/notifications">
             <span class="icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
